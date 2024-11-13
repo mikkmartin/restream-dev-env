@@ -21,11 +21,11 @@ export const slowmo = { duration: 2 } satisfies ValueAnimationTransition
 export const bouncy = { type: 'spring', stiffness: 500, damping: 25, mass: 1 } satisfies ValueAnimationTransition
 export const smooth = { type: 'spring', stiffness: 500, damping: 60, mass: 1 } satisfies ValueAnimationTransition
 export const snappy = { type: 'spring', stiffness: 1600, damping: 100, mass: 0.5 } satisfies ValueAnimationTransition
-const transition = smooth
+const transition = snappy
 
 function Slider({ defaultValue = 50, max = 100, step = 1 }: SliderProps) {
   const xNormalizedProgress = useMotionValue(0.5)
-  const spring = useSpring(xNormalizedProgress, smooth)
+  const spring = useSpring(xNormalizedProgress, transition)
 
   return (
     <>

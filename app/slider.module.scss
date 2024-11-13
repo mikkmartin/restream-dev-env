@@ -1,8 +1,8 @@
 .temp {
   width: 32px;
-  height: 32px;
+  height: 100%;
   border-radius: 9999px;
-  border: 1px solid red;
+  background-color: rgba(255, 255, 255, 0.75);
 }
 
 .Root {
@@ -17,6 +17,7 @@
   user-select: none;
   touch-action: none;
   width: 100%;
+  min-width: 300px;
   height: 36px;
 
   .Track {
