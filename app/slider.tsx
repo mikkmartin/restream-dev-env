@@ -1,16 +1,25 @@
 import { Root, Track, Range, Thumb } from "@radix-ui/react-slider";
 import styles from './slider.module.scss'
 
-
 const SliderDemo = () => (
   <form>
     <Slider />
   </form>
 );
 
-function Slider() {
+type SliderProps = {
+  defaultValue?: number
+  max?: number
+  step?: number
+}
+
+function Slider({ defaultValue, max, step }: SliderProps) {
   return (
-    <Root className={styles.Root} defaultValue={[50]} max={100} step={1}>
+    <Root className={styles.Root}
+      defaultValue={[defaultValue || 50]}
+      max={max || 100}
+      step={step || 1}
+    >
       <Track className={styles.Track}>
         <Range className={styles.Range} />
       </Track>
