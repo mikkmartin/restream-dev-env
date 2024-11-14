@@ -6,10 +6,10 @@ import { useState } from "react";
 import styles from './slider.module.scss';
 
 const SliderDemo = () => (
-  <form style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
     <Slider step={10} label={(nr: number) => `${nr}%`} />
     <Slider />
-  </form>
+  </div>
 );
 
 type SliderProps = {
