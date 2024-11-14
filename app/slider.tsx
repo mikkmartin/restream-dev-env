@@ -1,7 +1,7 @@
 'use client'
 
 import { Root, Thumb, Track } from "@radix-ui/react-slider";
-import { clamp, motion, useMotionValue, useSpring, useTransform, ValueAnimationTransition } from 'framer-motion';
+import { clamp, motion, transform, useMotionValue, useSpring, useTransform, ValueAnimationTransition } from 'framer-motion';
 import { useState } from "react";
 import styles from './slider.module.scss';
 
@@ -20,10 +20,12 @@ type SliderProps = {
   label?: (nr: number) => string
 }
 
-export const slowmo = { duration: 2 } satisfies ValueAnimationTransition
-export const bouncy = { type: 'spring', stiffness: 500, damping: 25, mass: 1 } satisfies ValueAnimationTransition
-export const smooth = { type: 'spring', stiffness: 500, damping: 60, mass: 1 } satisfies ValueAnimationTransition
-export const snappy = { type: 'spring', stiffness: 2500, damping: 100, mass: 0.1 } satisfies ValueAnimationTransition
+const slowmo = { duration: 2 } satisfies ValueAnimationTransition
+const bouncy = { type: 'spring', stiffness: 500, damping: 25, mass: 1 } satisfies ValueAnimationTransition
+const smooth = { type: 'spring', stiffness: 500, damping: 60, mass: 1 } satisfies ValueAnimationTransition
+const snappy = { type: 'spring', stiffness: 2500, damping: 100, mass: 0.1 } satisfies ValueAnimationTransition
+
+const WIDTH_PADDING = 16
 
 function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: SliderProps) {
   const motionValue = useMotionValue(defaultValue)
@@ -34,7 +36,7 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
   const spring = useSpring(layeredProgress, snappy)
 
   function updateProgress(ev: React.PointerEvent<HTMLDivElement>) {
-    if (ev.buttons <= 0 || ev.target !== ev.currentTarget) return
+    if (ev.buttons <= 0 || ev.target === ev.currentTarget) return
     const { left, width } = ev.currentTarget.getBoundingClientRect()
     const overflow = ev.clientX - left
     xNormalizedProgress.set(overflow / width);
@@ -43,9 +45,6 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
   function valueToNormalized(value: number) {
     return (value - min) / (max - min)
   }
-
-  //temp
-  const [showThumb, setShowThumb] = useState(false)
 
   function getLabel() {
     if (typeof label === 'function') return useTransform(motionValue, label)
@@ -84,7 +83,9 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
           <motion.div
             className={styles.temp}
             style={{
-              width: useTransform(spring, (value: number) => `${clamp(0, 1, value) * 100}%`)
+              width: useTransform(spring, (v: number) =>
+                `calc(${clamp(0, 1, v) * 100}% + ${transform(clamp(0, 1, v), [0, 0.05, 0.95, 1], [0, WIDTH_PADDING / 2, WIDTH_PADDING / 2, 0])}px)`
+              )
             }}
           />
           <motion.div className={styles.label}>
