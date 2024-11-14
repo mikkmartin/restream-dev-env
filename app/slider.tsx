@@ -26,17 +26,18 @@ type SliderProps = {
   labelSuffix?: string
   disabled?: boolean
   icon?: React.ReactNode
+  'aria-label'?: string
 }
 
 const slowmo = { duration: 2 } satisfies ValueAnimationTransition
 const bouncy = { type: 'spring', stiffness: 500, damping: 25, mass: 1 } satisfies ValueAnimationTransition
 const smooth = { type: 'spring', stiffness: 500, damping: 60, mass: 1 } satisfies ValueAnimationTransition
-const snappy = { type: 'spring', stiffness: 2500, damping: 100, mass: 0.1 } satisfies ValueAnimationTransition
+const snappy = { type: 'spring', stiffness: 2500, damping: 20, mass: 0.01 }
 
 const WIDTH_PADDING = 16
 const falloffEasing = cubicBezier(1.000, 0.250, 0.100, 0.250)
 
-function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, labelSuffix, value: _value, icon }: SliderProps) {
+function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, labelSuffix, value: _value, icon, ...rest }: SliderProps) {
   const motionValue = useMotionValue(defaultValue)
   const xNormalizedProgress = useMotionValue(valueToNormalized(defaultValue))
   const steppedProgress = useMotionValue(valueToNormalized(defaultValue))
@@ -79,6 +80,14 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
       })
   }
 
+  function handleStopDragging() {
+    const clamped = clamp(0, 1, xNormalizedProgress.get())
+    const normalizedStep = step / max
+    const snapped = Math.round(clamped / normalizedStep) * normalizedStep
+    xNormalizedProgress.set(snapped)
+    isDragging.current = false
+  }
+
   const isDragging = useRef(false);
   const [value, setValue] = useState(_value ?? defaultValue);
 
@@ -114,13 +123,8 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
           updateProgress(ev)
         }}
         onPointerMove={ev => isDragging.current && updateProgress(ev)}
-        onPointerUp={() => {
-          const clamped = clamp(0, 1, xNormalizedProgress.get())
-          const normalizedStep = step / max
-          const snapped = Math.round(clamped / normalizedStep) * normalizedStep
-          xNormalizedProgress.set(snapped)
-          isDragging.current = false
-        }}
+        onPointerUp={handleStopDragging}
+        onPointerCancel={handleStopDragging}
       >
         <Track className={styles.Track}>
           <motion.div
@@ -139,7 +143,6 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
                 continuous
                 willChange
                 value={value}
-                format={{ notation: 'compact' }}
                 transformTiming={{ duration: 100 }}
                 opacityTiming={{ duration: 100 }}
                 spinTiming={{ duration: 100 }}
@@ -148,7 +151,7 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
             </span>
           </motion.div>
         </Track>
-        <Thumb className={styles.Thumb} aria-label="Volume" />
+        <Thumb className={styles.Thumb} aria-label={rest['aria-label']} />
       </SliderRoot>
       <pre className={styles.debug}>
         <span>xNormalizedProgress</span>

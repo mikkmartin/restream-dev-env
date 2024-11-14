@@ -63,7 +63,7 @@
   .icon {
     position: absolute;
     top: 0;
-    left: 8px;
+    left: 12px;
     height: 100%;
     display: flex;
     align-items: center;
@@ -95,7 +95,7 @@
     padding-right: 16px;
     color: white;
     opacity: 0.5;
-
+    pointer-events: none;
   }
 
   &:hover:not([data-disabled]) .label,
