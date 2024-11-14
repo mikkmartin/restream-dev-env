@@ -1,9 +1,9 @@
 'use client'
 
-import { Root, Track, Range, Thumb } from "@radix-ui/react-slider";
-import styles from './slider.module.scss'
-import { clamp, motion, useMotionValue, useSpring, useTransform, ValueAnimationTransition } from 'framer-motion'
-import { PointerEventHandler, useRef } from "react";
+import { Root, Thumb, Track } from "@radix-ui/react-slider";
+import { clamp, motion, useMotionValue, useSpring, useTransform, ValueAnimationTransition } from 'framer-motion';
+import { useState } from "react";
+import styles from './slider.module.scss';
 
 const SliderDemo = () => (
   <form>
@@ -13,6 +13,7 @@ const SliderDemo = () => (
 
 type SliderProps = {
   defaultValue?: number
+  min?: number
   max?: number
   step?: number
 }
@@ -20,9 +21,9 @@ type SliderProps = {
 export const slowmo = { duration: 2 } satisfies ValueAnimationTransition
 export const bouncy = { type: 'spring', stiffness: 500, damping: 25, mass: 1 } satisfies ValueAnimationTransition
 export const smooth = { type: 'spring', stiffness: 500, damping: 60, mass: 1 } satisfies ValueAnimationTransition
-export const snappy = { type: 'spring', stiffness: 1600, damping: 100, mass: 0.5 } satisfies ValueAnimationTransition
+export const snappy = { type: 'spring', stiffness: 2500, damping: 100, mass: 0.1 } satisfies ValueAnimationTransition
 
-function Slider({ defaultValue = 50, max = 100, step = 20 }: SliderProps) {
+function Slider({ defaultValue = 50, min = 0, max = 100, step = 20 }: SliderProps) {
   const motionValue = useMotionValue(0.5)
   const xNormalizedProgress = useMotionValue(0.5)
   const steppedProgress = useMotionValue(0.5)
@@ -37,11 +38,19 @@ function Slider({ defaultValue = 50, max = 100, step = 20 }: SliderProps) {
     xNormalizedProgress.set(overflow / width);
   }
 
+  function valueToNormalized(value: number) {
+    return (value - min) / (max - min)
+  }
+
+  //temp
+  const [showThumb, setShowThumb] = useState(false)
+
   return (
     <>
       <SliderRoot
         className={styles.Root}
         defaultValue={[defaultValue]}
+        min={min}
         max={max}
         step={step}
         style={{
@@ -52,8 +61,8 @@ function Slider({ defaultValue = 50, max = 100, step = 20 }: SliderProps) {
         }}
         onValueChange={(value) => {
           motionValue.set(value[0])
-          steppedProgress.set(value[0] / max)
-          xNormalizedProgress.set(value[0] / max)
+          steppedProgress.set(valueToNormalized(value[0]))
+          xNormalizedProgress.set(valueToNormalized(value[0]))
         }}
         onPointerDown={updateProgress}
         onPointerMove={updateProgress}
@@ -69,7 +78,9 @@ function Slider({ defaultValue = 50, max = 100, step = 20 }: SliderProps) {
             style={{
               width: useTransform(spring, (value: number) => `${clamp(0, 1, value) * 100}%`)
             }} className={styles.temp} />
-          {/* <Range className={styles.Range} /> */}
+          <motion.div className={styles.label}>
+            {motionValue}
+          </motion.div>
         </Track>
         <Thumb className={styles.Thumb} aria-label="Volume" />
       </SliderRoot>
@@ -78,6 +89,8 @@ function Slider({ defaultValue = 50, max = 100, step = 20 }: SliderProps) {
         <motion.span>{xNormalizedProgress}</motion.span>
         <span>motionValue</span>
         <motion.span>{motionValue}</motion.span>
+        <span>showThumb</span>
+        <input type="checkbox" checked={showThumb} onChange={(ev) => setShowThumb(ev.target.checked)} />
       </pre>
     </>
   )
