@@ -2,7 +2,7 @@
 
 import { Root, Thumb, Track } from "@radix-ui/react-slider";
 import { clamp, motion, transform, useMotionValue, useSpring, useTransform, ValueAnimationTransition, circOut, cubicBezier } from 'framer-motion';
-import { useState } from "react";
+import { useRef, useState } from "react";
 import styles from './slider.module.scss';
 
 const SliderDemo = () => (
@@ -76,6 +76,8 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
       })
   }
 
+  const isDragging = useRef(false);
+
   return (
     <>
       <SliderRoot
@@ -85,7 +87,7 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
         max={max}
         step={step}
         style={{
-          // x: useTransform(spring, (val: number) => val > 1 ? (val - 1) * 30 : val < 0 ? val * 30 : 1),
+          x: useTransform(spring, (val: number) => val > 1 ? (val - 1) * 3 : val < 0 ? val * 3 : 1),
           scaleX: useTransform(spring, (val: number) => val > 1 ? fallOffX(val) : val < 0 ? fallOffX(1 + -val) : 1),
           scaleY: useTransform(spring, (val: number) => val > 1 ? fallOffY(2 - val) : val > 0 ? 1 : fallOffY(1 + val)),
           transformOrigin: useTransform(spring, (val: number) => val > 0.5 ? 'left' : 'right'),
@@ -95,13 +97,17 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
           steppedProgress.set(valueToNormalized(value[0]))
           xNormalizedProgress.set(valueToNormalized(value[0]))
         }}
-        onPointerDown={updateProgress}
-        onPointerMove={updateProgress}
+        onPointerDown={ev => {
+          isDragging.current = true
+          updateProgress(ev)
+        }}
+        onPointerMove={ev => isDragging.current && updateProgress(ev)}
         onPointerUp={() => {
           const clamped = clamp(0, 1, xNormalizedProgress.get())
           const normalizedStep = step / max
           const snapped = Math.round(clamped / normalizedStep) * normalizedStep
           xNormalizedProgress.set(snapped)
+          isDragging.current = false
         }}
       >
         <Track className={styles.Track}>
