@@ -1,7 +1,7 @@
 'use client'
 
 import { Root, Thumb, Track } from "@radix-ui/react-slider";
-import { clamp, motion, transform, useMotionValue, useSpring, useTransform, ValueAnimationTransition } from 'framer-motion';
+import { clamp, motion, transform, useMotionValue, useSpring, useTransform, ValueAnimationTransition, circOut, cubicBezier } from 'framer-motion';
 import { useState } from "react";
 import styles from './slider.module.scss';
 
@@ -26,6 +26,7 @@ const smooth = { type: 'spring', stiffness: 500, damping: 60, mass: 1 } satisfie
 const snappy = { type: 'spring', stiffness: 2500, damping: 100, mass: 0.1 } satisfies ValueAnimationTransition
 
 const WIDTH_PADDING = 16
+const falloffEasing = cubicBezier(1.000, 0.250, 0.100, 0.250)
 
 function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: SliderProps) {
   const motionValue = useMotionValue(defaultValue)
@@ -51,6 +52,30 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
     return motionValue
   }
 
+  function fallOffX(val: number) {
+    const eased = transform(
+      val,
+      [1, 1.1],
+      [1, 1.015],
+      {
+        ease: (v) => Math.pow(v, 0.5),
+        clamp: false
+      }
+    )
+    if (val > 1) return eased
+    return eased * -1
+  }
+
+  function fallOffY(val: number) {
+    return transform(val,
+      [1, 0],
+      [1, 0.8],
+      {
+        ease: (v) => Math.pow(v, 0.5),
+        clamp: false
+      })
+  }
+
   return (
     <>
       <SliderRoot
@@ -60,9 +85,9 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
         max={max}
         step={step}
         style={{
-          x: useTransform(spring, (val: number) => val > 1 ? (val - 1) * 30 : val < 0 ? val * 30 : 1),
-          scaleX: useTransform(spring, (val: number) => val > 1 ? val : val < 0 ? 1 + -val : 1),
-          scaleY: useTransform(spring, (val: number) => val > 1 ? 1 + 1 - val : val > 0 ? 1 : 1 + val),
+          // x: useTransform(spring, (val: number) => val > 1 ? (val - 1) * 30 : val < 0 ? val * 30 : 1),
+          scaleX: useTransform(spring, (val: number) => val > 1 ? fallOffX(val) : val < 0 ? fallOffX(1 + -val) : 1),
+          scaleY: useTransform(spring, (val: number) => val > 1 ? fallOffY(2 - val) : val > 0 ? 1 : fallOffY(1 + val)),
           transformOrigin: useTransform(spring, (val: number) => val > 0.5 ? 'left' : 'right'),
         }}
         onValueChange={(value) => {
