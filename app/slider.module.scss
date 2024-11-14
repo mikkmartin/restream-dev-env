@@ -5,12 +5,15 @@
   background-color: rgba(255, 255, 255, 0.75);
 }
 
-.Root {
-  --black-a10: #111111;
-  --black-a7: rgba(0, 0, 0, 0.7);
-  --violet-3: rgba(219, 213, 255, 1);
-  --black-a8: rgba(0, 0, 0, 0.8);
+.debug {
+  margin-top: 1rem;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
 
+.Root {
   position: relative;
   display: flex;
   align-items: center;
@@ -19,9 +22,10 @@
   width: 100%;
   min-width: 300px;
   height: 36px;
+  border-radius: 9999px;
 
   .Track {
-    background-color: rgba(255, 0, 0, 0.25);
+    background-color: rgba(0, 0, 0, 0.25);
     position: relative;
     flex-grow: 1;
     height: 100%;
