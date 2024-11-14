@@ -34,7 +34,7 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
   const spring = useSpring(layeredProgress, snappy)
 
   function updateProgress(ev: React.PointerEvent<HTMLDivElement>) {
-    if (ev.buttons <= 0) return
+    if (ev.buttons <= 0 || ev.target !== ev.currentTarget) return
     const { left, width } = ev.currentTarget.getBoundingClientRect()
     const overflow = ev.clientX - left
     xNormalizedProgress.set(overflow / width);
