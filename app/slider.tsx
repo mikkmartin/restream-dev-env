@@ -6,7 +6,8 @@ import { useState } from "react";
 import styles from './slider.module.scss';
 
 const SliderDemo = () => (
-  <form>
+  <form style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+    <Slider step={10} label={(nr: number) => `${nr}%`} />
     <Slider />
   </form>
 );
@@ -16,6 +17,7 @@ type SliderProps = {
   min?: number
   max?: number
   step?: number
+  label?: (nr: number) => string
 }
 
 export const slowmo = { duration: 2 } satisfies ValueAnimationTransition
@@ -23,10 +25,10 @@ export const bouncy = { type: 'spring', stiffness: 500, damping: 25, mass: 1 } s
 export const smooth = { type: 'spring', stiffness: 500, damping: 60, mass: 1 } satisfies ValueAnimationTransition
 export const snappy = { type: 'spring', stiffness: 2500, damping: 100, mass: 0.1 } satisfies ValueAnimationTransition
 
-function Slider({ defaultValue = 50, min = 0, max = 100, step = 20 }: SliderProps) {
-  const motionValue = useMotionValue(0.5)
-  const xNormalizedProgress = useMotionValue(0.5)
-  const steppedProgress = useMotionValue(0.5)
+function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: SliderProps) {
+  const motionValue = useMotionValue(defaultValue)
+  const xNormalizedProgress = useMotionValue(valueToNormalized(defaultValue))
+  const steppedProgress = useMotionValue(valueToNormalized(defaultValue))
 
   const layeredProgress = useTransform(xNormalizedProgress, (val: number) => (val + steppedProgress.get()) / 2)
   const spring = useSpring(layeredProgress, snappy)
@@ -44,6 +46,11 @@ function Slider({ defaultValue = 50, min = 0, max = 100, step = 20 }: SliderProp
 
   //temp
   const [showThumb, setShowThumb] = useState(false)
+
+  function getLabel() {
+    if (typeof label === 'function') return useTransform(motionValue, label)
+    return motionValue
+  }
 
   return (
     <>
@@ -75,11 +82,13 @@ function Slider({ defaultValue = 50, min = 0, max = 100, step = 20 }: SliderProp
       >
         <Track className={styles.Track}>
           <motion.div
+            className={styles.temp}
             style={{
               width: useTransform(spring, (value: number) => `${clamp(0, 1, value) * 100}%`)
-            }} className={styles.temp} />
+            }}
+          />
           <motion.div className={styles.label}>
-            {motionValue}
+            {getLabel()}
           </motion.div>
         </Track>
         <Thumb className={styles.Thumb} aria-label="Volume" />
@@ -89,8 +98,6 @@ function Slider({ defaultValue = 50, min = 0, max = 100, step = 20 }: SliderProp
         <motion.span>{xNormalizedProgress}</motion.span>
         <span>motionValue</span>
         <motion.span>{motionValue}</motion.span>
-        <span>showThumb</span>
-        <input type="checkbox" checked={showThumb} onChange={(ev) => setShowThumb(ev.target.checked)} />
       </pre>
     </>
   )
