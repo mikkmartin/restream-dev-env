@@ -69,9 +69,9 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
   function fallOffY(val: number) {
     return transform(val,
       [1, 0],
-      [1, 0.8],
+      [1, 0.9],
       {
-        ease: (v) => Math.pow(v, 0.5),
+        ease: (v) => Math.pow(v, 1),
         clamp: false
       })
   }
