@@ -17,6 +17,8 @@ const SliderDemo = () => (
   </div>
 );
 
+
+
 type SliderProps = {
   value?: number
   defaultValue?: number
