@@ -12,6 +12,8 @@ const SliderDemo = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
     <Slider step={10} icon={<MoveDiagonal />} labelSuffix="%" />
     <Slider icon={<CurveIcon />} />
+    <Slider disabled icon={<MoveDiagonal />} />
+    <Slider />
   </div>
 );
 
@@ -22,6 +24,7 @@ type SliderProps = {
   max?: number
   step?: number
   labelSuffix?: string
+  disabled?: boolean
   icon?: React.ReactNode
 }
 
@@ -33,7 +36,7 @@ const snappy = { type: 'spring', stiffness: 2500, damping: 100, mass: 0.1 } sati
 const WIDTH_PADDING = 16
 const falloffEasing = cubicBezier(1.000, 0.250, 0.100, 0.250)
 
-function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, labelSuffix, value: _value, icon }: SliderProps) {
+function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, labelSuffix, value: _value, icon }: SliderProps) {
   const motionValue = useMotionValue(defaultValue)
   const xNormalizedProgress = useMotionValue(valueToNormalized(defaultValue))
   const steppedProgress = useMotionValue(valueToNormalized(defaultValue))
@@ -91,6 +94,7 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, labelSuffix, 
         min={min}
         max={max}
         step={step}
+        disabled={disabled}
         style={{
           x: useTransform(spring, (val: number) => val > 1 ? (val - 1) * 3 : val < 0 ? val * 3 : 1),
           scaleX: useTransform(spring, (val: number) => val > 1 ? fallOffX(val) : val < 0 ? fallOffX(1 + -val) : 1),
@@ -105,6 +109,7 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, labelSuffix, 
           xNormalizedProgress.set(valueToNormalized(value[0]))
         }}
         onPointerDown={ev => {
+          if (disabled) return
           isDragging.current = true
           updateProgress(ev)
         }}

@@ -9,6 +9,7 @@
 .Root {
   --border-radius: 6px;
   --padding: 2px;
+  --disabled: [data-disabled];
 
   position: relative;
   display: flex;
@@ -21,12 +22,8 @@
   touch-action: none;
   border-radius: var(--border-radius);
 
-  &:active {
+  &:active:not([data-disabled]) {
     cursor: grabbing;
-
-    .Thumb {
-      cursor: grabbing;
-    }
   }
 
   &:has(:focus-visible) {
@@ -41,6 +38,73 @@
     height: 100%;
     padding: var(--padding);
     border-radius: var(--border-radius);
+  }
+
+  &[data-disabled] {
+    opacity: 0.5;
+  }
+
+  .Thumb {
+    display: block;
+    width: 20px;
+    height: 60px;
+    cursor: grab;
+
+    &:focus-visible {
+      outline: none;
+    }
+
+  }
+
+  &[data-disabled] .Thumb {
+    cursor: default;
+  }
+
+  .icon {
+    position: absolute;
+    top: 0;
+    left: 8px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0.5;
+
+    >svg {
+      stroke-width: 1.5px;
+    }
+  }
+
+  &:hover:not([data-disabled]) .icon {
+    opacity: 1;
+  }
+
+  [data-disabled] & {
+    opacity: 0.3;
+  }
+
+  .label {
+    position: absolute;
+    top: 0;
+    right: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-right: 16px;
+    color: white;
+    opacity: 0.5;
+
+  }
+
+  &:hover:not([data-disabled]) .label,
+  &:focus-within:not([data-disabled]) .label {
+    opacity: 1;
+  }
+
+  [data-disabled] & {
+    opacity: 0.3;
   }
 
   .temp {
@@ -62,81 +126,20 @@
     }
   }
 
-  &:hover,
-  &:focus-within {
-    .temp {
-      background-color: rgba(255, 255, 255, 0.25);
+  :hover:not([data-disabled]) .temp,
+  :focus-within:not([data-disabled]) .temp {
+    background-color: rgba(255, 255, 255, 0.25);
 
-      &::after {
-        background-color: rgba(255, 255, 255, 0.8);
-      }
+    &::after {
+      background-color: rgba(255, 255, 255, 0.8);
     }
   }
 
-  .Range {
-    position: absolute;
-    background-color: var(--violet-3);
-    height: 100%;
-  }
+  [data-disabled] & {
+    background-color: rgba(255, 255, 255, 0.1);
 
-  .Thumb {
-    display: block;
-    width: 20px;
-    height: 60px;
-    cursor: grab;
-
-    &:focus-visible {
-      outline: none;
-    }
-  }
-
-  &:disabled {
-    .Thumb {
-      background-color: rgba(255, 0, 0, 0.1);
-      pointer-events: none;
-    }
-  }
-
-  .icon {
-    position: absolute;
-    top: 0;
-    left: 8px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    opacity: 0.5;
-
-    >svg {
-      stroke-width: 1.5px;
-    }
-  }
-
-  &:hover,
-  &:focus-within {
-    .icon {
-      opacity: 1;
-    }
-  }
-
-  .label {
-    position: absolute;
-    top: 0;
-    right: 0;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    padding-right: 16px;
-    color: white;
-    opacity: 0.5;
-  }
-
-  &:hover,
-  &:focus-within {
-    .label {
-      opacity: 1;
+    &::after {
+      background-color: rgba(255, 255, 255, 0.2);
     }
   }
 }
