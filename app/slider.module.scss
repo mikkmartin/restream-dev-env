@@ -97,6 +97,29 @@
     }
   }
 
+  .icon {
+    position: absolute;
+    top: 0;
+    left: 8px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    opacity: 0.5;
+
+    >svg {
+      stroke-width: 1.5px;
+    }
+  }
+
+  &:hover,
+  &:focus-within {
+    .icon {
+      opacity: 1;
+    }
+  }
+
   .label {
     position: absolute;
     top: 0;

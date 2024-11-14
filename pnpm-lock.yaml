@@ -8,12 +8,18 @@ importers:
 
   .:
     dependencies:
+      '@number-flow/react':
+        specifier: ^0.3.1
+        version: 0.3.1(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
       '@radix-ui/react-slider':
         specifier: ^1.2.1
         version: 1.2.1(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
       framer-motion:
         specifier: ^11.11.13
         version: 11.11.13(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)
+      lucide-react:
+        specifier: ^0.456.0
+        version: 0.456.0(react@19.0.0-rc-66855b96-20241106)
       next:
         specifier: 15.0.3
         version: 15.0.3(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)(sass@1.80.7)
@@ -200,6 +206,12 @@ packages:
     engines: {node: '>= 10'}
     cpu: [x64]
     os: [win32]
+
+  '@number-flow/react@0.3.1':
+    resolution: {integrity: sha512-uEh9zGkteHNm4MvTSPRFaQSIQpcJqCZjypQBw27UEcfo1dxxOC+X5Wg/eJswy5juPWpbM5A+lq7JXz8X7KmJjA==}
+    peerDependencies:
+      react: ^18 || ^19.0.0-rc-915b914b3a-20240515
+      react-dom: ^18
 
   '@parcel/watcher-android-arm64@2.5.0':
     resolution: {integrity: sha512-qlX4eS28bUcQCdribHkg/herLe+0A9RyYC+mm2PXpncit8z5b3nSqGVzMNR3CmtAOgRutiZ02eIJJgP/b1iEFQ==}
@@ -516,6 +528,11 @@ packages:
     resolution: {integrity: sha512-41Cifkg6e8TylSpdtTpeLVMqvSBEVzTttHvERD741+pnZ8ANv0004MRL43QKPDlK9cGvNp6NZWZUBlbGXYxxng==}
     engines: {node: '>=0.12.0'}
 
+  lucide-react@0.456.0:
+    resolution: {integrity: sha512-DIIGJqTT5X05sbAsQ+OhA8OtJYyD4NsEMCA/HQW/Y6ToPQ7gwbtujIoeAaup4HpHzV35SQOarKAWH8LYglB6eA==}
+    peerDependencies:
+      react: ^16.5.1 || ^17.0.0 || ^18.0.0 || ^19.0.0-rc
+
   micromatch@4.0.8:
     resolution: {integrity: sha512-PXwfBhYu0hBCPw8Dn0E+WDYb7af3dSLVWKi3HGv84IdF4TyFoC0ysxFd0Goxw7nSv4T/PzEJQxsYsEiFCKo2BA==}
     engines: {node: '>=8.6'}
@@ -548,6 +565,9 @@ packages:
 
   node-addon-api@7.1.1:
     resolution: {integrity: sha512-5m3bsyrjFWE1xf7nz7YXdN4udnVtXK6/Yfgn5qnahL6bCkf2yKt4k3nuTKAtT4r3IG8JNR2ncsIMdZuAzJjHQQ==}
+
+  number-flow@0.3.6:
+    resolution: {integrity: sha512-EKT4Z0/h68rrappc4ehU5mj4kFDIav0H9+QI7Xqz8IQ9Q4xbjvh5RpY784VXsVFkiypn3Nq8BSXCD87MwDmznQ==}
 
   picocolors@1.1.1:
     resolution: {integrity: sha512-xceH2snhtb5M9liqDsmEw56le376mTZkEX/jEb/RxNFyegNul7eNslCXP9FDj/Lcu0X8KEyMceP2ntpaHrDEVA==}
@@ -736,6 +756,12 @@ snapshots:
 
   '@next/swc-win32-x64-msvc@15.0.3':
     optional: true
+
+  '@number-flow/react@0.3.1(react-dom@19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106))(react@19.0.0-rc-66855b96-20241106)':
+    dependencies:
+      number-flow: 0.3.6
+      react: 19.0.0-rc-66855b96-20241106
+      react-dom: 19.0.0-rc-66855b96-20241106(react@19.0.0-rc-66855b96-20241106)
 
   '@parcel/watcher-android-arm64@2.5.0':
     optional: true
@@ -999,6 +1025,10 @@ snapshots:
   is-number@7.0.0:
     optional: true
 
+  lucide-react@0.456.0(react@19.0.0-rc-66855b96-20241106):
+    dependencies:
+      react: 19.0.0-rc-66855b96-20241106
+
   micromatch@4.0.8:
     dependencies:
       braces: 3.0.3
@@ -1035,6 +1065,8 @@ snapshots:
 
   node-addon-api@7.1.1:
     optional: true
+
+  number-flow@0.3.6: {}
 
   picocolors@1.1.1: {}
 

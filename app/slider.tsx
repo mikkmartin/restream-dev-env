@@ -2,22 +2,27 @@
 
 import { Root, Thumb, Track } from "@radix-ui/react-slider";
 import { clamp, motion, transform, useMotionValue, useSpring, useTransform, ValueAnimationTransition, circOut, cubicBezier } from 'framer-motion';
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import styles from './slider.module.scss';
+import NumberFlow from "@number-flow/react";
+import { MoveDiagonal } from 'lucide-react';
+
 
 const SliderDemo = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-    <Slider step={10} label={(nr: number) => `${nr}%`} />
-    <Slider />
+    <Slider step={10} icon={<MoveDiagonal />} labelSuffix="%" />
+    <Slider icon={<CurveIcon />} />
   </div>
 );
 
 type SliderProps = {
+  value?: number
   defaultValue?: number
   min?: number
   max?: number
   step?: number
-  label?: (nr: number) => string
+  labelSuffix?: string
+  icon?: React.ReactNode
 }
 
 const slowmo = { duration: 2 } satisfies ValueAnimationTransition
@@ -28,7 +33,7 @@ const snappy = { type: 'spring', stiffness: 2500, damping: 100, mass: 0.1 } sati
 const WIDTH_PADDING = 16
 const falloffEasing = cubicBezier(1.000, 0.250, 0.100, 0.250)
 
-function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: SliderProps) {
+function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, labelSuffix, value: _value, icon }: SliderProps) {
   const motionValue = useMotionValue(defaultValue)
   const xNormalizedProgress = useMotionValue(valueToNormalized(defaultValue))
   const steppedProgress = useMotionValue(valueToNormalized(defaultValue))
@@ -45,11 +50,6 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
 
   function valueToNormalized(value: number) {
     return (value - min) / (max - min)
-  }
-
-  function getLabel() {
-    if (typeof label === 'function') return useTransform(motionValue, label)
-    return motionValue
   }
 
   function fallOffX(val: number) {
@@ -77,6 +77,11 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
   }
 
   const isDragging = useRef(false);
+  const [value, setValue] = useState(_value ?? defaultValue);
+
+  useEffect(() => {
+    setValue(_value ?? defaultValue)
+  }, [_value])
 
   return (
     <>
@@ -92,8 +97,10 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
           scaleY: useTransform(spring, (val: number) => val > 1 ? fallOffY(2 - val) : val > 0 ? 1 : fallOffY(1 + val)),
           transformOrigin: useTransform(spring, (val: number) => val > 0.5 ? 'left' : 'right'),
         }}
+        value={[value]}
         onValueChange={(value) => {
           motionValue.set(value[0])
+          setValue(value[0])
           steppedProgress.set(valueToNormalized(value[0]))
           xNormalizedProgress.set(valueToNormalized(value[0]))
         }}
@@ -119,8 +126,21 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
               )
             }}
           />
+          {icon && <div className={styles.icon}>{icon}</div>}
           <motion.div className={styles.label}>
-            {getLabel()}
+            <span>
+              <NumberFlow
+                trend
+                continuous
+                willChange
+                value={value}
+                format={{ notation: 'compact' }}
+                transformTiming={{ duration: 100 }}
+                opacityTiming={{ duration: 100 }}
+                spinTiming={{ duration: 100 }}
+              />
+              {labelSuffix}
+            </span>
           </motion.div>
         </Track>
         <Thumb className={styles.Thumb} aria-label="Volume" />
@@ -130,8 +150,18 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, label }: Slid
         <motion.span>{xNormalizedProgress}</motion.span>
         <span>motionValue</span>
         <motion.span>{motionValue}</motion.span>
+        <span>value</span>
+        <motion.span>{value}</motion.span>
       </pre>
     </>
+  )
+}
+
+export function CurveIcon() {
+  return (
+    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M17 7.0003C17 7.0003 15.5 7 12 7.0003C8.5 7.0006 7 9 7 12.0003C7 15.0006 7 17.0003 7 17.0003" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
   )
 }
 
