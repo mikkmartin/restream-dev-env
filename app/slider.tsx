@@ -1,22 +1,22 @@
 'use client'
 
-import { Root, Thumb, Track } from "@radix-ui/react-slider";
-import { clamp, motion, transform, useMotionValue, useSpring, useTransform, ValueAnimationTransition, circOut, cubicBezier } from 'framer-motion';
-import { useEffect, useRef, useState } from "react";
-import styles from './slider.module.scss';
 import NumberFlow from "@number-flow/react";
+import { Root, Thumb, Track } from "@radix-ui/react-slider";
+import { clamp, motion, transform, useMotionValue, useSpring, useTransform, ValueAnimationTransition } from 'framer-motion';
 import { MoveDiagonal } from 'lucide-react';
+import { useEffect, useMemo, useRef, useState } from "react";
+import useMeasure from 'react-use-measure';
+import styles from './slider.module.scss';
 
 
 const SliderDemo = () => (
   <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-    <Slider step={10} icon={<MoveDiagonal />} labelSuffix="%" />
+    <Slider value={90} step={10} icon={<MoveDiagonal />} labelSuffix="%" />
     <Slider icon={<CurveIcon />} />
     <Slider disabled icon={<MoveDiagonal />} />
     <Slider />
   </div>
 );
-
 
 
 type SliderProps = {
@@ -37,12 +37,12 @@ const smooth = { type: 'spring', stiffness: 500, damping: 60, mass: 1 } satisfie
 const snappy = { type: 'spring', stiffness: 2500, damping: 20, mass: 0.01 }
 
 const WIDTH_PADDING = 16
-const falloffEasing = cubicBezier(1.000, 0.250, 0.100, 0.250)
 
 function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, labelSuffix, value: _value, icon, ...rest }: SliderProps) {
-  const motionValue = useMotionValue(defaultValue)
-  const xNormalizedProgress = useMotionValue(valueToNormalized(defaultValue))
-  const steppedProgress = useMotionValue(valueToNormalized(defaultValue))
+  const initialValue = _value ?? defaultValue
+  const initialXNormalizedProgress = valueToNormalized(initialValue)
+  const xNormalizedProgress = useMotionValue(initialXNormalizedProgress)
+  const steppedProgress = useMotionValue(initialXNormalizedProgress)
 
   const layeredProgress = useTransform(xNormalizedProgress, (val: number) => (val + steppedProgress.get()) / 2)
   const spring = useSpring(layeredProgress, snappy)
@@ -97,6 +97,25 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
     setValue(_value ?? defaultValue)
   }, [_value])
 
+  const [barRef, barSize] = useMeasure();
+  const [iconRef, iconSize] = useMeasure();
+  const [labelRef, labelSize] = useMeasure();
+
+  const obstuctedPixels = useMemo(() => {
+    return [iconSize, labelSize].reduce<[number, number][]>((acc, el, i) => {
+      const PADDING = 2
+      const { left, width } = el
+      const startPixel = left - barSize.left - PADDING
+      const endPixel = startPixel + width + PADDING
+      return [...acc, [startPixel, endPixel]]
+    }, [])
+  }, [barSize, iconSize, labelSize])
+
+  const knobOpacity = useTransform(spring, (normalizedValue: number) => {
+    const val = normalizedValue * (barSize.width ?? 0)
+    return obstuctedPixels.some(([start, end]) => val > start && val < end) ? 0 : 1
+  })
+
   return (
     <>
       <SliderRoot
@@ -106,6 +125,7 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
         max={max}
         step={step}
         disabled={disabled}
+        ref={barRef}
         style={{
           x: useTransform(spring, (val: number) => val > 1 ? (val - 1) * 3 : val < 0 ? val * 3 : 1),
           scaleX: useTransform(spring, (val: number) => val > 1 ? fallOffX(val) : val < 0 ? fallOffX(1 + -val) : 1),
@@ -114,7 +134,6 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
         }}
         value={[value]}
         onValueChange={(value) => {
-          motionValue.set(value[0])
           setValue(value[0])
           steppedProgress.set(valueToNormalized(value[0]))
           xNormalizedProgress.set(valueToNormalized(value[0]))
@@ -132,13 +151,14 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
           <motion.div
             className={styles.temp}
             style={{
+              ['--track-opacity' as string]: knobOpacity,
               width: useTransform(spring, (v: number) =>
                 `calc(${clamp(0, 1, v) * 100}% + ${transform(clamp(0, 1, v), [0, 0.05, 0.95, 1], [0, WIDTH_PADDING / 2, WIDTH_PADDING / 2, 0])}px)`
               )
             }}
           />
-          {icon && <div className={styles.icon}>{icon}</div>}
-          <motion.div className={styles.label}>
+          {icon && <div ref={iconRef} className={styles.icon}>{icon}</div>}
+          <motion.div ref={labelRef} className={styles.label}>
             <span>
               <NumberFlow
                 trend
@@ -158,8 +178,6 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
       <pre className={styles.debug}>
         <span>xNormalizedProgress</span>
         <motion.span>{xNormalizedProgress}</motion.span>
-        <span>motionValue</span>
-        <motion.span>{motionValue}</motion.span>
         <span>value</span>
         <motion.span>{value}</motion.span>
       </pre>
