@@ -13,8 +13,8 @@ const SliderDemo = () => {
   const [value, setValue] = useState(20)
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-      <Slider value={value} onValueChange={setValue} step={10} icon={<MoveDiagonal />} labelSuffix="%" />
-      <Slider icon={<CurveIcon />} />
+      <Slider step={10} icon={<MoveDiagonal />} labelSuffix="%" />
+      <Slider value={value} onValueChange={setValue} icon={<CurveIcon />} />
       <Slider disabled icon={<MoveDiagonal />} />
       <Slider value={value} onValueChange={setValue} />
     </div >
@@ -123,7 +123,7 @@ function Slider({ defaultValue = 50, min = 0, max = 100, step = 1, disabled, lab
   return (
     <>
       <SliderRoot
-        className={styles.Root}
+        className={styles.root}
         defaultValue={[defaultValue]}
         min={min}
         max={max}
@@ -152,7 +152,7 @@ function Slider({ defaultValue = 50, min = 0, max = 100, step = 1, disabled, lab
         onPointerUp={handleStopDragging}
         onPointerCancel={handleStopDragging}
       >
-        <Track className={styles.Track}>
+        <Track className={styles.track}>
           <motion.div
             className={styles.bar}
             style={{
@@ -190,7 +190,7 @@ function Slider({ defaultValue = 50, min = 0, max = 100, step = 1, disabled, lab
             </span>
           </motion.div>
         </Track>
-        <Thumb className={styles.Thumb} aria-label={rest['aria-label']} />
+        <Thumb className={styles.thumb} aria-label={rest['aria-label']} />
       </SliderRoot>
       <pre className={styles.debug}>
         <span>xNormalizedProgress</span>

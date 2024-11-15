@@ -1,12 +1,12 @@
 .debug {
-  margin-top: 1rem;
+  margin-bottom: 1rem;
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 4px;
   font-variant-numeric: tabular-nums;
 }
 
-.Root {
+.root {
   --border-radius: 12px;
   --padding: 0px;
   --disabled: [data-disabled];
@@ -31,7 +31,7 @@
     outline: .5px solid rgba(255, 255, 255, 0.2);
   }
 
-  .Track {
+  .track {
     background-color: rgba(0, 0, 0, 0.25);
     position: relative;
     flex-grow: 1;
@@ -45,7 +45,7 @@
     opacity: 0.5;
   }
 
-  .Thumb {
+  .thumb {
     display: block;
     width: 20px;
     height: 60px;
