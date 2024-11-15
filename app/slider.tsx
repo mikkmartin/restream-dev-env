@@ -9,19 +9,23 @@ import useMeasure from 'react-use-measure';
 import styles from './slider.module.scss';
 
 
-const SliderDemo = () => (
-  <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-    <Slider value={90} step={10} icon={<MoveDiagonal />} labelSuffix="%" />
-    <Slider icon={<CurveIcon />} />
-    <Slider disabled icon={<MoveDiagonal />} />
-    <Slider />
-  </div>
-);
+const SliderDemo = () => {
+  const [value, setValue] = useState(20)
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
+      <Slider value={value} onValueChange={setValue} step={10} icon={<MoveDiagonal />} labelSuffix="%" />
+      <Slider icon={<CurveIcon />} />
+      <Slider disabled icon={<MoveDiagonal />} />
+      <Slider value={value} onValueChange={setValue} />
+    </div >
+  )
+};
 
 
 type SliderProps = {
   value?: number
   defaultValue?: number
+  onValueChange?: (value: number) => void
   min?: number
   max?: number
   step?: number
@@ -38,8 +42,10 @@ const snappy = { type: 'spring', stiffness: 1000, damping: 20, mass: 0.01 }
 
 const KNOB_OFFSET = -10
 
-function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, labelSuffix, value: _value, icon, ...rest }: SliderProps) {
+function Slider({ defaultValue = 50, min = 0, max = 100, step = 1, disabled, labelSuffix, value: _value, icon, onValueChange, ...rest }: SliderProps) {
   const initialValue = _value ?? defaultValue
+  const [value, setValue] = useState(initialValue);
+
   const initialXNormalizedProgress = valueToNormalized(initialValue)
   const xNormalizedProgress = useMotionValue(initialXNormalizedProgress)
   const steppedProgress = useMotionValue(initialXNormalizedProgress)
@@ -91,10 +97,12 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
   }
 
   const isDragging = useRef(false);
-  const [value, setValue] = useState(_value ?? defaultValue);
 
   useEffect(() => {
+
     setValue(_value ?? defaultValue)
+    steppedProgress.set(valueToNormalized(_value ?? defaultValue))
+    xNormalizedProgress.set(valueToNormalized(_value ?? defaultValue))
   }, [_value])
 
   const [barRef, barSize] = useMeasure();
@@ -133,6 +141,7 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
           setValue(value[0])
           steppedProgress.set(valueToNormalized(value[0]))
           xNormalizedProgress.set(valueToNormalized(value[0]))
+          onValueChange?.(value[0])
         }}
         onPointerDown={ev => {
           if (disabled) return
