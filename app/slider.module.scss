@@ -8,7 +8,7 @@
 
 .Root {
   --border-radius: 12px;
-  --padding: 2px;
+  --padding: 0px;
   --disabled: [data-disabled];
 
   position: relative;
@@ -38,6 +38,7 @@
     height: 100%;
     padding: var(--padding);
     border-radius: var(--border-radius);
+    overflow: hidden;
   }
 
   &[data-disabled] {
@@ -63,21 +64,23 @@
   .icon {
     position: absolute;
     top: 0;
-    left: 12px;
+    left: 14px;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
     color: white;
     opacity: 0.5;
+    // border: 1px solid yellow;
 
     >svg {
       stroke-width: 1.5px;
     }
   }
 
-  &:hover:not([data-disabled]) .icon {
-    opacity: 1;
+  &:hover:not([data-disabled]) .icon,
+  &:focus-within .icon {
+    opacity: 0.8;
   }
 
   [data-disabled] & {
@@ -87,62 +90,55 @@
   .label {
     position: absolute;
     top: 0;
-    right: 0;
+    right: 14px;
+    padding: 2px;
     height: 100%;
     display: flex;
     align-items: center;
     justify-content: center;
-    padding-right: 16px;
     color: white;
     opacity: 0.5;
     pointer-events: none;
+    // border: 1px solid yellow;
   }
 
   &:hover:not([data-disabled]) .label,
   &:focus-within:not([data-disabled]) .label {
-    opacity: 1;
+    opacity: 0.8;
   }
 
   [data-disabled] & {
     opacity: 0.3;
   }
 
-  .temp {
-    width: 32px;
+  .bar {
     height: 100%;
     border-radius: calc(var(--border-radius) - var(--padding));
     background-color: rgba(255, 255, 255, 0.2);
     display: flex;
     align-items: center;
     justify-content: end;
-
-    &::after {
-      content: '';
-      display: block;
-      width: 2px;
-      height: 60%;
-      margin-right: 8px;
-      background-color: rgba(255, 255, 255, 0.3);
-      opacity: var(--track-opacity);
-      transform: scaleY(calc(1.5 + var(--track-opacity) * -.5));
-      transition: all 0.075s ease-in-out;
-    }
+    position: relative;
   }
 
-  :hover:not([data-disabled]) .temp,
-  :focus-within:not([data-disabled]) .temp {
+  &:hover:not([data-disabled]) .bar,
+  &:focus-within:not([data-disabled]) .bar {
     background-color: rgba(255, 255, 255, 0.25);
-
-    &::after {
-      background-color: rgba(255, 255, 255, 0.8);
-    }
   }
 
-  [data-disabled] & {
-    background-color: rgba(255, 255, 255, 0.1);
+  .knob {
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 0;
+    width: 2px;
+    border-radius: 1px;
+    background-color: rgba(255, 255, 255, 0.25);
+    transition: opacity 0.1s ease-in-out;
+  }
 
-    &::after {
-      background-color: rgba(255, 255, 255, 0.2);
-    }
+  &:hover:not([data-disabled]) .knob,
+  &:focus-within:not([data-disabled]) .knob {
+    background-color: rgba(255, 255, 255, 1);
   }
 }

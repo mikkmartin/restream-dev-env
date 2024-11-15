@@ -34,9 +34,9 @@ type SliderProps = {
 const slowmo = { duration: 2 } satisfies ValueAnimationTransition
 const bouncy = { type: 'spring', stiffness: 500, damping: 25, mass: 1 } satisfies ValueAnimationTransition
 const smooth = { type: 'spring', stiffness: 500, damping: 60, mass: 1 } satisfies ValueAnimationTransition
-const snappy = { type: 'spring', stiffness: 2500, damping: 20, mass: 0.01 }
+const snappy = { type: 'spring', stiffness: 1000, damping: 20, mass: 0.01 }
 
-const WIDTH_PADDING = 16
+const KNOB_OFFSET = -10
 
 function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, labelSuffix, value: _value, icon, ...rest }: SliderProps) {
   const initialValue = _value ?? defaultValue
@@ -102,19 +102,15 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
   const [labelRef, labelSize] = useMeasure();
 
   const obstuctedPixels = useMemo(() => {
-    return [iconSize, labelSize].reduce<[number, number][]>((acc, el, i) => {
-      const PADDING = 2
+    return [iconSize, labelSize].reduce<[number, number][]>((acc, el) => {
+      if (el.width === 0) return acc
+      const PADDING = 4
       const { left, width } = el
-      const startPixel = left - barSize.left - PADDING
+      const startPixel = left - barSize.left - KNOB_OFFSET - PADDING
       const endPixel = startPixel + width + PADDING
       return [...acc, [startPixel, endPixel]]
     }, [])
   }, [barSize, iconSize, labelSize])
-
-  const knobOpacity = useTransform(spring, (normalizedValue: number) => {
-    const val = normalizedValue * (barSize.width ?? 0)
-    return obstuctedPixels.some(([start, end]) => val > start && val < end) ? 0 : 1
-  })
 
   return (
     <>
@@ -149,12 +145,24 @@ function Slider({ defaultValue = 40, min = 0, max = 100, step = 1, disabled, lab
       >
         <Track className={styles.Track}>
           <motion.div
-            className={styles.temp}
+            className={styles.bar}
             style={{
-              ['--track-opacity' as string]: knobOpacity,
               width: useTransform(spring, (v: number) =>
-                `calc(${clamp(0, 1, v) * 100}% + ${transform(clamp(0, 1, v), [0, 0.05, 0.95, 1], [0, WIDTH_PADDING / 2, WIDTH_PADDING / 2, 0])}px)`
-              )
+                `calc(${clamp(0, 1, v) * 100}%`
+              ),
+            }}
+          />
+          <motion.div
+            className={styles.knob}
+            style={{
+              x: useTransform(spring, (normalizedValue: number) => {
+                const v = normalizedValue * (barSize.width ?? 0)
+                return v <= 20 ? KNOB_OFFSET * -1 : v >= barSize.width ? barSize.width + KNOB_OFFSET : v + KNOB_OFFSET
+              }),
+              opacity: useTransform(spring, (normalizedValue: number) => {
+                const val = normalizedValue * (barSize.width ?? 0)
+                return obstuctedPixels.some(([start, end]) => val > start && val < end) ? 0 : 1
+              }),
             }}
           />
           {icon && <div ref={iconRef} className={styles.icon}>{icon}</div>}
