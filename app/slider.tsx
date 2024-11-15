@@ -169,6 +169,7 @@ function Slider({ defaultValue = 50, min = 0, max = 100, step = 1, disabled, lab
                 return v <= 20 ? KNOB_OFFSET * -1 : v >= barSize.width ? barSize.width + KNOB_OFFSET : v + KNOB_OFFSET
               }),
               opacity: useTransform(spring, (normalizedValue: number) => {
+                if (!barSize.width) return 0
                 const val = normalizedValue * (barSize.width ?? 0)
                 return obstuctedPixels.some(([start, end]) => val > start && val < end) ? 0 : 1
               }),
