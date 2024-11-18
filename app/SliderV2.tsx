@@ -23,7 +23,7 @@ interface SliderProps {
   onDragEnd?: () => void
 }
 
-const KNOB_OFFSET = -8
+const KNOB_OFFSET = -6
 const snappy = { type: 'spring', stiffness: 1000, damping: 20, mass: 0.01 }
 
 export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disabled, labelSuffix, value: _value, icon, onValueChange, ...rest }: SliderProps) {
@@ -143,8 +143,7 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
           <motion.div
             className={styles.bar}
             style={{
-              width: useTransform(spring, (v: number) => `calc(${clampNumber(v, 0, 1) * 100}%`
-              ),
+              width: useTransform(spring, (v: number) => `calc(${clampNumber(v, 0, 1) * 100}%`),
             }}
           />
           <motion.div
@@ -152,7 +151,7 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
             style={{
               x: useTransform(spring, (normalizedValue: number) => {
                 const v = normalizedValue * (barSize.width ?? 0)
-                return v <= 8 ? KNOB_OFFSET * -1 : v >= barSize.width ? barSize.width + KNOB_OFFSET : v + KNOB_OFFSET
+                return v <= KNOB_OFFSET * 2 ? KNOB_OFFSET * -1 : v >= barSize.width ? barSize.width + KNOB_OFFSET : v + KNOB_OFFSET
               }),
               opacity: useTransform(spring, (normalizedValue: number) => {
                 if (!barSize.width) return 0
