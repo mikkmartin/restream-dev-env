@@ -96,10 +96,9 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
   const obstuctedPixels = useMemo(() => {
     return [iconSize, labelSize].reduce<[number, number][]>((acc, el) => {
       if (el.width === 0) return acc
-      const PADDING = 4
       const { left, width } = el
-      const startPixel = left - barSize.left - KNOB_OFFSET - PADDING
-      const endPixel = startPixel + width + PADDING
+      const startPixel = left - barSize.left - KNOB_OFFSET
+      const endPixel = startPixel + width
       return [...acc, [startPixel, endPixel]]
     }, [])
   }, [barSize, iconSize, labelSize])
