@@ -13,7 +13,8 @@
   touch-action: none;
   border-radius: var(--border-radius);
 
-  &:active:not([data-disabled]) {
+  &:active:not([data-disabled]),
+  .thumb:active {
     cursor: grabbing;
   }
 
