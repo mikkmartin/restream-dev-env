@@ -1,12 +1,11 @@
 'use client'
 
-import NumberFlow from "@number-flow/react";
 import { Root, Thumb, Track } from "@radix-ui/react-slider";
 import { motion, transform, useMotionValue, useSpring, useTransform } from 'framer-motion';
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import useMeasure from 'react-use-measure';
 import styles from './SliderV2.module.scss';
-import { clampNumber } from "./utils/utils";
+import { clampNumber } from "../utils/utils";
 
 interface SliderProps {
   value?: number

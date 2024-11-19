@@ -26,6 +26,21 @@ body {
   font-family: Arial, Helvetica, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  display: flex;
+  padding: 10vw;
+}
+
+body nav {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1vw;
+  flex: 1;
+}
+
+body .content {
+  flex: 2;
+  padding: 1vw;
 }
 
 * {
