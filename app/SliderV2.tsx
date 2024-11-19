@@ -104,95 +104,81 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
   }, [barSize, iconSize, labelSize])
 
   return (
-    <>
-      <SliderRoot
-        className={styles.root}
-        defaultValue={[defaultValue]}
-        min={min}
-        max={max}
-        step={step}
-        disabled={disabled}
-        ref={barRef}
-        style={{
-          x: useTransform(spring, (val: number) => val > 1 ? (val - 1) * 3 : val < 0 ? val * 3 : 1),
-          scaleX: useTransform(spring, (val: number) => val > 1 ? fallOffX(val) : val < 0 ? fallOffX(1 + -val) : 1),
-          scaleY: useTransform(spring, (val: number) => val > 1 ? fallOffY(2 - val) : val > 0 ? 1 : fallOffY(1 + val)),
-          //@ts-ignore
-          transformOrigin: useTransform(spring, (val: number) => val > 0.5 ? 'left' : 'right'),
-        }}
-        value={[value]}
-        onValueChange={(_value: number[]) => {
-          const value = _value[0] ?? defaultValue
-          setValue(value)
-          steppedProgress.set(valueToNormalized(value))
-          xNormalizedProgress.set(valueToNormalized(value))
-          onValueChange?.(value)
-        }}
-        onPointerDown={(ev: React.PointerEvent<HTMLDivElement>) => {
-          if (disabled) return
-          isDragging.current = true
-          updateProgress(ev)
-          rest.onDragStart?.()
-        }}
-        onPointerMove={(ev: React.PointerEvent<HTMLDivElement>) => isDragging.current && updateProgress(ev)}
-        onPointerUp={handleStopDragging}
-        onPointerCancel={handleStopDragging}
-      >
-        <Track className={styles.track}>
-          <motion.div
-            className={styles.bar}
-            style={{
-              width: useTransform(spring, (v: number) => `calc(${clampNumber(v, 0, 1) * 100}%`),
-            }}
-          />
-          <motion.div
-            className={styles.knob}
-            style={{
-              x: useTransform(spring, (normalizedValue: number) => {
-                const v = normalizedValue * (barSize.width ?? 0)
-                return v <= KNOB_OFFSET * 2 ? KNOB_OFFSET * -1 : v >= barSize.width ? barSize.width + KNOB_OFFSET : v + KNOB_OFFSET
-              }),
-              opacity: useTransform(spring, (normalizedValue: number) => {
-                if (!barSize.width) return 0
-                const val = normalizedValue * (barSize.width ?? 0)
-                return obstuctedPixels.some(([start, end]) => val > start && val < end) ? 0 : 1
-              }),
-            }}
-          />
-          {icon && <div ref={iconRef} className={styles.icon}>{icon}</div>}
-          <motion.div ref={labelRef} className={styles.label}>
-            <span>
-              <NumberFlow
-                trend
-                continuous
-                willChange
-                value={value}
-                transformTiming={{ duration: 100 }}
-                opacityTiming={{ duration: 100 }}
-                spinTiming={{ duration: 100 }}
-              />
-              {labelSuffix}
-            </span>
-          </motion.div>
-        </Track>
-        <Thumb className={styles.thumb} aria-label={rest['aria-label']} />
-      </SliderRoot>
-      {/* <pre className={styles.debug}>
-        <span>xNormalizedProgress</span>
-        <motion.span>{xNormalizedProgress}</motion.span>
-        <span>value</span>
-        <motion.span>{value}</motion.span>
-      </pre> */}
-    </>
+    <SliderRoot
+      className={styles.root}
+      defaultValue={[defaultValue]}
+      min={min}
+      max={max}
+      step={step}
+      disabled={disabled}
+      ref={barRef}
+      style={{
+        x: useTransform(spring, (val: number) => val > 1 ? (val - 1) * 3 : val < 0 ? val * 3 : 1),
+        scaleX: useTransform(spring, (val: number) => val > 1 ? fallOffX(val) : val < 0 ? fallOffX(1 + -val) : 1),
+        scaleY: useTransform(spring, (val: number) => val > 1 ? fallOffY(2 - val) : val > 0 ? 1 : fallOffY(1 + val)),
+        //@ts-ignore
+        transformOrigin: useTransform(spring, (val: number) => val > 0.5 ? 'left' : 'right'),
+      }}
+      value={[value]}
+      onValueChange={(_value: number[]) => {
+        const value = _value[0] ?? defaultValue
+        setValue(value)
+        steppedProgress.set(valueToNormalized(value))
+        xNormalizedProgress.set(valueToNormalized(value))
+        onValueChange?.(value)
+      }}
+      onPointerDown={(ev: React.PointerEvent<HTMLDivElement>) => {
+        if (disabled) return
+        isDragging.current = true
+        updateProgress(ev)
+        rest.onDragStart?.()
+      }}
+      onPointerMove={(ev: React.PointerEvent<HTMLDivElement>) => isDragging.current && updateProgress(ev)}
+      onPointerUp={handleStopDragging}
+      onPointerCancel={handleStopDragging}
+    >
+      <Track className={styles.track}>
+        <motion.div
+          className={styles.bar}
+          style={{
+            width: useTransform(spring, (v: number) => `calc(${clampNumber(v, 0, 1) * 100}%`),
+          }}
+        />
+        <motion.div
+          className={styles.knob}
+          style={{
+            x: useTransform(spring, (normalizedValue: number) => {
+              const v = normalizedValue * (barSize.width ?? 0)
+              if (v <= 12) return 12 + KNOB_OFFSET
+              return v <= KNOB_OFFSET * 2 ? KNOB_OFFSET * -1 : v >= barSize.width ? barSize.width + KNOB_OFFSET : v + KNOB_OFFSET
+            }),
+            opacity: useTransform(spring, (normalizedValue: number) => {
+              if (!barSize.width) return 0
+              const val = normalizedValue * (barSize.width ?? 0)
+              return obstuctedPixels.some(([start, end]) => val > start && val < end) ? 0 : 1
+            }),
+          }}
+        />
+        {icon && <div ref={iconRef} className={styles.icon}>{icon}</div>}
+        <motion.div ref={labelRef} className={styles.label}>
+          <span>
+            <NumberFlow
+              trend
+              continuous
+              willChange
+              value={value}
+              transformTiming={{ duration: 100 }}
+              opacityTiming={{ duration: 100 }}
+              spinTiming={{ duration: 100 }}
+            />
+            {labelSuffix}
+          </span>
+        </motion.div>
+      </Track>
+      <Thumb className={styles.thumb} aria-label={rest['aria-label']} />
+    </SliderRoot>
   )
 }
 
-export function CurveIcon() {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-      <path d="M17 7.0003C17 7.0003 15.5 7 12 7.0003C8.5 7.0006 7 9 7 12.0003C7 15.0006 7 17.0003 7 17.0003" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  )
-}
 
 const SliderRoot = motion(Root)

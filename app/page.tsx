@@ -7,7 +7,7 @@ export default function Home() {
   return (
     <div className={styles.page}>
       <main className={styles.main}>
-        <SliderV2 icon={<AlarmClock />} labelSuffix="%" />
+        <SliderV2 labelSuffix="%" />
       </main>
     </div>
   );
