@@ -11,6 +11,8 @@
   height: 32px;
   touch-action: none;
   border-radius: var(--border-radius);
+  outline-offset: 1.5px;
+  outline: .5px solid rgba(255, 255, 255, 0.1);
 
   &:active:not([data-disabled]),
   .thumb:active {
@@ -18,7 +20,6 @@
   }
 
   &:has(:focus-visible) {
-    outline-offset: 1.5px;
     outline: .5px solid rgba(255, 255, 255, 0.2);
   }
 
@@ -94,6 +95,7 @@
     color: white;
     opacity: 0.5;
     pointer-events: none;
+    font-variant-numeric: tabular-nums;
   }
 
   &:hover:not([data-disabled]) .label,

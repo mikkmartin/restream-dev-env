@@ -150,6 +150,7 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
             x: useTransform(spring, (normalizedValue: number) => {
               const v = normalizedValue * (barSize.width ?? 0)
               if (v <= 12) return 12 + KNOB_OFFSET
+              if (v >= barSize.width - 12) return barSize.width - 8
               return v <= KNOB_OFFSET * 2 ? KNOB_OFFSET * -1 : v >= barSize.width ? barSize.width + KNOB_OFFSET : v + KNOB_OFFSET
             }),
             opacity: useTransform(spring, (normalizedValue: number) => {
@@ -161,18 +162,8 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
         />
         {icon && <div ref={iconRef} className={styles.icon}>{icon}</div>}
         <motion.div ref={labelRef} className={styles.label}>
-          <span>
-            <NumberFlow
-              trend
-              continuous
-              willChange
-              value={value}
-              transformTiming={{ duration: 100 }}
-              opacityTiming={{ duration: 100 }}
-              spinTiming={{ duration: 100 }}
-            />
-            {labelSuffix}
-          </span>
+          {value}
+          {labelSuffix}
         </motion.div>
       </Track>
       <Thumb className={styles.thumb} aria-label={rest['aria-label']} />
