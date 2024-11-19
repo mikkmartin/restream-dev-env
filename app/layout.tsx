@@ -30,6 +30,7 @@ export default function RootLayout({
         <nav>
           <Link href="/">Home</Link>
           <Link href="/slider">Slider</Link>
+          <Link href="/mediabutton">Media Button</Link>
         </nav>
         <div className="content">
           {children}
