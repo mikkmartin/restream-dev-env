@@ -28,7 +28,6 @@ function SegmentedButtonDropdown({ children }: { children: React.ReactNode }) {
 
   return (
     <motion.div className={styles.root}>
-      {children}
       <Select.Root open={isOpen} onOpenChange={setIsOpen} value={selected} onValueChange={setSelected}>
         <Trigger className={styles.Trigger}>
           {/* {isOpen && <Select.Value />} */}
@@ -46,6 +45,7 @@ function SegmentedButtonDropdown({ children }: { children: React.ReactNode }) {
           </Select.Content>
         </Select.Portal>
       </Select.Root>
+      {children}
     </motion.div>
   )
 }

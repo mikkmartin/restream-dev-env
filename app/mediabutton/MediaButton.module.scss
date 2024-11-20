@@ -32,27 +32,15 @@
   flex-shrink: 0;
 
   :nth-child(1) {
-    grid-area: 1 / 1 / 2 / 2;
-  }
-
-  :nth-child(2) {
     grid-area: 1 / 1 / 2 / 3;
-    padding-left: 50%;
 
     svg {
       margin-top: 3px;
     }
   }
 
-  .button {
-    background: rgba(255, 0, 0, 0.3);
-    border: none;
-    border-radius: 99rem;
-    color: white;
-
-    &:hover {
-      background: rgba(255, 0, 0, 0.5);
-    }
+  :nth-child(2) {
+    grid-area: 1 / 1 / 2 / 2;
   }
 }
 
@@ -63,6 +51,12 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  padding-left: 50%;
+  border-radius: 99rem;
+
+  &:hover, &:focus-visible {
+    background: rgba(255, 0, 0, 0.5);
+  }
 }
 
 .Icon {
@@ -96,6 +90,7 @@
   position: relative;
   user-select: none;
   display: flex;
+
   &:hover {
     background-color: rgba(255, 255, 255, 0.5);
   }
