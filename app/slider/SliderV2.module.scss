@@ -96,11 +96,14 @@
     opacity: 0.5;
     pointer-events: none;
     font-variant-numeric: tabular-nums;
+    opacity: 0;
+    transition: opacity 0.1s ease-in-out;
   }
 
   &:hover:not([data-disabled]) .label,
-  &:focus-within:not([data-disabled]) .label {
+  &:active .label {
     opacity: 0.8;
+    transition: opacity 0s ease-in-out;
   }
 
   [data-disabled] & {

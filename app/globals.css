@@ -41,6 +41,8 @@ body nav {
 body .content {
   flex: 2;
   padding: 1vw;
+  display: flex;
+  flex-wrap: wrap;
 }
 
 * {

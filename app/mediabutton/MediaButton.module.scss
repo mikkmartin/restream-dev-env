@@ -1,3 +1,38 @@
+.testButton {
+  position: relative;
+  height: 4rem;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  &:hover {
+    background-color: rgba(255, 255, 0, 0.5);
+  }
+}
+
 .root {
-  background: yellow;
+  display: grid;
+  grid-template-columns: 1fr 0.75fr;
+
+  :nth-child(1) {
+    grid-area: 1 / 1 / 2 / 2;
+  }
+
+  :nth-child(2) {
+    grid-area: 1 / 1 / 2 / 3;
+  }
+
+  .button {
+    background: rgba(255, 0, 0, 0.3);
+    border: none;
+    border-radius: 99rem;
+    color: white;
+
+    &:hover {
+      background: rgba(255, 0, 0, 0.5);
+    }
+  }
 }
