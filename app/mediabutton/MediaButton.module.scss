@@ -1,12 +1,25 @@
+.testContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
 .testButton {
   position: relative;
-  height: 4rem;
+  height: 48px;
   aspect-ratio: 1 / 1;
   border-radius: 50%;
   background-color: rgba(255, 255, 0, 0.2);
   display: flex;
   align-items: center;
   justify-content: center;
+  border: none;
+  color: white;
 
   &:hover {
     background-color: rgba(255, 255, 0, 0.5);
@@ -16,6 +29,7 @@
 .root {
   display: grid;
   grid-template-columns: 1fr 0.75fr;
+  flex-shrink: 0;
 
   :nth-child(1) {
     grid-area: 1 / 1 / 2 / 2;
@@ -23,6 +37,11 @@
 
   :nth-child(2) {
     grid-area: 1 / 1 / 2 / 3;
+    padding-left: 50%;
+
+    svg {
+      margin-top: 3px;
+    }
   }
 
   .button {
