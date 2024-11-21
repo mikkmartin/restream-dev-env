@@ -12,7 +12,7 @@
   touch-action: none;
   border-radius: var(--border-radius);
   outline-offset: 1.5px;
-  outline: .5px solid rgba(255, 255, 255, 0.1);
+  // outline: .5px solid rgba(255, 255, 255, 0.1);
 
   &:active:not([data-disabled]),
   .HitBox:active:active {
@@ -20,12 +20,11 @@
   }
 
   &:has(:focus-visible) {
-    outline: .5px solid rgba(255, 255, 255, 0.2);
+    outline: .5px solid rgba(255, 255, 255, 0.15);
   }
 
   .Track {
-    background: var(--Gray-950, #04193EB3);
-    // background-color: rgba(0, 0, 0, 0.175);
+    background: #04193EB3;
     position: relative;
     flex-grow: 1;
     height: 100%;
