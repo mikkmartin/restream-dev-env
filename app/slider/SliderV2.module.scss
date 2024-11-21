@@ -24,7 +24,9 @@
   }
 
   .track {
-    background-color: rgba(0, 0, 0, 0.175);
+
+    background: var(--Gray-950, #05183866);
+    // background-color: rgba(0, 0, 0, 0.175);
     position: relative;
     flex-grow: 1;
     height: 100%;
@@ -97,13 +99,14 @@
     pointer-events: none;
     font-variant-numeric: tabular-nums;
     opacity: 0;
-    transition: opacity 0.1s ease-in-out;
+    transition: opacity 0.2s ease-in-out;
   }
 
   &:hover:not([data-disabled]) .label,
-  &:active .label {
+  &:active .label,
+  &:focus-within .label {
     opacity: 0.8;
-    transition: opacity 0s ease-in-out;
+    transition: opacity 0.1s ease-in-out;
   }
 
   [data-disabled] & {

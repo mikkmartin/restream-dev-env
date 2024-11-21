@@ -141,6 +141,10 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
           className={styles.bar}
           style={{
             width: useTransform(spring, (v: number) => `calc(${clampNumber(v, 0, 1) * 100}%`),
+            borderRadius: useTransform(spring, (v: number) => {
+              const vPixels = v * (barSize.width ?? 0)
+              return vPixels <= 16 ? transform(vPixels, [8, 16], [0, 6], { clamp: true }) : 6
+            }),
           }}
         />
         <motion.div
