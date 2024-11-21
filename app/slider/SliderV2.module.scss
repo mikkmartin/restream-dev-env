@@ -115,17 +115,18 @@
 
   .HitBox {
     display: block;
-    width: 8px;
-    height: 100%;
+    width: 0px;
+    height: 32px;
     cursor: grab;
     position: relative;
 
     &::after {
       content: '';
       position: absolute;
-      left: -4px;
-      width: 6px;
+      left: -14px;
+      width: 14px;
       height: 100%;
+      border-radius: 99rem;
     }
 
     &:focus-visible {

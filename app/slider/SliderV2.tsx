@@ -170,10 +170,17 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
           {labelSuffix}
         </motion.div>
       </Track>
-      <Thumb className={styles.HitBox} aria-label={rest['aria-label']} />
+      <HitBox style={{
+        x: useTransform(xNormalizedProgress, (normalizedValue: number) => {
+          const valPx = normalizedValue * (barSize.width ?? 0)
+          return valPx < 20 ? Math.min(14 - valPx, 14) : 0
+        }),
+      }} className={styles.HitBox} aria-label={rest['aria-label']} />
     </SliderRoot>
   )
 }
+
+const HitBox = motion(Thumb)
 
 function easeOutSine(x: number): number {
   return Math.sqrt(1 - Math.pow(x - 1, 2))
