@@ -23,6 +23,7 @@ interface SliderProps {
 }
 
 const KNOB_OFFSET = -8
+const MAX_FALLOFF_DISTANCE_NORMALIZED = 3
 const snappy = { type: 'spring', stiffness: 1000, damping: 20, mass: 0.01 }
 
 export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disabled, labelSuffix, value: _value, icon, onValueChange, ...rest }: SliderProps) {
@@ -50,11 +51,11 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
   function fallOffX(val: number) {
     const eased = transform(
       val,
-      [1, 1.1],
-      [1, 1.015],
+      [1, MAX_FALLOFF_DISTANCE_NORMALIZED],
+      [1, 1.05],
       {
-        ease: (v: number) => Math.pow(v, 0.5),
-        clamp: false
+        ease: easeOutSine,
+        clamp: true
       }
     )
     if (val > 1) return eased
@@ -66,8 +67,8 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
       [1, 0],
       [1, 0.9],
       {
-        ease: (v: number) => Math.pow(v, 1),
-        clamp: false
+        ease: (v: number) => Math.pow(v, 1.25),
+        clamp: true
       })
   }
 
@@ -112,7 +113,7 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
       disabled={disabled}
       ref={barRef}
       style={{
-        x: useTransform(spring, (val: number) => val > 1 ? (val - 1) * 3 : val < 0 ? val * 3 : 1),
+        x: useTransform(spring, (val: number) => val > 1 ? fallOffX(val) : val < 0 ? fallOffX(1 + -val) : 1),
         scaleX: useTransform(spring, (val: number) => val > 1 ? fallOffX(val) : val < 0 ? fallOffX(1 + -val) : 1),
         scaleY: useTransform(spring, (val: number) => val > 1 ? fallOffY(2 - val) : val > 0 ? 1 : fallOffY(1 + val)),
         //@ts-ignore
@@ -174,5 +175,8 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
   )
 }
 
+function easeOutSine(x: number): number {
+  return Math.sqrt(1 - Math.pow(x - 1, 2))
+}
 
 const SliderRoot = motion(Root)

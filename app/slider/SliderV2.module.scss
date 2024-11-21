@@ -24,7 +24,7 @@
   }
 
   .Track {
-    background: var(--Gray-950, #051838B3);
+    background: var(--Gray-950, #04193EB3);
     // background-color: rgba(0, 0, 0, 0.175);
     position: relative;
     flex-grow: 1;
@@ -36,26 +36,6 @@
 
   &[data-disabled] {
     opacity: 0.5;
-  }
-
-  .HitBox {
-    display: block;
-    width: 8px;
-    height: 100%;
-    cursor: grab;
-    position: relative;
-
-    &::after {
-      content: '';
-      position: absolute;
-      left: -4px;
-      width: 6px;
-      height: 100%;
-    }
-
-    &:focus-visible {
-      outline: none;
-    }
   }
 
   &[data-disabled] .HitBox:active {
@@ -97,7 +77,7 @@
   .Bar {
     height: 100%;
     border-radius: calc(var(--border-radius) - var(--padding));
-    background-color: rgba(255, 255, 255, 0.2);
+    background-color: rgba(255, 255, 255, 0.15);
     display: flex;
     align-items: center;
     justify-content: flex-end;
@@ -128,6 +108,26 @@
   &:focus-within:not([data-disabled]) .Knob {
     background-color: rgba(255, 255, 255, 1);
     transition: background-color 0.05s ease-out;
+  }
+
+  .HitBox {
+    display: block;
+    width: 8px;
+    height: 100%;
+    cursor: grab;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: -4px;
+      width: 6px;
+      height: 100%;
+    }
+
+    &:focus-visible {
+      outline: none;
+    }
   }
 
   .Icon {
