@@ -1,6 +1,6 @@
 'use client'
 
-import { MediaButton } from "./MediaButton";
+import { MediaButton } from "./MediaButton2";
 
 export default function Home() {
   return (

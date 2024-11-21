@@ -1,0 +1,110 @@
+.testContainer {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+
+  svg {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+.testButton {
+  position: relative;
+  height: 48px;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  color: white;
+
+  &:hover {
+    background-color: rgba(255, 255, 0, 0.5);
+  }
+}
+
+.root {
+  display: grid;
+  grid-template-columns: 1fr 0.75fr;
+  flex-shrink: 0;
+
+  :nth-child(1) {
+    grid-area: 1 / 1 / 2 / 3;
+
+    svg {
+      margin-top: 3px;
+    }
+  }
+
+  :nth-child(2) {
+    grid-area: 1 / 1 / 2 / 2;
+  }
+}
+
+.Trigger {
+  all: unset;
+  background: rgba(255, 0, 0, 0.3);
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-left: 50%;
+  border-radius: 99rem;
+
+  &:hover, &:focus-visible {
+    background: rgba(255, 0, 0, 0.5);
+  }
+}
+
+.Icon {
+  color: Var(--violet-11);
+}
+
+.Content {
+  background-color: rgba(255, 255, 255, 0.8);
+  border-radius: 25px;
+  padding: 4px;
+  gap: 12px;
+  color: black;
+  max-width: 16rem;
+}
+
+.Viewport {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.Item {
+  font-size: 13px;
+  line-height: 1;
+  color: var(--violet-11);
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+  height: 48px;
+  border-radius: 99rem;
+  position: relative;
+  user-select: none;
+  display: flex;
+
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.5);
+  }
+}
+
+.Item svg {
+  width: 48px;
+  height: 48px;
+  padding: 12px;
+}
+
+.Item span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 100%;
+}
