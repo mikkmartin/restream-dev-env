@@ -1,4 +1,4 @@
-.root {
+.Root {
   --border-radius: 6px;
   --padding: 0px;
 
@@ -15,7 +15,7 @@
   outline: .5px solid rgba(255, 255, 255, 0.1);
 
   &:active:not([data-disabled]),
-  .thumb:active {
+  .HitBox:active:active {
     cursor: grabbing;
   }
 
@@ -23,9 +23,8 @@
     outline: .5px solid rgba(255, 255, 255, 0.2);
   }
 
-  .track {
-
-    background: var(--Gray-950, #05183866);
+  .Track {
+    background: var(--Gray-950, #051838B3);
     // background-color: rgba(0, 0, 0, 0.175);
     position: relative;
     flex-grow: 1;
@@ -39,23 +38,99 @@
     opacity: 0.5;
   }
 
-  .thumb {
+  .HitBox {
     display: block;
-    width: 20px;
-    height: 32px;
+    width: 8px;
+    height: 100%;
     cursor: grab;
+    position: relative;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: -4px;
+      width: 6px;
+      height: 100%;
+    }
 
     &:focus-visible {
       outline: none;
     }
-
   }
 
-  &[data-disabled] .Thumb {
+  &[data-disabled] .HitBox:active {
     cursor: default;
   }
 
-  .icon {
+  [data-disabled] & {
+    opacity: 0.3;
+  }
+
+  .Label {
+    position: absolute;
+    top: 0;
+    right: 8px;
+    padding: 2px;
+    padding-left: 6px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    pointer-events: none;
+    font-variant-numeric: tabular-nums;
+    opacity: 0;
+    transition: opacity 0.2s ease-out;
+  }
+
+  &:hover:not([data-disabled]) .Label,
+  &:active .Label,
+  &:focus-within .Label {
+    opacity: 0.8;
+    transition: opacity 0.05s ease-out;
+  }
+
+  [data-disabled] & {
+    opacity: 0.3;
+  }
+
+  .Bar {
+    height: 100%;
+    border-radius: calc(var(--border-radius) - var(--padding));
+    background-color: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    position: relative;
+    transition: background-color 0.2s ease-out;
+  }
+
+  &:hover:not([data-disabled]) .Bar,
+  &:active .Bar,
+  &:focus-within:not([data-disabled]) .Bar {
+    background-color: rgba(255, 255, 255, 0.25);
+    transition: background-color 0.05s ease-out;
+  }
+
+  .Knob {
+    position: absolute;
+    top: 6px;
+    bottom: 6px;
+    left: 0;
+    width: 2px;
+    border-radius: 1px;
+    background-color: rgba(255, 255, 255, 0.25);
+    transition: background-color 0.2s ease-out;
+  }
+
+  &:hover:not([data-disabled]) .Knob,
+  &:active .Knob,
+  &:focus-within:not([data-disabled]) .Knob {
+    background-color: rgba(255, 255, 255, 1);
+    transition: background-color 0.05s ease-out;
+  }
+
+  .Icon {
     position: absolute;
     top: 0;
     left: 4px;
@@ -75,72 +150,8 @@
     }
   }
 
-  &:hover:not([data-disabled]) .icon,
+  &:hover:not([data-disabled]) .Icon,
   &:focus-within .icon {
     opacity: 0.8;
-  }
-
-  [data-disabled] & {
-    opacity: 0.3;
-  }
-
-  .label {
-    position: absolute;
-    top: 0;
-    right: 8px;
-    padding: 2px;
-    padding-left: 6px;
-    height: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: white;
-    opacity: 0.5;
-    pointer-events: none;
-    font-variant-numeric: tabular-nums;
-    opacity: 0;
-    transition: opacity 0.2s ease-in-out;
-  }
-
-  &:hover:not([data-disabled]) .label,
-  &:active .label,
-  &:focus-within .label {
-    opacity: 0.8;
-    transition: opacity 0.1s ease-in-out;
-  }
-
-  [data-disabled] & {
-    opacity: 0.3;
-  }
-
-  .bar {
-    height: 100%;
-    border-radius: calc(var(--border-radius) - var(--padding));
-    background-color: rgba(255, 255, 255, 0.2);
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    position: relative;
-  }
-
-  &:hover:not([data-disabled]) .bar,
-  &:focus-within:not([data-disabled]) .bar {
-    background-color: rgba(255, 255, 255, 0.25);
-  }
-
-  .knob {
-    position: absolute;
-    top: 6px;
-    bottom: 6px;
-    left: 0;
-    width: 2px;
-    border-radius: 1px;
-    background-color: rgba(255, 255, 255, 0.25);
-    transition: opacity 0.1s ease-in-out;
-  }
-
-  &:hover:not([data-disabled]) .knob,
-  &:focus-within:not([data-disabled]) .knob {
-    background-color: rgba(255, 255, 255, 1);
   }
 }

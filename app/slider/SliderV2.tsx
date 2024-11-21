@@ -22,7 +22,7 @@ interface SliderProps {
   onDragEnd?: () => void
 }
 
-const KNOB_OFFSET = -6
+const KNOB_OFFSET = -8
 const snappy = { type: 'spring', stiffness: 1000, damping: 20, mass: 0.01 }
 
 export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disabled, labelSuffix, value: _value, icon, onValueChange, ...rest }: SliderProps) {
@@ -104,7 +104,7 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
 
   return (
     <SliderRoot
-      className={styles.root}
+      className={styles.Root}
       defaultValue={[defaultValue]}
       min={min}
       max={max}
@@ -136,9 +136,9 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
       onPointerUp={handleStopDragging}
       onPointerCancel={handleStopDragging}
     >
-      <Track className={styles.track}>
+      <Track className={styles.Track}>
         <motion.div
-          className={styles.bar}
+          className={styles.Bar}
           style={{
             width: useTransform(spring, (v: number) => `calc(${clampNumber(v, 0, 1) * 100}%`),
             borderRadius: useTransform(spring, (v: number) => {
@@ -148,11 +148,11 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
           }}
         />
         <motion.div
-          className={styles.knob}
+          className={styles.Knob}
           style={{
             x: useTransform(spring, (normalizedValue: number) => {
               const v = normalizedValue * (barSize.width ?? 0)
-              if (v <= 12) return 12 + KNOB_OFFSET
+              if (v <= 14) return 14 + KNOB_OFFSET
               if (v >= barSize.width - 12) return barSize.width - 8
               return v <= KNOB_OFFSET * 2 ? KNOB_OFFSET * -1 : v >= barSize.width ? barSize.width + KNOB_OFFSET : v + KNOB_OFFSET
             }),
@@ -163,13 +163,13 @@ export function SliderV2({ defaultValue = 50, min = 0, max = 100, step = 1, disa
             }),
           }}
         />
-        {icon && <div ref={iconRef} className={styles.icon}>{icon}</div>}
-        <motion.div ref={labelRef} className={styles.label}>
+        {icon && <div ref={iconRef} className={styles.Icon}>{icon}</div>}
+        <motion.div ref={labelRef} className={styles.Label}>
           {value}
           {labelSuffix}
         </motion.div>
       </Track>
-      <Thumb className={styles.thumb} aria-label={rest['aria-label']} />
+      <Thumb className={styles.HitBox} aria-label={rest['aria-label']} />
     </SliderRoot>
   )
 }
