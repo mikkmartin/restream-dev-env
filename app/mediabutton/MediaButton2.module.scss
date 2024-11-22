@@ -31,13 +31,11 @@
   display: grid;
   grid-template-columns: 1fr 0.75fr;
   flex-shrink: 0;
+  // overflow: hidden;
+  border-radius: 99rem;
 
   :nth-child(1) {
     grid-area: 1 / 1 / 2 / 3;
-
-    svg {
-      margin-top: 3px;
-    }
   }
 
   :nth-child(2) {
@@ -54,6 +52,15 @@
   justify-content: center;
   padding-left: 50%;
   border-radius: 99rem;
+  display: grid;
+
+  svg {
+    display: block;
+  }
+
+  &>div {
+    grid-area: 1 / 1;
+  }
 
   &:hover,
   &:focus-visible {
@@ -65,7 +72,7 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-  
+
   .Item {
     font-size: 13px;
     line-height: 1;
@@ -88,6 +95,7 @@
     &:focus-within {
       background: #56647d32;
       outline: none;
+
       .Label {
         color: #bfc9db;
       }
@@ -122,6 +130,7 @@
 
       .Icon {
         background: #8791a231;
+
         svg {
           opacity: 0.5;
         }
@@ -131,7 +140,7 @@
         color: #8791a2;
 
         .SelectedLabel {
-          font-size: 10px;
+          font-size: 11px;
           line-height: 1;
           letter-spacing: 0.05em;
           opacity: 0.75;
