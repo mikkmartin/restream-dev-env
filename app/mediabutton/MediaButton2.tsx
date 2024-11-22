@@ -104,7 +104,8 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
                         variants={{
                           hidden: {
                             y: 54 * (options.length - i),
-                            opacity: 0
+                            opacity: 0,
+                            transition: { ...transition, opacity: { duration: 0.1 } }
                           },
                           visible: {
                             y: 0,
