@@ -47,7 +47,7 @@
 
 .Trigger {
   all: unset;
-  background: rgba(255, 0, 0, 0.3);
+  background: #56647d32;
   position: relative;
   display: flex;
   align-items: center;
@@ -57,22 +57,7 @@
 
   &:hover,
   &:focus-visible {
-    background: rgba(255, 0, 0, 0.5);
-  }
-}
-
-.Content {
-  // background-color: rgba(255, 255, 255, 0.8);
-  border-radius: 25px;
-  gap: 12px;
-  color: black;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-
-  &[data-isOpen="true"] {
-    background-color: rgba(255, 255, 255, 1);
+    background: #56647d51;
   }
 }
 
@@ -80,10 +65,6 @@
   display: flex;
   flex-direction: column;
   gap: 5px;
-
-  &:hover {
-    background-color: rgba(255, 255, 255, 0.5);
-  }
 
   .Item {
     font-size: 13px;
@@ -100,10 +81,18 @@
     color: white;
     background: transparent;
     gap: 12px;
+    transition: background 0.1s ease-out;
+    padding-right: 16px;
+
+    &:hover,
+    &:focus-within {
+      background: #56647d32;
+      outline: none;
+    }
 
     .Icon {
       flex-shrink: 0;
-      background-color: rgba(255, 255, 255, 0.348);
+      background: #56647d;
       border-radius: 99rem;
       width: 48px;
       height: 48px;
@@ -116,12 +105,33 @@
         height: 20px;
       }
     }
-  }
-}
 
-.Item span {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  width: 100%;
+    .Label {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      letter-spacing: 0.02em;
+    }
+
+    &[data-selected="true"] {
+      .Icon {
+        background: #8791a25a;
+        svg {
+          opacity: 0.5;
+        }
+      }
+
+      .Label {
+        color: #8791a2;
+
+        .SelectedLabel {
+          font-size: 10px;
+          line-height: 1;
+          letter-spacing: 0.05em;
+          opacity: 0.75;
+        }
+      }
+    }
+
+  }
 }

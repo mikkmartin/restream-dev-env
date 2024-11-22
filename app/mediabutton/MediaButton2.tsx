@@ -1,8 +1,8 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import styles from './MediaButton2.module.scss';
 import { Mic, ChevronDown, CheckIcon } from 'lucide-react'
-import { motion, AnimatePresence } from 'framer-motion'
-import React, { useRef, useState } from "react";
+import { motion, AnimatePresence, useMotionValue } from 'framer-motion'
+import React, { useEffect, useRef, useState } from "react";
 
 // const transition = { duration: 0.2 }
 const slowmo = { duration: 2 }
@@ -38,6 +38,17 @@ const options = [
 function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.ReactNode, onOpenChange?: (open: boolean) => void }) {
   const [isOpen, setIsOpen] = useState(false)
   const [selected, setSelected] = useState(options[0])
+  const pointerEvents = useMotionValue<'none' | 'auto'>('none')
+
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => {
+        pointerEvents.set('auto')
+      }, 100)
+    } else {
+      pointerEvents.set('none')
+    }
+  }, [isOpen])
 
   return (
     <motion.div className={styles.root}>
@@ -49,30 +60,74 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
         </DropdownMenu.Trigger>
 
         <DropdownMenu.Portal forceMount>
-          <AnimatePresence>
+          <AnimatePresence mode="wait">
             {isOpen && (
               <DropdownMenu.Content
                 side="top"
                 align="start"
-                key="viewport"
                 className={styles.Content}
+                sideOffset={8}
                 forceMount
                 asChild
               >
                 <motion.div
                   className={styles.Viewport}
+                  key="viewport"
+                  initial="hidden"
+                  animate="visible"
+                  exit="hidden"
+                  transition={{ duration: 0.1 }}
+                  style={{ pointerEvents }}
+                // variants={{
+                //   hidden: { opacity: 0 },
+                //   visible: { opacity: 1 }
+                // }}
                 >
                   {options.map((option, i) => (
-                    <Item
-                      key={option}
-                      className={styles.Item}
-                      onSelect={() => setSelected(option)}
-                    >
-                      <motion.div className={styles.Icon}>
-                        {option === selected ? <CheckIcon /> : <Mic />}
+                    <DropdownMenu.Item key={option} onSelect={() => setSelected(option)} asChild>
+                      <motion.div
+                        className={styles.Item}
+                        data-selected={option === selected}
+                        onSelect={() => setSelected(option)}
+                        transition={transition}
+                        style={{ transformOrigin: 'bottom left' }}
+                        variants={{
+                          hidden: {
+                            y: 54 * (options.length - i),
+                            opacity: 0
+                          },
+                          visible: {
+                            y: 0,
+                            opacity: 1,
+                            transition: { ...transition, delay: .01 * (options.length - i) }
+                          }
+                        }}
+                      >
+                        <motion.div
+                          className={styles.Icon}
+                          transition={transition}
+                          variants={{
+                            hidden: { opacity: 0 },
+                            visible: { opacity: 1 }
+                          }}
+                        >
+                          {option === selected ? <CheckIcon /> : <Mic />}
+                        </motion.div>
+                        <motion.div
+                          className={styles.Label}
+                          transition={{ duration: 0.1 }}
+                          variants={{
+                            hidden: { opacity: 0 },
+                            visible: { opacity: 1 }
+                          }}
+                        >
+                          {option === selected &&
+                            <motion.small className={styles.SelectedLabel}>Selected device</motion.small>
+                          }
+                          <span>{option}</span>
+                        </motion.div>
                       </motion.div>
-                      <motion.span className={styles.Label}>{option}</motion.span>
-                    </Item>
+                    </DropdownMenu.Item>
                   ))}
                 </motion.div>
               </DropdownMenu.Content>
@@ -84,7 +139,6 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
   )
 }
 
-const Item = motion(DropdownMenu.Item)
 
 function ButtonWithToolTip() {
   return (
