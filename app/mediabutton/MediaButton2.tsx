@@ -68,7 +68,9 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
                       className={styles.Item}
                       onSelect={() => setSelected(option)}
                     >
-                      {option === selected ? <CheckIcon /> : <Mic />}
+                      <motion.div className={styles.Icon}>
+                        {option === selected ? <CheckIcon /> : <Mic />}
+                      </motion.div>
                       <motion.span className={styles.Label}>{option}</motion.span>
                     </Item>
                   ))}
