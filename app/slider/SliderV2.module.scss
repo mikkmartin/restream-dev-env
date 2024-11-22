@@ -1,4 +1,4 @@
-.Root {
+.root {
   --border-radius: 6px;
   --padding: 0px;
 
@@ -15,7 +15,7 @@
   // outline: .5px solid rgba(255, 255, 255, 0.1);
 
   &:active:not([data-disabled]),
-  .HitBox:active:active {
+  .hitBox:active:active {
     cursor: grabbing;
   }
 
@@ -23,7 +23,7 @@
     outline: .5px solid rgba(255, 255, 255, 0.15);
   }
 
-  .Track {
+  .track {
     background: #04193EB3;
     position: relative;
     flex-grow: 1;
@@ -37,7 +37,7 @@
     opacity: 0.5;
   }
 
-  &[data-disabled] .HitBox:active {
+  &[data-disabled] .hitBox:active {
     cursor: default;
   }
 
@@ -45,7 +45,7 @@
     opacity: 0.3;
   }
 
-  .Label {
+  .label {
     position: absolute;
     top: 0;
     right: 8px;
@@ -62,9 +62,9 @@
     transition: opacity 0.2s ease-out;
   }
 
-  &:hover:not([data-disabled]) .Label,
-  &:active .Label,
-  &:focus-within .Label {
+  &:hover:not([data-disabled]) .label,
+  &:active .label,
+  &:focus-within .label {
     opacity: 0.8;
     transition: opacity 0.05s ease-out;
   }
@@ -73,7 +73,7 @@
     opacity: 0.3;
   }
 
-  .Bar {
+  .bar {
     height: 100%;
     border-radius: calc(var(--border-radius) - var(--padding));
     background-color: rgba(255, 255, 255, 0.15);
@@ -84,14 +84,14 @@
     transition: background-color 0.2s ease-out;
   }
 
-  &:hover:not([data-disabled]) .Bar,
-  &:active .Bar,
-  &:focus-within:not([data-disabled]) .Bar {
+  &:hover:not([data-disabled]) .bar,
+  &:active .bar,
+  &:focus-within:not([data-disabled]) .bar {
     background-color: rgba(255, 255, 255, 0.25);
     transition: background-color 0.05s ease-out;
   }
 
-  .Knob {
+  .knob {
     position: absolute;
     top: 6px;
     bottom: 6px;
@@ -102,18 +102,18 @@
     transition: background-color, opacity 0.2s ease-out;
   }
 
-  &:hover:not([data-disabled]) .Knob,
-  &:active .Knob,
-  &:focus-within:not([data-disabled]) .Knob {
+  &:hover:not([data-disabled]) .knob,
+  &:active .knob,
+  &:focus-within:not([data-disabled]) .knob {
     background-color: rgba(255, 255, 255, 1);
     transition: background-color, opacity 0.05s ease-out;
   }
 
-  &:not(:hover):not(:focus-within) .Knob {
+  &:not(:hover):not(:focus-within) .knob {
     opacity: 1 !important;
   }
 
-  .HitBox {
+  .hitBox {
     display: block;
     width: 0px;
     height: 32px;
@@ -134,7 +134,7 @@
     }
   }
 
-  .Icon {
+  .icon {
     position: absolute;
     top: 0;
     left: 4px;
@@ -154,7 +154,7 @@
     }
   }
 
-  &:hover:not([data-disabled]) .Icon,
+  &:hover:not([data-disabled]) .icon,
   &:focus-within .icon {
     opacity: 0.8;
   }
