@@ -29,7 +29,11 @@ export function MediaButton() {
   )
 }
 
-const options = ['External microphone', 'MacBook Pro Microphone (Built in microphone)']
+const options = [
+  'MacBook Pro Microphone (Built in microphone)',
+  'Sarah\'s Airpods',
+  'Line in (BlackMagic DeckLink Mini Recorder Audio)'
+]
 
 function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.ReactNode, onOpenChange?: (open: boolean) => void }) {
   const [isOpen, setIsOpen] = useState(false)
@@ -37,15 +41,7 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
 
   return (
     <motion.div className={styles.root}>
-      <DropdownMenu.Root open={isOpen} onOpenChange={(open) => {
-        if (open) {
-          setIsOpen(open)
-          onOpenChange?.(open)
-          return
-        }
-        setIsOpen(false)
-        onOpenChange?.(false)
-      }}>
+      <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
         <DropdownMenu.Trigger asChild>
           <motion.button className={styles.Trigger}>
             <ChevronDown className={styles.Icon} />
@@ -58,23 +54,24 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
               <DropdownMenu.Content
                 side="top"
                 align="start"
+                key="viewport"
                 className={styles.Content}
                 forceMount
                 asChild
               >
-                <motion.div transition={transition}>
-                  <div className={styles.Viewport}>
-                    {options.sort((a) => a === selected ? 1 : -1).map((option) => (
-                      <DropdownMenu.Item
-                        key={option}
-                        className={styles.Item}
-                      >
-                        {/* {option === selected ? <CheckIcon /> : <Mic />} */}
-                        <Mic />
-                        <motion.span transition={transition} initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={styles.Label}>{option}</motion.span>
-                      </DropdownMenu.Item>
-                    ))}
-                  </div>
+                <motion.div
+                  className={styles.Viewport}
+                >
+                  {options.map((option, i) => (
+                    <Item
+                      key={option}
+                      className={styles.Item}
+                      onSelect={() => setSelected(option)}
+                    >
+                      {option === selected ? <CheckIcon /> : <Mic />}
+                      <motion.span className={styles.Label}>{option}</motion.span>
+                    </Item>
+                  ))}
                 </motion.div>
               </DropdownMenu.Content>
             )}</AnimatePresence>
@@ -84,6 +81,8 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
     </motion.div>
   )
 }
+
+const Item = motion(DropdownMenu.Item)
 
 function ButtonWithToolTip() {
   return (
