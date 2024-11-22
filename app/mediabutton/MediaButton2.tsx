@@ -1,6 +1,6 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import styles from './MediaButton2.module.scss';
-import { Mic, ChevronDown, CheckIcon } from 'lucide-react'
+import { Mic, Plus, ChevronDown, CheckIcon } from 'lucide-react'
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion'
 import React, { useEffect, useRef, useState } from "react";
 
@@ -18,13 +18,27 @@ export function MediaButton() {
   return (
     <div className={styles.testContainer}>
       <SegmentedButtonDropdown>
-        <ButtonWithToolTip />
+        <ButtonWithToolTip>
+          <Mic />
+        </ButtonWithToolTip>
       </SegmentedButtonDropdown>
       <SegmentedButtonDropdown>
-        <ButtonWithToolTip />
+        <ButtonWithToolTip>
+          <Mic />
+        </ButtonWithToolTip>
       </SegmentedButtonDropdown>
-      <ButtonWithToolTip />
-      <ButtonWithToolTip />
+      <ButtonWithToolTip>
+        <Mic />
+      </ButtonWithToolTip>
+      <ButtonWithToolTip>
+        <Mic />
+      </ButtonWithToolTip>
+      <ButtonWithToolTip>
+        <Plus />
+      </ButtonWithToolTip>
+      <ButtonWithToolTip>
+        <Mic />
+      </ButtonWithToolTip>
     </div>
   )
 }
@@ -78,10 +92,6 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
                   exit="hidden"
                   transition={{ duration: 0.1 }}
                   style={{ pointerEvents }}
-                // variants={{
-                //   hidden: { opacity: 0 },
-                //   visible: { opacity: 1 }
-                // }}
                 >
                   {options.map((option, i) => (
                     <DropdownMenu.Item key={option} onSelect={() => setSelected(option)} asChild>
@@ -107,8 +117,8 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
                           className={styles.Icon}
                           transition={transition}
                           variants={{
-                            hidden: { opacity: 0 },
-                            visible: { opacity: 1 }
+                            hidden: { opacity: 0, scale: 0.25 },
+                            visible: { opacity: 1, scale: 1 }
                           }}
                         >
                           {option === selected ? <CheckIcon /> : <Mic />}
@@ -117,8 +127,8 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
                           className={styles.Label}
                           transition={{ duration: 0.1 }}
                           variants={{
+                            visible: { opacity: 1, transition: { ...transition, delay: 0.1 } },
                             hidden: { opacity: 0 },
-                            visible: { opacity: 1 }
                           }}
                         >
                           {option === selected &&
@@ -140,10 +150,10 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
 }
 
 
-function ButtonWithToolTip() {
+function ButtonWithToolTip({ children }: { children: React.ReactNode }) {
   return (
     <button className={styles.testButton}>
-      <Mic />
+      {children}
     </button>
   )
 }
