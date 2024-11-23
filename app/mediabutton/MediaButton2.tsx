@@ -66,7 +66,7 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
 
   return (
     <motion.div className={styles.root}>
-      <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen}>
+      <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen} modal={false}>
         <DropdownMenu.Trigger asChild>
           <motion.button className={styles.Trigger}>
             <motion.div initial={false} animate={{ x: !isOpen ? 0 : -22, rotate: !isOpen ? 0 : 180, opacity: !isOpen ? 1 : 0 }} transition={transition}>
@@ -78,79 +78,103 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
           </motion.button>
         </DropdownMenu.Trigger>
 
-        <DropdownMenu.Portal forceMount>
-          <AnimatePresence mode="wait">
-            {isOpen && (
-              <DropdownMenu.Content
-                side="top"
-                align="start"
-                className={styles.Content}
-                sideOffset={8}
-                forceMount
-                asChild
+        <AnimatePresence mode="wait">
+          {isOpen && (
+            <DropdownMenu.Content
+              side="top"
+              align="start"
+              sideOffset={8}
+              forceMount
+              asChild
+            >
+              <motion.div
+                className={styles.Viewport}
+                key="viewport"
+                initial="hidden"
+                animate="visible"
+                exit="hidden"
+                transition={{ duration: 0.1 }}
+                style={{ pointerEvents }}
               >
                 <motion.div
-                  className={styles.Viewport}
-                  key="viewport"
-                  initial="hidden"
-                  animate="visible"
-                  exit="hidden"
-                  transition={{ duration: 0.1 }}
-                  style={{ pointerEvents }}
-                >
-                  {options.map((option, i) => (
-                    <DropdownMenu.Item key={option} onSelect={() => setSelected(option)} asChild>
+                  transition={transition}
+                  className={styles.overlay}
+                  style={{ transformOrigin: 'bottom left' }}
+                  variants={{
+                    visible: {
+                      opacity: 1,
+                      scale: 1,
+                      y: 0,
+                    },
+                    hidden: {
+                      opacity: 0,
+                      scale: 0.5,
+                      y: 0,
+                    }
+                  }}
+                />
+                {options.map((option, i) => (
+                  <DropdownMenu.Item key={option} onSelect={() => setSelected(option)} asChild>
+                    <motion.div
+                      className={styles.Item}
+                      data-selected={option === selected}
+                      onSelect={() => setSelected(option)}
+                      transition={transition}
+                      style={{ transformOrigin: 'bottom left' }}
+                      variants={{
+                        visible: {
+                          y: 0,
+                          opacity: 1,
+                          transition: { ...transition, delay: .01 * (options.length - i) }
+                        },
+                        hidden: {
+                          y: 54 * (options.length - i),
+                          opacity: 0,
+                          transition: { duration: 0.1 }
+                        },
+                      }}
+                    >
                       <motion.div
-                        className={styles.Item}
-                        data-selected={option === selected}
-                        onSelect={() => setSelected(option)}
+                        className={styles.Icon}
                         transition={transition}
-                        style={{ transformOrigin: 'bottom left' }}
                         variants={{
-                          visible: {
-                            y: 0,
-                            opacity: 1,
-                            transition: { ...transition, delay: .01 * (options.length - i) }
-                          },
-                          hidden: {
-                            y: 54 * (options.length - i),
-                            opacity: 0,
-                            transition: { duration: 0.1 }
-                          },
+                          visible: { opacity: 1, scale: 1 },
+                          hidden: { opacity: 0, scale: 0.1, transition: { duration: 0.1 } },
                         }}
                       >
-                        <motion.div
-                          className={styles.Icon}
-                          transition={transition}
-                          variants={{
-                            visible: { opacity: 1, scale: 1 },
-                            hidden: { opacity: 0, scale: 0.1, transition: { duration: 0.1 } },
-                          }}
-                        >
-                          {option === selected ? <CheckIcon /> : <Mic />}
-                        </motion.div>
-                        <motion.div
-                          className={styles.Label}
-                          transition={{ duration: 0.1 }}
-                          variants={{
-                            visible: { opacity: 1, transition: { ...transition, delay: 0.1 } },
-                            hidden: { opacity: 0 },
-                          }}
-                        >
-                          {option === selected &&
-                            <motion.small className={styles.SelectedLabel}>Selected device</motion.small>
-                          }
-                          <span>{option}</span>
-                        </motion.div>
+                        {option === selected ? <CheckIcon /> : <Mic />}
                       </motion.div>
-                    </DropdownMenu.Item>
-                  ))}
-                </motion.div>
-              </DropdownMenu.Content>
-            )}</AnimatePresence>
-        </DropdownMenu.Portal>
+                      <motion.div
+                        className={styles.Label}
+                        transition={{ duration: 0.1 }}
+                        variants={{
+                          visible: { opacity: 1, transition: { ...transition, delay: 0.1 } },
+                          hidden: { opacity: 0 },
+                        }}
+                      >
+                        {option === selected &&
+                          <motion.small className={styles.SelectedLabel}>Selected device</motion.small>
+                        }
+                        <span>{option}</span>
+                      </motion.div>
+                    </motion.div>
+                  </DropdownMenu.Item>
+                ))}
+              </motion.div>
+            </DropdownMenu.Content>
+          )}</AnimatePresence>
       </DropdownMenu.Root>
-      <motion.div animate={{ scale: isOpen ? 0.9 : 1, y: !isOpen ? 0 : -30, opacity: !isOpen ? 1 : 0 }} transition={{ ...transition, opacity: { duration: 0.1 } }}>
+      <motion.div
+        animate={{
+          scale: isOpen ? 0.9 : 1,
+          y: !isOpen ? 0 : -30,
+          opacity: !isOpen ? 1 : 0
+        }}
+        transition={{
+          ...transition,
+          opacity: { duration: 0.1 }
+        }}
+      >
         {children}
       </motion.div>
     </motion.div >

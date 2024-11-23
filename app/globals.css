@@ -34,8 +34,8 @@ body nav {
   flex-direction: column;
   gap: 1rem;
   padding: 1vw;
-  flex: 1;
   padding: 6vw;
+  padding: 6vmin;
 }
 
 body .content {
@@ -44,6 +44,7 @@ body .content {
   display: flex;
   flex-wrap: wrap;
   padding: 6vw;
+  padding: 6vmin;
 }
 
 * {
