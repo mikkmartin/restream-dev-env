@@ -1,6 +1,6 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
 import styles from './MediaButton2.module.scss';
-import { Mic, Plus, ChevronDown, CheckIcon, X, Video } from 'lucide-react'
+import { Mic, Plus, ChevronDown, CheckIcon, X, Video, ChevronUp } from 'lucide-react'
 import { motion, AnimatePresence, useMotionValue } from 'framer-motion'
 import React, { useEffect, useRef, useState } from "react";
 
@@ -70,10 +70,10 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
         <DropdownMenu.Trigger asChild>
           <motion.button className={styles.Trigger}>
             <motion.div initial={false} animate={{ x: !isOpen ? 0 : -22, rotate: !isOpen ? 0 : 180, opacity: !isOpen ? 1 : 0 }} transition={transition}>
-              <ChevronDown className={styles.Icon} />
+              <ChevronUp className={styles.Icon} />
             </motion.div>
             <motion.div initial={false} animate={{ x: !isOpen ? 0 : -22, rotate: !isOpen ? -180 : 0, opacity: isOpen ? 1 : 0 }} transition={transition}>
-              <X className={styles.Icon} />
+              <ChevronDown className={styles.Icon} />
             </motion.div>
           </motion.button>
         </DropdownMenu.Trigger>
