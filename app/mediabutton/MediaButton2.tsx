@@ -165,6 +165,7 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
           )}</AnimatePresence>
       </DropdownMenu.Root>
       <motion.div
+        className={styles.childContainer}
         animate={{
           scale: isOpen ? 0.9 : 1,
           y: !isOpen ? 0 : -30,

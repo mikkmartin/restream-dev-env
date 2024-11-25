@@ -41,6 +41,11 @@
   :last-child {
     grid-area: 1 / 1 / 2 / 2;
   }
+
+  .childContainer {
+    border-radius: 99rem;
+    z-index: 10;
+  }
 }
 
 .Trigger {
@@ -53,7 +58,7 @@
   padding-left: 50%;
   border-radius: 99rem;
   display: grid;
-  z-index: 100;
+  z-index: 10;
   height: 48px;
 
   svg {
@@ -86,7 +91,7 @@
 
     pointer-events: none;
     // background-image: radial-gradient(black 30%, transparent 70%);
-    
+
     // background: red;
     backdrop-filter: blur(1rem);
     // background-image: radial-gradient(#172b4da7 20%, transparent 76%);
