@@ -78,7 +78,7 @@
 .Viewport {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  // gap: 5px;
   position: relative;
 
   .overlay {
@@ -113,7 +113,7 @@
     display: flex;
     color: white;
     background: transparent;
-    gap: 12px;
+    // gap: 12px;
     transition: background 0.1s ease-out;
     padding-right: 20px;
     // backdrop-filter: blur(10px);
@@ -130,7 +130,7 @@
 
     .Icon {
       flex-shrink: 0;
-      background: #56647d89;
+      // background: #56647d89;
       border-radius: 99rem;
       width: 48px;
       height: 48px;
@@ -156,7 +156,7 @@
       // background: transparent;
 
       .Icon {
-        background: #8791a231;
+        // background: #8791a231;
 
         svg {
           opacity: 0.5;
