@@ -1,8 +1,8 @@
 import * as DropdownMenu from "@radix-ui/react-dropdown-menu";
+import { AnimatePresence, motion, useMotionValue } from 'framer-motion';
+import { CheckIcon, ChevronDown, Mic, Plus, Video, X } from 'lucide-react';
+import React, { useEffect, useState } from "react";
 import styles from './MediaButton2.module.scss';
-import { Mic, Plus, ChevronDown, CheckIcon, X, Video } from 'lucide-react'
-import { motion, AnimatePresence, useMotionValue } from 'framer-motion'
-import React, { useEffect, useRef, useState } from "react";
 
 // const transition = { duration: 0.2 }
 const slowmo = { duration: 2 }
@@ -14,34 +14,6 @@ const smooth2 = { type: 'spring', stiffness: 800, damping: 60, mass: .1 }
 const transition = smooth2
 // const transition = {}
 
-export function MediaButton() {
-  return (
-    <div className={styles.testContainer}>
-      <SegmentedButtonDropdown>
-        <ButtonWithToolTip>
-          <Mic />
-        </ButtonWithToolTip>
-      </SegmentedButtonDropdown>
-      <SegmentedButtonDropdown>
-        <ButtonWithToolTip>
-          <Video />
-        </ButtonWithToolTip>
-      </SegmentedButtonDropdown>
-      <ButtonWithToolTip>
-        <Mic />
-      </ButtonWithToolTip>
-      <ButtonWithToolTip>
-        <Mic />
-      </ButtonWithToolTip>
-      <ButtonWithToolTip>
-        <Plus />
-      </ButtonWithToolTip>
-      <ButtonWithToolTip>
-        <Mic />
-      </ButtonWithToolTip>
-    </div>
-  )
-}
 
 const options = [
   'MacBook Pro Microphone (Built in microphone)',
@@ -49,7 +21,7 @@ const options = [
   'Line in (BlackMagic DeckLink Mini Recorder Audio)'
 ]
 
-function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.ReactNode, onOpenChange?: (open: boolean) => void }) {
+export function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.ReactNode, onOpenChange?: (open: boolean) => void }) {
   const [isOpen, setIsOpen] = useState(false)
   const [selected, setSelected] = useState(options[0])
   const pointerEvents = useMotionValue<'none' | 'auto'>('none')
@@ -179,14 +151,5 @@ function SegmentedButtonDropdown({ children, onOpenChange }: { children: React.R
         {children}
       </motion.div>
     </motion.div >
-  )
-}
-
-
-function ButtonWithToolTip({ children }: { children: React.ReactNode }) {
-  return (
-    <button className={styles.testButton}>
-      {children}
-    </button>
   )
 }
