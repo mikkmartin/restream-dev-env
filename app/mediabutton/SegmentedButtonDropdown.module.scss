@@ -89,13 +89,14 @@
     padding-right: 20px;
     // backdrop-filter: blur(10px);
 
-    &:hover,
-    &:focus-within {
+    outline: none;
+
+    &:hover:not([data-selected="true"]),
+    &:focus-within:not([data-selected="true"]) {
       background: #56647d32;
-      outline: none;
 
       .Label {
-        color: #bfc9db;
+        color: white;
       }
     }
 
@@ -135,7 +136,7 @@
       }
 
       .Label {
-        color: #8791a2;
+        // color: #8791a2;
 
         .SelectedLabel {
           font-size: 11px;
