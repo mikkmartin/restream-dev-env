@@ -55,10 +55,10 @@
   .overlay {
     position: absolute;
 
-    inset: -8rem;
-    left: -12rem;
-    right: -12rem;
-    bottom: -12rem;
+    inset: -10rem;
+    left: -14rem;
+    right: -14rem;
+    bottom: -14rem;
 
     pointer-events: none;
     // background-image: radial-gradient(black 30%, transparent 70%);
@@ -66,7 +66,7 @@
     // background: red;
     backdrop-filter: blur(1rem);
     // background-image: radial-gradient(#172b4da7 20%, transparent 76%);
-    background-image: radial-gradient(#172b4dc9 20%, transparent 76%);
+    background-image: radial-gradient(#172b4dc7 0%, transparent 100%);
     mask-image: radial-gradient(black 30%, transparent 70%);
   }
 

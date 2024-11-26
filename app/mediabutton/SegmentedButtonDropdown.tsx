@@ -165,11 +165,11 @@ export function SegmentedButtonDropdown({
                           hidden: { opacity: 0 },
                         }}
                       >
-                        {option === selected && (
+                        {/* {option === selected && (
                           <motion.small className={styles.SelectedLabel}>
                             Selected device
                           </motion.small>
-                        )}
+                        )} */}
                         <span>{option}</span>
                       </motion.div>
                     </motion.div>
