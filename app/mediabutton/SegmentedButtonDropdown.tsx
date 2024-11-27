@@ -2,7 +2,7 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { AnimatePresence, motion, useMotionValue } from 'framer-motion'
 import React, { useEffect, useState } from 'react'
 import styles from './SegmentedButtonDropdown.module.scss'
-import { Mic, ChevronDown, X, CheckIcon } from 'lucide-react'
+import { Mic, CheckIcon, ChevronDown, X } from 'lucide-react'
 
 // const CheckIcon = (_: { className?: string }) => null
 // const ChevronDown = (_: { className?: string }) => null
@@ -17,16 +17,29 @@ import { Mic, ChevronDown, X, CheckIcon } from 'lucide-react'
 const smooth2 = { type: 'spring', stiffness: 800, damping: 60, mass: 0.1 }
 
 const transition = smooth2
-// const transition = {}
+
+const ConditionalWrapper = ({
+  condition,
+  wrapper,
+  children
+}: {
+  condition: boolean,
+  wrapper: (children: React.ReactNode) => React.ReactNode,
+  children: React.ReactNode
+}) => {
+  return condition ? wrapper(children) : children;
+};
 
 export function SegmentedButtonDropdown({
   children,
   options,
-  onValueChange
+  onValueChange,
+  asSegmentedButton,
 }: {
   children: React.ReactNode
   onValueChange?: (value: string) => void
   options: string[]
+  asSegmentedButton?: boolean
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [selected, _setSelected] = useState(options[0])
@@ -48,10 +61,13 @@ export function SegmentedButtonDropdown({
   }, [isOpen])
 
   return (
-    <motion.div className={styles.root}>
+    <ConditionalWrapper
+      condition={Boolean(asSegmentedButton)}
+      wrapper={children => <motion.div className={styles.root}>{children}</motion.div>}
+    >
       <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen} modal={false}>
         <DropdownMenu.Trigger asChild>
-          <motion.button className={styles.Trigger}>
+          {!asSegmentedButton ? children : <motion.button className={styles.Trigger}>
             <motion.div
               initial={false}
               animate={{
@@ -75,6 +91,7 @@ export function SegmentedButtonDropdown({
               <X className={styles.Icon} />
             </motion.div>
           </motion.button>
+          }
         </DropdownMenu.Trigger>
 
         <AnimatePresence>
@@ -180,20 +197,22 @@ export function SegmentedButtonDropdown({
           )}
         </AnimatePresence>
       </DropdownMenu.Root>
-      <motion.div
-        className={styles.childContainer}
-        animate={{
-          scale: isOpen ? 0.9 : 1,
-          y: !isOpen ? 0 : -30,
-          opacity: !isOpen ? 1 : 0,
-        }}
-        transition={{
-          ...transition,
-          opacity: { duration: 0.1 },
-        }}
-      >
-        {children}
-      </motion.div>
-    </motion.div>
+      {asSegmentedButton &&
+        <motion.div
+          className={styles.childContainer}
+          animate={{
+            scale: isOpen ? 0.9 : 1,
+            y: !isOpen ? 0 : -30,
+            opacity: !isOpen ? 1 : 0,
+          }}
+          transition={{
+            ...transition,
+            opacity: { duration: 0.1 },
+          }}
+        >
+          {children}
+        </motion.div>
+      }
+    </ConditionalWrapper >
   )
 }
