@@ -1,9 +1,10 @@
 'use client'
 
-import { Mic, Plus, Video } from 'lucide-react'
+import { Mic, Plus as PlusBase, Video } from 'lucide-react'
 import { SegmentedButtonDropdown } from './SegmentedButtonDropdown'
 import styles from './page.module.scss'
 import { useState } from 'react'
+import { motion } from 'framer-motion'
 
 const micOptions = [
   'MacBook Pro Microphone (Built in microphone)',
@@ -14,15 +15,17 @@ const addMediaOptions = [
   'Presentations',
   'Video storage',
   'Screen share',
-  'Image',
-  'Extra camera',
-  'Local video',
-  'RTMP source',
+  'More',
+  // 'Image',
+  // 'Extra camera',
+  // 'Local video',
+  // 'RTMP source',
 ]
 
 export default function Home() {
-  const [showVideo, setShowVideo] = useState(true)
   const [lightBackground, setLightBackground] = useState(false)
+  const [showVideo, setShowVideo] = useState(true)
+  const [addOpen, setAddOpen] = useState(false)
 
   return (
     <div
@@ -62,9 +65,12 @@ export default function Home() {
           <Mic />
         </ButtonWithToolTip>
 
-        <SegmentedButtonDropdown options={addMediaOptions}>
+        <SegmentedButtonDropdown
+          onOpenChange={setAddOpen}
+          options={addMediaOptions}
+        >
           <ButtonWithToolTip>
-            <Plus />
+            <Plus animate={{ rotate: addOpen ? -135 : 0 }} />
           </ButtonWithToolTip>
         </SegmentedButtonDropdown>
         <ButtonWithToolTip>
@@ -74,6 +80,8 @@ export default function Home() {
     </div>
   )
 }
+
+const Plus = motion.create(PlusBase)
 
 {
   /* <MediaSelect options={micOptions}>

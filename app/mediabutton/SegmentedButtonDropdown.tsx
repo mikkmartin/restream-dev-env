@@ -21,25 +21,27 @@ const transition = smooth2
 const ConditionalWrapper = ({
   condition,
   wrapper,
-  children
+  children,
 }: {
-  condition: boolean,
-  wrapper: (children: React.ReactNode) => React.ReactNode,
+  condition: boolean
+  wrapper: (children: React.ReactNode) => React.ReactNode
   children: React.ReactNode
 }) => {
-  return condition ? wrapper(children) : children;
-};
+  return condition ? wrapper(children) : children
+}
 
 export function SegmentedButtonDropdown({
   children,
   options,
   onValueChange,
   asSegmentedButton,
+  onOpenChange,
 }: {
   children: React.ReactNode
   onValueChange?: (value: string) => void
   options: string[]
   asSegmentedButton?: boolean
+  onOpenChange?: (open: boolean) => void
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [selected, _setSelected] = useState(options[0])
@@ -63,35 +65,47 @@ export function SegmentedButtonDropdown({
   return (
     <ConditionalWrapper
       condition={Boolean(asSegmentedButton)}
-      wrapper={children => <motion.div className={styles.root}>{children}</motion.div>}
+      wrapper={(children) => (
+        <motion.div className={styles.root}>{children}</motion.div>
+      )}
     >
-      <DropdownMenu.Root open={isOpen} onOpenChange={setIsOpen} modal={false}>
+      <DropdownMenu.Root
+        open={isOpen}
+        onOpenChange={(s) => {
+          setIsOpen(s)
+          onOpenChange?.(s)
+        }}
+        modal={false}
+      >
         <DropdownMenu.Trigger asChild>
-          {!asSegmentedButton ? children : <motion.button className={styles.Trigger}>
-            <motion.div
-              initial={false}
-              animate={{
-                x: !isOpen ? 0 : -22,
-                rotate: !isOpen ? 0 : 180,
-                opacity: !isOpen ? 1 : 0,
-              }}
-              transition={transition}
-            >
-              <ChevronDown className={styles.Icon} />
-            </motion.div>
-            <motion.div
-              initial={false}
-              animate={{
-                x: !isOpen ? 0 : -22,
-                rotate: !isOpen ? -180 : 0,
-                opacity: isOpen ? 1 : 0,
-              }}
-              transition={transition}
-            >
-              <X className={styles.Icon} />
-            </motion.div>
-          </motion.button>
-          }
+          {!asSegmentedButton ? (
+            children
+          ) : (
+            <motion.button className={styles.Trigger}>
+              <motion.div
+                initial={false}
+                animate={{
+                  x: !isOpen ? 0 : -22,
+                  rotate: !isOpen ? 0 : 180,
+                  opacity: !isOpen ? 1 : 0,
+                }}
+                transition={transition}
+              >
+                <ChevronDown className={styles.Icon} />
+              </motion.div>
+              <motion.div
+                initial={false}
+                animate={{
+                  x: !isOpen ? 0 : -22,
+                  rotate: !isOpen ? -180 : 0,
+                  opacity: isOpen ? 1 : 0,
+                }}
+                transition={transition}
+              >
+                <X className={styles.Icon} />
+              </motion.div>
+            </motion.button>
+          )}
         </DropdownMenu.Trigger>
 
         <AnimatePresence>
@@ -197,7 +211,7 @@ export function SegmentedButtonDropdown({
           )}
         </AnimatePresence>
       </DropdownMenu.Root>
-      {asSegmentedButton &&
+      {asSegmentedButton && (
         <motion.div
           className={styles.childContainer}
           animate={{
@@ -212,7 +226,7 @@ export function SegmentedButtonDropdown({
         >
           {children}
         </motion.div>
-      }
-    </ConditionalWrapper >
+      )}
+    </ConditionalWrapper>
   )
 }
