@@ -13,7 +13,7 @@ import { Mic, CheckIcon, ChevronDown, X } from 'lucide-react'
 // const slowmo = { duration: 2 }
 // const bouncy = { type: 'spring', stiffness: 500, damping: 25, mass: 1 }
 // const smooth = { type: 'spring', stiffness: 500, damping: 60, mass: 1 }
-// const snappy = { type: 'spring', stiffness: 1000, damping: 20, mass: 0.01 }
+const snappy = { type: 'spring', stiffness: 1000, damping: 20, mass: 0.01 }
 const smooth2 = { type: 'spring', stiffness: 800, damping: 60, mass: 0.1 }
 
 const transition = smooth2
@@ -45,6 +45,7 @@ export function SegmentedButtonDropdown({
 }) {
   const [isOpen, setIsOpen] = useState(false)
   const [selected, _setSelected] = useState(options[0])
+  const [focused, setFocus] = useState(options[0])
   const pointerEvents = useMotionValue<'none' | 'auto'>('none')
 
   const setSelected = (value: string) => {
@@ -74,6 +75,7 @@ export function SegmentedButtonDropdown({
         onOpenChange={(s) => {
           setIsOpen(s)
           onOpenChange?.(s)
+          if (!s) setFocus(selected)
         }}
         modal={false}
       >
@@ -147,6 +149,7 @@ export function SegmentedButtonDropdown({
                   <DropdownMenu.Item
                     key={option}
                     onSelect={() => setSelected(option)}
+                    onFocus={() => setFocus(option)}
                     asChild
                   >
                     <motion.div
@@ -183,7 +186,7 @@ export function SegmentedButtonDropdown({
                           },
                         }}
                       >
-                        {option === selected ? <CheckIcon /> : <Mic />}
+                        {option === selected && <CheckIcon />}
                       </motion.div>
                       <motion.div
                         className={styles.Label}
@@ -196,11 +199,13 @@ export function SegmentedButtonDropdown({
                           hidden: { opacity: 0 },
                         }}
                       >
-                        {/* {option === selected && (
-                          <motion.small className={styles.SelectedLabel}>
-                            Selected device
-                          </motion.small>
-                        )} */}
+                        {option === focused && (
+                          <motion.div
+                            layoutId="focused"
+                            transition={snappy}
+                            className={styles.FocusedLabel}
+                          />
+                        )}
                         <span>{option}</span>
                       </motion.div>
                     </motion.div>

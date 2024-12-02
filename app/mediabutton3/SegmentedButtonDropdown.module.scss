@@ -36,7 +36,7 @@
     display: block;
   }
 
-  &>div {
+  & > div {
     grid-area: 1 / 1;
   }
 
@@ -49,7 +49,6 @@
 .Viewport {
   display: flex;
   flex-direction: column;
-  gap: 5px;
   position: relative;
 
   .overlay {
@@ -82,33 +81,41 @@
     position: relative;
     user-select: none;
     display: flex;
+
     color: white;
     background: transparent;
-    gap: 12px;
-    transition: background 0.1s ease-out;
     padding-right: 20px;
     // backdrop-filter: blur(10px);
-
     outline: none;
+    padding-left: 6px;
 
-    &:hover:not([data-selected="true"]),
-    &:focus-within:not([data-selected="true"]) {
-      background: #56647d32;
-
+    &:hover:not([data-selected='true']),
+    &:focus-within:not([data-selected='true']) {
       .Label {
         color: white;
       }
     }
 
+    &:active {
+      background: white;
+      color: black;
+      .Icon {
+        color: black !important;
+      }
+      .Label {
+        color: black !important;
+      }
+    }
+
     .Icon {
       flex-shrink: 0;
-      background: #56647d89;
       border-radius: 99rem;
       width: 48px;
       height: 48px;
       display: flex;
       align-items: center;
       justify-content: center;
+      z-index: 1;
 
       svg {
         width: 20px;
@@ -124,28 +131,23 @@
       color: #bfc9db;
     }
 
-    &[data-selected="true"] {
+    .FocusedLabel {
+      background-color: rgba(255, 255, 255, 0.088);
+      position: absolute;
+      inset: 0;
+      border-radius: 99rem;
+    }
+
+    span {
+      z-index: 1;
+    }
+
+    &[data-selected='true'] {
       // background: transparent;
 
       .Icon {
-        background: #8791a231;
-
-        svg {
-          opacity: 0.5;
-        }
-      }
-
-      .Label {
-        // color: #8791a2;
-
-        .SelectedLabel {
-          font-size: 11px;
-          line-height: 1;
-          letter-spacing: 0.05em;
-          opacity: 0.75;
-        }
+        background: transparent;
       }
     }
-
   }
 }
