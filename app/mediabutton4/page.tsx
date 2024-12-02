@@ -50,9 +50,11 @@ export default function Home() {
       </div>
       <div className={styles.testContainer}>
         <MediaSelect.Root>
-          <MediaSelect.Trigger>
+          <MediaSelect.Trigger asChild>
             <ButtonSegment>
-              <button>Hello</button>
+              <ButtonWithToolTip>
+                <Mic />
+              </ButtonWithToolTip>
             </ButtonSegment>
           </MediaSelect.Trigger>
           <MediaSelect.Content>
@@ -67,3 +69,15 @@ export default function Home() {
 }
 
 const Plus = motion.create(PlusBase)
+function ButtonWithToolTip({
+  children,
+  ...props
+}: {
+  children: React.ReactNode
+} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
+  return (
+    <button className={styles.testButton} {...props}>
+      {children}
+    </button>
+  )
+}
