@@ -57,11 +57,11 @@ export default function Home() {
               </ButtonWithToolTip>
             </ButtonSegment>
           </MediaSelect.Trigger>
-          {/* <MediaSelect.Content>
+          <MediaSelect.Content>
             <MediaSelect.Item>Option 1</MediaSelect.Item>
             <MediaSelect.Item>Option 2</MediaSelect.Item>
             <MediaSelect.Item>Option 3</MediaSelect.Item>
-          </MediaSelect.Content> */}
+          </MediaSelect.Content>
         </MediaSelect.Root>
         <MediaSelect.Root>
           <MediaSelect.Trigger asChild>

@@ -236,12 +236,21 @@ export function SegmentedButtonDropdown({
   )
 }
 
-const Content = ({ children }: { children: React.ReactNode }) => (
-  <div className={styles.Content}>{children}</div>
+const Content = ({
+  children,
+}: React.ComponentPropsWithoutRef<typeof DropdownMenu.Content>) => (
+  <DropdownMenu.Content className={styles.Content}>
+    {children}
+  </DropdownMenu.Content>
 )
 
-const Item = ({ children }: { children: React.ReactNode }) => (
-  <div className={styles.Item}>{children}</div>
+const Item = ({
+  children,
+  ...props
+}: React.ComponentPropsWithoutRef<typeof DropdownMenu.Item>) => (
+  <DropdownMenu.Item className={styles.Item} {...props}>
+    {children}
+  </DropdownMenu.Item>
 )
 
 const Root = DropdownMenu.Root
