@@ -1,8 +1,21 @@
 .root {
-  display: flex;
-  gap: 0.5rem;
+  display: grid;
+  grid-template-columns: 1fr 0.75fr;
+  border-radius: 99rem;
+
+  :first-child {
+    grid-area: 1 / 1 / 2 / 2;
+  }
 }
 
 .trigger {
   all: unset;
+  grid-area: 1 / 1 / 2 / 3;
+  background: rgba(255, 255, 255, 0.075);
+  padding-left: 65%;
+  border-radius: 99rem;
+}
+
+.icon {
+  display: block;
 }

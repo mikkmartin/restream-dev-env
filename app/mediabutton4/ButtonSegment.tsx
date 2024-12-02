@@ -11,7 +11,7 @@ export function ButtonSegment({
     <div className={styles.root}>
       {children}
       <button className={styles.trigger} {...rest}>
-        <ChevronDown />
+        <ChevronDown className={styles.icon} />
       </button>
     </div>
   )
