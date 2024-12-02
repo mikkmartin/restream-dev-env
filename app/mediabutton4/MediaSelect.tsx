@@ -244,10 +244,12 @@ const Content = ({
   </DropdownMenu.Content>
 )
 
-const Item = ({
-  children,
-  ...props
-}: React.ComponentPropsWithoutRef<typeof DropdownMenu.Item>) => (
+interface ItemProps
+  extends React.ComponentPropsWithoutRef<typeof DropdownMenu.Item> {
+  selected?: boolean
+}
+
+const Item = ({ children, selected, ...props }: ItemProps) => (
   <DropdownMenu.Item className={styles.Item} {...props}>
     {children}
   </DropdownMenu.Item>
