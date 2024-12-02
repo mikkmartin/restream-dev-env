@@ -32,6 +32,7 @@ export default function RootLayout({
           <Link href="/slider">Slider</Link>
           <Link href="/mediabutton">Media Button</Link>
           <Link href="/mediabutton2">Media Button 2</Link>
+          <Link href="/mediabutton3">Media Button 3</Link>
           <Link href="/audio-gain">Audio Gain</Link>
         </nav>
         <div className="content">{children}</div>
