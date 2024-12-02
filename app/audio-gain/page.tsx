@@ -14,7 +14,7 @@ export default function AudioGain() {
 
   return (
     <div>
-      <p>Audio Gain</p>
+      <AudioGain />
       {/* <MicrophonePane /> */}
     </div>
   )
