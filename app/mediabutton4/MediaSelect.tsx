@@ -21,7 +21,17 @@ const Item = ({ children, selected, ...props }: ItemProps) => (
   </DropdownMenu.Item>
 )
 
-const Root = DropdownMenu.Root
-const Trigger = DropdownMenu.Trigger
+interface RootProps
+  extends Omit<
+    React.ComponentPropsWithoutRef<typeof DropdownMenu.Root>,
+    'modal'
+  > {}
 
+const Root = ({ children, ...rest }: RootProps) => (
+  <DropdownMenu.Root modal={false} {...rest}>
+    {children}
+  </DropdownMenu.Root>
+)
+
+const Trigger = DropdownMenu.Trigger
 export { Content, Item, Root, Trigger }

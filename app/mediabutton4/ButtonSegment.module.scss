@@ -14,6 +14,13 @@
   background: rgba(255, 255, 255, 0.075);
   padding-left: 65%;
   border-radius: 99rem;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.1);
+  }
+  &:hover:active {
+    background: rgba(255, 255, 255, 1);
+  }
 }
 
 .icon {
