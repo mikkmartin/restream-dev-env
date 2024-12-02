@@ -1,10 +1,11 @@
 'use client'
 
 import { Mic, Plus as PlusBase, Video } from 'lucide-react'
-import { SegmentedButtonDropdown } from './SegmentedButtonDropdown'
+import * as MediaSelect from './MediaSelect'
 import styles from './page.module.scss'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { ButtonSegment } from './ButtonSegment'
 
 const micOptions = [
   'MacBook Pro Microphone (Built in microphone)',
@@ -48,63 +49,21 @@ export default function Home() {
         />
       </div>
       <div className={styles.testContainer}>
-        <SegmentedButtonDropdown options={micOptions} asSegmentedButton>
-          <ButtonWithToolTip>
-            <Mic />
-          </ButtonWithToolTip>
-        </SegmentedButtonDropdown>
-        <SegmentedButtonDropdown options={micOptions} asSegmentedButton>
-          <ButtonWithToolTip>
-            <Video />
-          </ButtonWithToolTip>
-        </SegmentedButtonDropdown>
-        <ButtonWithToolTip>
-          <Mic />
-        </ButtonWithToolTip>
-        <ButtonWithToolTip>
-          <Mic />
-        </ButtonWithToolTip>
-
-        <SegmentedButtonDropdown
-          onOpenChange={setAddOpen}
-          options={addMediaOptions}
-        >
-          <ButtonWithToolTip>
-            <Plus animate={{ rotate: addOpen ? -135 : 0 }} />
-          </ButtonWithToolTip>
-        </SegmentedButtonDropdown>
-        <ButtonWithToolTip>
-          <Mic />
-        </ButtonWithToolTip>
+        <MediaSelect.Root>
+          <MediaSelect.Trigger>
+            <ButtonSegment>
+              <button>Hello</button>
+            </ButtonSegment>
+          </MediaSelect.Trigger>
+          <MediaSelect.Content>
+            <MediaSelect.Item>Option 1</MediaSelect.Item>
+            <MediaSelect.Item>Option 2</MediaSelect.Item>
+            <MediaSelect.Item>Option 3</MediaSelect.Item>
+          </MediaSelect.Content>
+        </MediaSelect.Root>
       </div>
     </div>
   )
 }
 
 const Plus = motion.create(PlusBase)
-
-{
-  /* <MediaSelect options={micOptions}>
-  <MediaSelectTrigger>
-    <Plus />
-  </MediaSelectTrigger>
-  <MediaSelectContent>
-    {micOptions.map((option) => (
-      <MediaSelectItem key={option}>{option}</MediaSelectItem>
-    ))}
-  </MediaSelectContent>
-</MediaSelect> */
-}
-
-function ButtonWithToolTip({
-  children,
-  ...props
-}: {
-  children: React.ReactNode
-} & React.ButtonHTMLAttributes<HTMLButtonElement>) {
-  return (
-    <button className={styles.testButton} {...props}>
-      {children}
-    </button>
-  )
-}

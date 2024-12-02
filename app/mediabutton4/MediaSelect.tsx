@@ -1,7 +1,7 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import { AnimatePresence, motion, useMotionValue } from 'framer-motion'
 import React, { useEffect, useState } from 'react'
-import styles from './SegmentedButtonDropdown.module.scss'
+import styles from './MediaSelect.module.scss'
 import { Mic, CheckIcon, ChevronDown, X } from 'lucide-react'
 
 // const CheckIcon = (_: { className?: string }) => null
@@ -235,3 +235,21 @@ export function SegmentedButtonDropdown({
     </ConditionalWrapper>
   )
 }
+
+const Root = ({ children }: { children: React.ReactNode }) => (
+  <div className={styles.root}>{children}</div>
+)
+
+const Trigger = ({ children }: { children: React.ReactNode }) => (
+  <div className={styles.Trigger}>{children}</div>
+)
+
+const Content = ({ children }: { children: React.ReactNode }) => (
+  <div className={styles.Content}>{children}</div>
+)
+
+const Item = ({ children }: { children: React.ReactNode }) => (
+  <div className={styles.Item}>{children}</div>
+)
+
+export { Root, Trigger, Content, Item }
