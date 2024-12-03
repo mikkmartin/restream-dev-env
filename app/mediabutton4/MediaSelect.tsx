@@ -4,7 +4,12 @@ import styles from './MediaSelect.module.scss'
 import { observer } from 'mobx-react-lite'
 import { AnimatePresence, motion } from 'framer-motion'
 
-const TERANSITION = { type: 'spring', stiffness: 800, damping: 60, mass: 0.1 }
+const SPRING_TRANSITION_SMOOTH = {
+  type: 'spring',
+  stiffness: 800,
+  damping: 60,
+  mass: 0.1,
+}
 
 interface MediaSelectContextType {
   isOpen: boolean
@@ -31,6 +36,7 @@ const Content = ({
     <AnimatePresence>
       {isOpen && (
         <DropdownMenu.Content
+          key="content"
           className={styles.content}
           side="top"
           align="start"
@@ -39,24 +45,28 @@ const Content = ({
           asChild
         >
           <motion.div
-            transition={TERANSITION}
             initial="hidden"
             animate="visible"
             exit="hidden"
-            style={{ transformOrigin: 'bottom left' }}
-            variants={{
-              visible: {
-                opacity: 1,
-                scale: 1,
-                y: 0,
-              },
-              hidden: {
-                opacity: 0,
-                scale: 0.7,
-                y: 0,
-              },
-            }}
+            transition={{ duration: 0.1 }}
           >
+            <motion.div
+              className={styles.overlay}
+              transition={SPRING_TRANSITION_SMOOTH}
+              style={{ transformOrigin: 'bottom left' }}
+              variants={{
+                visible: {
+                  opacity: 1,
+                  scale: 1,
+                  y: 0,
+                },
+                hidden: {
+                  opacity: 0,
+                  scale: 0.7,
+                  y: 0,
+                },
+              }}
+            />
             {children}
           </motion.div>
         </DropdownMenu.Content>

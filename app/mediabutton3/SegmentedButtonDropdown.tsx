@@ -129,8 +129,8 @@ export function SegmentedButtonDropdown({
                 style={{ pointerEvents }}
               >
                 <motion.div
-                  transition={transition}
                   className={styles.overlay}
+                  transition={transition}
                   style={{ transformOrigin: 'bottom left' }}
                   variants={{
                     visible: {

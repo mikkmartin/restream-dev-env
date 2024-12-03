@@ -2,6 +2,7 @@
   display: grid;
   grid-template-columns: 1fr 0.75fr;
   border-radius: 99rem;
+  z-index: 1;
 
   :first-child {
     grid-area: 1 / 1 / 2 / 2;
