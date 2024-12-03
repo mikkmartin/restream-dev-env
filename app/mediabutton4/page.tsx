@@ -65,7 +65,11 @@ export default function Home() {
               onValueChange={setSelectedMic}
             >
               {micOptions.map((option) => (
-                <MediaSelect.RadioItem key={option} value={option}>
+                <MediaSelect.RadioItem
+                  defaultFocused={option === selectedMic}
+                  value={option}
+                  key={option}
+                >
                   {option}
                 </MediaSelect.RadioItem>
               ))}

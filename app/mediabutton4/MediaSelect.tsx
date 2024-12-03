@@ -93,10 +93,12 @@ const Content = ({
 }
 
 interface ItemProps
-  extends React.ComponentPropsWithoutRef<typeof DropdownMenu.RadioItem> {}
+  extends React.ComponentPropsWithoutRef<typeof DropdownMenu.RadioItem> {
+  defaultFocused?: boolean
+}
 
-const RadioItem = ({ children, ...props }: ItemProps) => {
-  const [isFocused, setIsFocused] = useState(false)
+const RadioItem = ({ children, defaultFocused, ...props }: ItemProps) => {
+  const [isFocused, setIsFocused] = useState(defaultFocused || false)
   const { uuid } = useMediaSelect()
 
   return (
@@ -109,12 +111,15 @@ const RadioItem = ({ children, ...props }: ItemProps) => {
     >
       <motion.div
         className={styles.item}
+        transition={SPRING_TRANSITION_SMOOTH}
         variants={{
           hidden: {
             opacity: 0,
+            y: 54,
           },
           visible: {
             opacity: 1,
+            y: 0,
           },
         }}
       >
