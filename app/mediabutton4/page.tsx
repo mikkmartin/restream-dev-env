@@ -60,11 +60,16 @@ export default function Home() {
             </ButtonSegment>
           </MediaSelect.Trigger>
           <MediaSelect.Content>
-            {micOptions.map((option) => (
-              <MediaSelect.Item key={option} selected={selectedMic === option}>
-                {option}
-              </MediaSelect.Item>
-            ))}
+            <MediaSelect.RadioGroup
+              value={selectedMic}
+              onValueChange={setSelectedMic}
+            >
+              {micOptions.map((option) => (
+                <MediaSelect.RadioItem key={option} value={option}>
+                  {option}
+                </MediaSelect.RadioItem>
+              ))}
+            </MediaSelect.RadioGroup>
           </MediaSelect.Content>
         </MediaSelect.Root>
 
@@ -78,15 +83,16 @@ export default function Home() {
             </ButtonSegment>
           </MediaSelect.Trigger>
           <MediaSelect.Content>
-            {camOptions.map((option) => (
-              <MediaSelect.Item
-                key={option}
-                textValue={option}
-                selected={selectedCam === option}
-              >
-                {option}
-              </MediaSelect.Item>
-            ))}
+            <MediaSelect.RadioGroup
+              value={selectedCam}
+              onValueChange={setSelectedCam}
+            >
+              {camOptions.map((option) => (
+                <MediaSelect.RadioItem key={option} value={option}>
+                  {option}
+                </MediaSelect.RadioItem>
+              ))}
+            </MediaSelect.RadioGroup>
           </MediaSelect.Content>
         </MediaSelect.Root>
 
@@ -105,9 +111,15 @@ export default function Home() {
             }}
           </Observer>
           <MediaSelect.Content>
-            <MediaSelect.Item>Option 1</MediaSelect.Item>
-            <MediaSelect.Item>Option 2</MediaSelect.Item>
-            <MediaSelect.Item>Option 3</MediaSelect.Item>
+            <MediaSelect.RadioItem value="Option 1">
+              Option 1
+            </MediaSelect.RadioItem>
+            <MediaSelect.RadioItem value="Option 2">
+              Option 2
+            </MediaSelect.RadioItem>
+            <MediaSelect.RadioItem value="Option 3">
+              Option 3
+            </MediaSelect.RadioItem>
           </MediaSelect.Content>
         </MediaSelect.Root>
       </div>

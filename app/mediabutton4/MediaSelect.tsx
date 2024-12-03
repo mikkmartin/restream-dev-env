@@ -3,6 +3,7 @@ import React, { createContext, useContext, useId, useState } from 'react'
 import styles from './MediaSelect.module.scss'
 import { observer } from 'mobx-react-lite'
 import { AnimatePresence, motion } from 'framer-motion'
+import { CheckIcon } from 'lucide-react'
 
 const SPRING_TRANSITION_SMOOTH = {
   type: 'spring',
@@ -92,18 +93,16 @@ const Content = ({
 }
 
 interface ItemProps
-  extends React.ComponentPropsWithoutRef<typeof DropdownMenu.Item> {
-  selected?: boolean
-}
+  extends React.ComponentPropsWithoutRef<typeof DropdownMenu.RadioItem> {}
 
-const Item = ({ children, selected, ...props }: ItemProps) => {
+const RadioItem = ({ children, ...props }: ItemProps) => {
   const [isFocused, setIsFocused] = useState(false)
   const { uuid } = useMediaSelect()
 
   return (
-    <DropdownMenu.Item
-      asChild
+    <DropdownMenu.RadioItem
       {...props}
+      asChild
       className={styles.item}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
@@ -119,6 +118,9 @@ const Item = ({ children, selected, ...props }: ItemProps) => {
           },
         }}
       >
+        <DropdownMenu.ItemIndicator className={styles.checkbox}>
+          <CheckIcon />
+        </DropdownMenu.ItemIndicator>
         {children}
         {isFocused && (
           <motion.div
@@ -128,7 +130,7 @@ const Item = ({ children, selected, ...props }: ItemProps) => {
           />
         )}
       </motion.div>
-    </DropdownMenu.Item>
+    </DropdownMenu.RadioItem>
   )
 }
 
@@ -157,4 +159,5 @@ const Root = observer(({ children, ...rest }: RootProps) => {
 })
 
 const Trigger = DropdownMenu.Trigger
-export { Content, Item, Root, Trigger }
+const RadioGroup = DropdownMenu.RadioGroup
+export { Content, RadioItem, Root, Trigger, RadioGroup }

@@ -1,6 +1,5 @@
 .content {
   position: relative;
-  background: rgba(255, 255, 0, 0.2);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -26,6 +25,10 @@
   background: rgba(255, 255, 0, 0.2);
   position: relative;
   padding: 10px;
+}
+
+.checkbox {
+  position: absolute;
 }
 
 .highlight {
