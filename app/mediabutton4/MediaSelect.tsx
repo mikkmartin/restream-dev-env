@@ -2,6 +2,9 @@ import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
 import React, { createContext, useContext, useState } from 'react'
 import styles from './MediaSelect.module.scss'
 import { observer } from 'mobx-react-lite'
+import { AnimatePresence, motion } from 'framer-motion'
+
+const TERANSITION = { type: 'spring', stiffness: 800, damping: 60, mass: 0.1 }
 
 interface MediaSelectContextType {
   isOpen: boolean
@@ -22,11 +25,45 @@ export const useMediaSelect = () => {
 
 const Content = ({
   children,
-}: React.ComponentPropsWithoutRef<typeof DropdownMenu.Content>) => (
-  <DropdownMenu.Content className={styles.Content}>
-    {children}
-  </DropdownMenu.Content>
-)
+}: React.ComponentPropsWithoutRef<typeof DropdownMenu.Content>) => {
+  const { isOpen } = useMediaSelect()
+  return (
+    <AnimatePresence>
+      {isOpen && (
+        <DropdownMenu.Content
+          className={styles.content}
+          side="top"
+          align="start"
+          sideOffset={8}
+          forceMount
+          asChild
+        >
+          <motion.div
+            transition={TERANSITION}
+            initial="hidden"
+            animate="visible"
+            exit="hidden"
+            style={{ transformOrigin: 'bottom left' }}
+            variants={{
+              visible: {
+                opacity: 1,
+                scale: 1,
+                y: 0,
+              },
+              hidden: {
+                opacity: 0,
+                scale: 0.7,
+                y: 0,
+              },
+            }}
+          >
+            {children}
+          </motion.div>
+        </DropdownMenu.Content>
+      )}
+    </AnimatePresence>
+  )
+}
 
 interface ItemProps
   extends React.ComponentPropsWithoutRef<typeof DropdownMenu.Item> {
