@@ -1,13 +1,13 @@
 'use client'
 
-import { Camera, Mic, Plus as PlusBase, Video } from 'lucide-react'
-import * as MediaSelect from './MediaSelect'
-import styles from './page.module.scss'
-import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { ButtonSegment } from './ButtonSegment'
+import { Mic, Plus as PlusBase, Video } from 'lucide-react'
 import { Observer } from 'mobx-react-lite'
+import { useState } from 'react'
+import { ButtonSegment } from './ButtonSegment'
+import * as MediaSelect from './MediaSelect'
 import { useMediaSelect } from './MediaSelect'
+import styles from './page.module.scss'
 
 const micOptions = [
   'MacBook Pro Microphone (Built in microphone)',
@@ -65,11 +65,7 @@ export default function Home() {
               onValueChange={setSelectedMic}
             >
               {micOptions.map((option) => (
-                <MediaSelect.RadioItem
-                  defaultFocused={option === selectedMic}
-                  value={option}
-                  key={option}
-                >
+                <MediaSelect.RadioItem value={option} key={option}>
                   {option}
                 </MediaSelect.RadioItem>
               ))}
@@ -92,11 +88,7 @@ export default function Home() {
               onValueChange={setSelectedCam}
             >
               {camOptions.map((option) => (
-                <MediaSelect.RadioItem
-                  key={option}
-                  value={option}
-                  defaultFocused={option === selectedCam}
-                >
+                <MediaSelect.RadioItem key={option} value={option}>
                   {option}
                 </MediaSelect.RadioItem>
               ))}
@@ -112,7 +104,7 @@ export default function Home() {
               return (
                 <MediaSelect.Trigger asChild>
                   <ButtonWithToolTip>
-                    <Plus animate={{ rotate: isOpen ? -45 : 0 }} />
+                    <Plus animate={{ rotate: isOpen ? -135 : 0 }} />
                   </ButtonWithToolTip>
                 </MediaSelect.Trigger>
               )

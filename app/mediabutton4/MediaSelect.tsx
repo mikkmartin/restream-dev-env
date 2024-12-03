@@ -94,11 +94,9 @@ const Content = ({
 }
 
 interface ItemProps
-  extends React.ComponentPropsWithoutRef<typeof DropdownMenu.RadioItem> {
-  defaultFocused?: boolean
-}
+  extends React.ComponentPropsWithoutRef<typeof DropdownMenu.RadioItem> {}
 
-const RadioItem = ({ children, defaultFocused, ...props }: ItemProps) => {
+const RadioItem = ({ children, ...props }: ItemProps) => {
   const [isFocused, setIsFocused] = useState(false)
   const { uuid } = useMediaSelect()
 
@@ -151,8 +149,6 @@ interface RootProps
 const Root = observer(({ children, ...rest }: RootProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const uuid = useId()
-
-  console.log('isOpen', isOpen)
 
   return (
     <DropdownMenu.Root
