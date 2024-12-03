@@ -79,7 +79,11 @@ export default function Home() {
           </MediaSelect.Trigger>
           <MediaSelect.Content>
             {camOptions.map((option) => (
-              <MediaSelect.Item key={option} selected={selectedCam === option}>
+              <MediaSelect.Item
+                key={option}
+                textValue={option}
+                selected={selectedCam === option}
+              >
                 {option}
               </MediaSelect.Item>
             ))}

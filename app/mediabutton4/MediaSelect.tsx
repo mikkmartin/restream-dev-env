@@ -1,5 +1,5 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import React, { createContext, useContext, useState } from 'react'
+import React, { createContext, useContext, useId, useState } from 'react'
 import styles from './MediaSelect.module.scss'
 import { observer } from 'mobx-react-lite'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -11,7 +11,15 @@ const SPRING_TRANSITION_SMOOTH = {
   mass: 0.1,
 }
 
+const SPRING_TRANSITION_STIFF = {
+  type: 'spring',
+  stiffness: 1000,
+  damping: 20,
+  mass: 0.01,
+}
+
 interface MediaSelectContextType {
+  uuid: string
   isOpen: boolean
   setIsOpen: (value: boolean) => void
 }
@@ -32,6 +40,7 @@ const Content = ({
   children,
 }: React.ComponentPropsWithoutRef<typeof DropdownMenu.Content>) => {
   const { isOpen } = useMediaSelect()
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -87,23 +96,41 @@ interface ItemProps
   selected?: boolean
 }
 
-const Item = ({ children, selected, ...props }: ItemProps) => (
-  <DropdownMenu.Item className={styles.item} {...props} asChild>
-    <motion.div
+const Item = ({ children, selected, ...props }: ItemProps) => {
+  const [isFocused, setIsFocused] = useState(false)
+  const { uuid } = useMediaSelect()
+
+  return (
+    <DropdownMenu.Item
+      asChild
+      {...props}
       className={styles.item}
-      variants={{
-        hidden: {
-          opacity: 0,
-        },
-        visible: {
-          opacity: 1,
-        },
-      }}
+      onFocus={() => setIsFocused(true)}
+      onBlur={() => setIsFocused(false)}
     >
-      {children}
-    </motion.div>
-  </DropdownMenu.Item>
-)
+      <motion.div
+        className={styles.item}
+        variants={{
+          hidden: {
+            opacity: 0,
+          },
+          visible: {
+            opacity: 1,
+          },
+        }}
+      >
+        {children}
+        {isFocused && (
+          <motion.div
+            transition={SPRING_TRANSITION_STIFF}
+            className={styles.highlight}
+            layoutId={uuid}
+          />
+        )}
+      </motion.div>
+    </DropdownMenu.Item>
+  )
+}
 
 interface RootProps
   extends Omit<
@@ -113,9 +140,10 @@ interface RootProps
 
 const Root = observer(({ children, ...rest }: RootProps) => {
   const [isOpen, setIsOpen] = useState(false)
+  const uuid = useId()
 
   return (
-    <MediaSelectContext.Provider value={{ isOpen, setIsOpen }}>
+    <MediaSelectContext.Provider value={{ uuid, isOpen, setIsOpen }}>
       <DropdownMenu.Root
         modal={false}
         open={isOpen}
