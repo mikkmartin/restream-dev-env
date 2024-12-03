@@ -99,7 +99,7 @@ interface ItemProps
 }
 
 const RadioItem = ({ children, defaultFocused, ...props }: ItemProps) => {
-  const [isFocused, setIsFocused] = useState(defaultFocused || false)
+  const [isFocused, setIsFocused] = useState(false)
   const { uuid } = useMediaSelect()
 
   return (
@@ -114,10 +114,7 @@ const RadioItem = ({ children, defaultFocused, ...props }: ItemProps) => {
       <motion.div
         className={styles.item}
         transition={SPRING_TRANSITION_SMOOTH}
-        initial={{
-          opacity: 0,
-          y: 20,
-        }}
+        initial={{ opacity: 0, y: 20 }}
         variants={{
           hidden: {
             opacity: 0,
