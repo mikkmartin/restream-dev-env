@@ -1,8 +1,8 @@
 .content {
   position: relative;
-  padding: 10px;
   display: flex;
   flex-direction: column;
+  border-radius: 24px;
 }
 
 .overlay {
@@ -21,18 +21,30 @@
   mask-image: radial-gradient(black 30%, transparent 70%);
 }
 
+// Select item
+
 .item {
-  background: rgba(255, 255, 0, 0.2);
   position: relative;
-  padding: 10px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  padding-left: 40px;
+  font-size: 13px;
+  letter-spacing: 0.02em;
 }
 
 .checkbox {
   position: absolute;
+  left: 16px;
+  svg {
+    display: block;
+  }
 }
 
 .highlight {
   position: absolute;
   inset: 0;
-  background: rgba(255, 255, 0, 0.3);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 24px;
 }
