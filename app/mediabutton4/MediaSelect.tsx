@@ -48,7 +48,14 @@ const Content = ({
             initial="hidden"
             animate="visible"
             exit="hidden"
-            transition={{ duration: 0.1 }}
+            variants={{
+              visible: {
+                transition: {
+                  staggerChildren: 0.05,
+                  staggerDirection: -1,
+                },
+              },
+            }}
           >
             <motion.div
               className={styles.overlay}
@@ -81,8 +88,20 @@ interface ItemProps
 }
 
 const Item = ({ children, selected, ...props }: ItemProps) => (
-  <DropdownMenu.Item className={styles.Item} {...props}>
-    {children}
+  <DropdownMenu.Item className={styles.item} {...props} asChild>
+    <motion.div
+      className={styles.item}
+      variants={{
+        hidden: {
+          opacity: 0,
+        },
+        visible: {
+          opacity: 1,
+        },
+      }}
+    >
+      {children}
+    </motion.div>
   </DropdownMenu.Item>
 )
 

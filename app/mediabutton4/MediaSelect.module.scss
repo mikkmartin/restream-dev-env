@@ -1,6 +1,6 @@
 .content {
   position: relative;
-  background: rgba(255, 255, 0, 0.274);
+  background: rgba(255, 255, 0, 0.2);
   padding: 10px;
   display: flex;
   flex-direction: column;
@@ -21,4 +21,8 @@
   backdrop-filter: blur(1rem);
   background-image: radial-gradient(#172b4dc7 0%, transparent 100%);
   mask-image: radial-gradient(black 30%, transparent 70%);
+}
+
+.item {
+  background: rgba(255, 255, 0, 0.2);
 }
