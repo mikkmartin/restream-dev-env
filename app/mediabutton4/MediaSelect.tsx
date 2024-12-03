@@ -152,17 +152,19 @@ const Root = observer(({ children, ...rest }: RootProps) => {
   const [isOpen, setIsOpen] = useState(false)
   const uuid = useId()
 
+  console.log('isOpen', isOpen)
+
   return (
-    <MediaSelectContext.Provider value={{ uuid, isOpen, setIsOpen }}>
-      <DropdownMenu.Root
-        modal={false}
-        open={isOpen}
-        onOpenChange={setIsOpen}
-        {...rest}
-      >
+    <DropdownMenu.Root
+      modal={false}
+      open={isOpen}
+      onOpenChange={setIsOpen}
+      {...rest}
+    >
+      <MediaSelectContext.Provider value={{ uuid, isOpen, setIsOpen }}>
         {children}
-      </DropdownMenu.Root>
-    </MediaSelectContext.Provider>
+      </MediaSelectContext.Provider>
+    </DropdownMenu.Root>
   )
 })
 

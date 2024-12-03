@@ -35,23 +35,29 @@ export function ButtonSegment({
         {children}
       </motion.div>
       <button className={styles.trigger} {...rest}>
-        <AnimatePresence mode="popLayout">
+        <AnimatePresence mode="popLayout" initial={false}>
           {!isOpen ? (
             <IconChevronDown
               key="chevron"
               className={styles.icon}
-              transition={SPRING_TRANSITION_SMOOTH}
-              initial={{ x: -ICON_OFFSET, opacity: 0, rotate: 180 }}
+              transition={{
+                ...SPRING_TRANSITION_SMOOTH,
+                opacity: { duration: 0.1 },
+              }}
+              initial={{ x: -ICON_OFFSET, opacity: 0, rotate: 90 }}
               animate={{ x: 0, opacity: 1, rotate: 0 }}
-              exit={{ x: -ICON_OFFSET, opacity: 0, rotate: 180 }}
+              exit={{ x: -ICON_OFFSET, opacity: 0, rotate: 90 }}
             />
           ) : (
             <IconX
               key="x"
               className={styles.icon}
-              transition={SPRING_TRANSITION_SMOOTH}
+              transition={{
+                ...SPRING_TRANSITION_SMOOTH,
+                opacity: { duration: 0.1 },
+              }}
               initial={{ x: 0, opacity: 0, rotate: 0 }}
-              animate={{ x: -ICON_OFFSET, opacity: 1, rotate: 180 }}
+              animate={{ x: -ICON_OFFSET, opacity: 1, rotate: 90 }}
               exit={{ x: 0, opacity: 0, rotate: 0 }}
             />
           )}
