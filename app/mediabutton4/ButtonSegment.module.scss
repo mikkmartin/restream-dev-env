@@ -3,6 +3,7 @@
   grid-template-columns: 1fr 0.75fr;
   border-radius: 99rem;
   z-index: 1;
+  overflow: hidden;
 
   :first-child {
     grid-area: 1 / 1 / 2 / 2;
@@ -15,6 +16,12 @@
   background: rgba(255, 255, 255, 0.075);
   padding-left: 65%;
   border-radius: 99rem;
+  display: grid;
+  place-items: center start;
+  > svg {
+    display: block;
+    grid-area: 1 / 1;
+  }
 
   &:hover {
     background: rgba(255, 255, 255, 0.15);

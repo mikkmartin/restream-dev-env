@@ -1,7 +1,15 @@
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, X } from 'lucide-react'
 import styles from './ButtonSegment.module.scss'
 import { useMediaSelect } from './MediaSelect'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
+
+const SPRING_TRANSITION_SMOOTH = {
+  type: 'spring',
+  stiffness: 800,
+  damping: 60,
+  mass: 0.1,
+}
+const ICON_OFFSET = 22
 
 export function ButtonSegment({
   children,
@@ -12,12 +20,46 @@ export function ButtonSegment({
   const { isOpen } = useMediaSelect()
   return (
     <div className={styles.root}>
-      {children}
+      <motion.div
+        className={styles.content}
+        animate={{
+          scale: isOpen ? 0.9 : 1,
+          y: !isOpen ? 0 : -30,
+          opacity: !isOpen ? 1 : 0,
+        }}
+        transition={{
+          ...SPRING_TRANSITION_SMOOTH,
+          opacity: { duration: 0.1 },
+        }}
+      >
+        {children}
+      </motion.div>
       <button className={styles.trigger} {...rest}>
-        <Icon animate={{ rotate: isOpen ? 180 : 0 }} className={styles.icon} />
+        <AnimatePresence mode="popLayout">
+          {!isOpen ? (
+            <IconChevronDown
+              key="chevron"
+              className={styles.icon}
+              transition={SPRING_TRANSITION_SMOOTH}
+              initial={{ x: -ICON_OFFSET, opacity: 0, rotate: 180 }}
+              animate={{ x: 0, opacity: 1, rotate: 0 }}
+              exit={{ x: -ICON_OFFSET, opacity: 0, rotate: 180 }}
+            />
+          ) : (
+            <IconX
+              key="x"
+              className={styles.icon}
+              transition={SPRING_TRANSITION_SMOOTH}
+              initial={{ x: 0, opacity: 0, rotate: 0 }}
+              animate={{ x: -ICON_OFFSET, opacity: 1, rotate: 180 }}
+              exit={{ x: 0, opacity: 0, rotate: 0 }}
+            />
+          )}
+        </AnimatePresence>
       </button>
     </div>
   )
 }
 
-const Icon = motion(ChevronDown)
+const IconChevronDown = motion(ChevronDown)
+const IconX = motion(X)
