@@ -92,7 +92,11 @@ export default function Home() {
               onValueChange={setSelectedCam}
             >
               {camOptions.map((option) => (
-                <MediaSelect.RadioItem key={option} value={option}>
+                <MediaSelect.RadioItem
+                  key={option}
+                  value={option}
+                  defaultFocused={option === selectedCam}
+                >
                   {option}
                 </MediaSelect.RadioItem>
               ))}

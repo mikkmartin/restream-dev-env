@@ -58,10 +58,11 @@ const Content = ({
             initial="hidden"
             animate="visible"
             exit="hidden"
+            transition={SPRING_TRANSITION_SMOOTH}
             variants={{
               visible: {
                 transition: {
-                  staggerChildren: 0.05,
+                  staggerChildren: 0.035,
                   staggerDirection: -1,
                 },
               },
@@ -69,7 +70,7 @@ const Content = ({
           >
             <motion.div
               className={styles.overlay}
-              transition={SPRING_TRANSITION_SMOOTH}
+              transition={{ ...SPRING_TRANSITION_SMOOTH, delay: 0 }}
               style={{ transformOrigin: 'bottom left' }}
               variants={{
                 visible: {
@@ -108,14 +109,18 @@ const RadioItem = ({ children, defaultFocused, ...props }: ItemProps) => {
       className={styles.item}
       onFocus={() => setIsFocused(true)}
       onBlur={() => setIsFocused(false)}
+      onSelect={() => setIsFocused(false)}
     >
       <motion.div
         className={styles.item}
         transition={SPRING_TRANSITION_SMOOTH}
+        initial={{
+          opacity: 0,
+          y: 20,
+        }}
         variants={{
           hidden: {
             opacity: 0,
-            y: 54,
           },
           visible: {
             opacity: 1,
@@ -129,6 +134,7 @@ const RadioItem = ({ children, defaultFocused, ...props }: ItemProps) => {
         {children}
         {isFocused && (
           <motion.div
+            key="highlight"
             transition={SPRING_TRANSITION_STIFF}
             className={styles.highlight}
             layoutId={uuid}
