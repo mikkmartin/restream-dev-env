@@ -1,6 +1,24 @@
 import * as DropdownMenu from '@radix-ui/react-dropdown-menu'
-import React from 'react'
+import React, { createContext, useContext, useState } from 'react'
 import styles from './MediaSelect.module.scss'
+import { observer } from 'mobx-react-lite'
+
+interface MediaSelectContextType {
+  isOpen: boolean
+  setIsOpen: (value: boolean) => void
+}
+
+const MediaSelectContext = createContext<MediaSelectContextType | undefined>(
+  undefined,
+)
+
+export const useMediaSelect = () => {
+  const context = useContext(MediaSelectContext)
+  if (!context) {
+    throw new Error('useMediaSelect must be used within a MediaSelectProvider')
+  }
+  return context
+}
 
 const Content = ({
   children,
@@ -24,14 +42,25 @@ const Item = ({ children, selected, ...props }: ItemProps) => (
 interface RootProps
   extends Omit<
     React.ComponentPropsWithoutRef<typeof DropdownMenu.Root>,
-    'modal'
+    'modal' | 'open' | 'onOpenChange'
   > {}
 
-const Root = ({ children, ...rest }: RootProps) => (
-  <DropdownMenu.Root modal={false} {...rest}>
-    {children}
-  </DropdownMenu.Root>
-)
+const Root = observer(({ children, ...rest }: RootProps) => {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <MediaSelectContext.Provider value={{ isOpen, setIsOpen }}>
+      <DropdownMenu.Root
+        modal={false}
+        open={isOpen}
+        onOpenChange={setIsOpen}
+        {...rest}
+      >
+        {children}
+      </DropdownMenu.Root>
+    </MediaSelectContext.Provider>
+  )
+})
 
 const Trigger = DropdownMenu.Trigger
 export { Content, Item, Root, Trigger }
