@@ -6,6 +6,8 @@ import styles from './page.module.scss'
 import { useState } from 'react'
 import { motion } from 'framer-motion'
 import { ButtonSegment } from './ButtonSegment'
+import { Observer } from 'mobx-react-lite'
+import { useMediaSelect } from './MediaSelect'
 
 const micOptions = [
   'MacBook Pro Microphone (Built in microphone)',
@@ -86,11 +88,18 @@ export default function Home() {
 
         {/* Add Media */}
         <MediaSelect.Root>
-          <MediaSelect.Trigger asChild>
-            <ButtonWithToolTip>
-              <Plus />
-            </ButtonWithToolTip>
-          </MediaSelect.Trigger>
+          <Observer>
+            {() => {
+              const { isOpen } = useMediaSelect()
+              return (
+                <MediaSelect.Trigger asChild>
+                  <ButtonWithToolTip>
+                    <Plus animate={{ rotate: isOpen ? -45 : 0 }} />
+                  </ButtonWithToolTip>
+                </MediaSelect.Trigger>
+              )
+            }}
+          </Observer>
           <MediaSelect.Content>
             <MediaSelect.Item>Option 1</MediaSelect.Item>
             <MediaSelect.Item>Option 2</MediaSelect.Item>
