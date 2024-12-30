@@ -9,7 +9,7 @@ const NoAudioCanvas = () => {
   useEffect(() => {
     const glCanvas = glCanvasRef.current;
     if (!glCanvas) return;
-    
+
     const gl = glCanvas.getContext('webgl2');
     if (!gl) return;
 
@@ -20,26 +20,32 @@ const NoAudioCanvas = () => {
 
     // Set canvas sizes
     const setCanvasSize = () => {
-      const width = window.innerWidth;
-      const height = window.innerHeight;
-      
+      const { width, height } = glCanvas.getBoundingClientRect();
+      const dpr = window.devicePixelRatio || 1;
+
       // Set WebGL canvas size
-      glCanvas.width = width;
-      glCanvas.height = height;
-      gl.viewport(0, 0, width, height);
-      
+      glCanvas.width = width * dpr;
+      glCanvas.height = height * dpr;
+      glCanvas.style.width = `${width}px`;
+      glCanvas.style.height = `${height}px`;
+      gl.viewport(0, 0, glCanvas.width, glCanvas.height);
+
       // Set OffscreenCanvas size
-      offscreenCanvas.width = width;
-      offscreenCanvas.height = height;
-      
+      offscreenCanvas.width = width * dpr;
+      offscreenCanvas.height = height * dpr;
+
       // Draw text
+      ctx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
       ctx.fillStyle = 'white';
-      ctx.font = '30px Arial';
+      ctx.font = `${30 * dpr}px Arial`;
       ctx.textAlign = 'center';
       ctx.textBaseline = 'middle';
-      ctx.fillText('No Audio Available', width / 2, height / 2);
+      ctx.save();
+      ctx.scale(1, -1); // Flip the text vertically
+      ctx.fillText('No Audio Available', offscreenCanvas.width / 2, -offscreenCanvas.height / 2);
+      ctx.restore();
     };
-    
+
     setCanvasSize();
     window.addEventListener('resize', setCanvasSize);
 
@@ -97,9 +103,9 @@ const NoAudioCanvas = () => {
     // Create vertices for a full-screen quad
     const vertices = new Float32Array([
       -1, -1,
-       1, -1,
-      -1,  1,
-       1,  1,
+      1, -1,
+      -1, 1,
+      1, 1,
     ]);
 
     const buffer = gl.createBuffer();
@@ -126,7 +132,7 @@ const NoAudioCanvas = () => {
 
     const render = () => {
       const time = (Date.now() - startTime) * 0.001;
-      
+
       // Update texture with OffscreenCanvas content
       gl.bindTexture(gl.TEXTURE_2D, texture);
       gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, offscreenCanvas);
@@ -136,7 +142,7 @@ const NoAudioCanvas = () => {
       gl.uniform2f(resolutionLocation, glCanvas.width, glCanvas.height);
       gl.uniform1i(textureLocation, 0);
       gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-      
+
       animationFrameRef.current = requestAnimationFrame(render);
     };
 
@@ -151,9 +157,7 @@ const NoAudioCanvas = () => {
   }, []);
 
   return (
-    <div style={{ position: 'relative', width: '100%', height: '100vh' }}>
-      <canvas ref={glCanvasRef} style={{ position: 'absolute', width: '100%', height: '100%' }} />
-    </div>
+    <canvas ref={glCanvasRef} style={{ width: '100%', aspectRatio: '16/9' }} />
   );
 };
 
