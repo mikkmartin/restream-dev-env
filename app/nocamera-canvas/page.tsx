@@ -1,10 +1,18 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
+import { useAnimationFrame } from 'framer-motion';
 
 const NoAudioCanvas = () => {
   const glCanvasRef = useRef<HTMLCanvasElement>(null);
-  const animationFrameRef = useRef<number>();
+  const startTimeRef = useRef<number>(Date.now());
+  const glRef = useRef<WebGL2RenderingContext | null>(null);
+  const programRef = useRef<WebGLProgram | null>(null);
+  const textureRef = useRef<WebGLTexture | null>(null);
+  const timeLocationRef = useRef<WebGLUniformLocation | null>(null);
+  const resolutionLocationRef = useRef<WebGLUniformLocation | null>(null);
+  const textureLocationRef = useRef<WebGLUniformLocation | null>(null);
+  const offscreenCanvasRef = useRef<OffscreenCanvas | null>(null);
 
   useEffect(() => {
     const glCanvas = glCanvasRef.current;
@@ -12,9 +20,11 @@ const NoAudioCanvas = () => {
 
     const gl = glCanvas.getContext('webgl2');
     if (!gl) return;
+    glRef.current = gl;
 
     // Create OffscreenCanvas for 2D drawing
     const offscreenCanvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
+    offscreenCanvasRef.current = offscreenCanvas;
     const ctx = offscreenCanvas.getContext('2d');
     if (!ctx) return;
 
@@ -99,6 +109,7 @@ const NoAudioCanvas = () => {
     gl.attachShader(program, vertexShader);
     gl.attachShader(program, fragmentShader);
     gl.linkProgram(program);
+    programRef.current = program;
 
     // Create vertices for a full-screen quad
     const vertices = new Float32Array([
@@ -117,6 +128,10 @@ const NoAudioCanvas = () => {
     const resolutionLocation = gl.getUniformLocation(program, 'u_resolution');
     const textureLocation = gl.getUniformLocation(program, 'u_texture');
 
+    timeLocationRef.current = timeLocation;
+    resolutionLocationRef.current = resolutionLocation;
+    textureLocationRef.current = textureLocation;
+
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
@@ -127,34 +142,37 @@ const NoAudioCanvas = () => {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-
-    const startTime = Date.now();
-
-    const render = () => {
-      const time = (Date.now() - startTime) * 0.001;
-
-      // Update texture with OffscreenCanvas content
-      gl.bindTexture(gl.TEXTURE_2D, texture);
-      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, offscreenCanvas);
-
-      gl.useProgram(program);
-      gl.uniform1f(timeLocation, time);
-      gl.uniform2f(resolutionLocation, glCanvas.width, glCanvas.height);
-      gl.uniform1i(textureLocation, 0);
-      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
-
-      animationFrameRef.current = requestAnimationFrame(render);
-    };
-
-    render();
+    textureRef.current = texture;
 
     return () => {
-      if (animationFrameRef.current) {
-        cancelAnimationFrame(animationFrameRef.current);
-      }
       window.removeEventListener('resize', setCanvasSize);
     };
   }, []);
+
+  useAnimationFrame(() => {
+    const gl = glRef.current;
+    const program = programRef.current;
+    const texture = textureRef.current;
+    const timeLocation = timeLocationRef.current;
+    const resolutionLocation = resolutionLocationRef.current;
+    const textureLocation = textureLocationRef.current;
+    const offscreenCanvas = offscreenCanvasRef.current;
+    const glCanvas = glCanvasRef.current;
+
+    if (!gl || !program || !texture || !timeLocation || !resolutionLocation || !textureLocation || !offscreenCanvas || !glCanvas) return;
+
+    const time = (Date.now() - startTimeRef.current) * 0.001;
+
+    // Update texture with OffscreenCanvas content
+    gl.bindTexture(gl.TEXTURE_2D, texture);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, offscreenCanvas);
+
+    gl.useProgram(program);
+    gl.uniform1f(timeLocation, time);
+    gl.uniform2f(resolutionLocation, glCanvas.width, glCanvas.height);
+    gl.uniform1i(textureLocation, 0);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  });
 
   return (
     <canvas ref={glCanvasRef} style={{ width: '100%', aspectRatio: '16/9' }} />
