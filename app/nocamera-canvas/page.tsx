@@ -6,7 +6,6 @@ import { useAnimationFrame, animate } from 'framer-motion';
 const NoAudioCanvas = () => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const startTimeRef = useRef<number>(Date.now());
-  const offscreenCanvasRef = useRef<HTMLCanvasElement>(null);
   const glRef = useRef<WebGL2RenderingContext | null>(null);
   const programRef = useRef<WebGLProgram | null>(null);
   const textureRef = useRef<WebGLTexture | null>(null);
@@ -14,15 +13,17 @@ const NoAudioCanvas = () => {
   const resolutionLocationRef = useRef<WebGLUniformLocation | null>(null);
   const textureLocationRef = useRef<WebGLUniformLocation | null>(null);
   const circleSizeRef = useRef<number>(50);
+  const offscreenCanvasRef = useRef<OffscreenCanvas | null>(null);
 
   useEffect(() => {
     const canvas = canvasRef.current;
-    const offscreenCanvas = offscreenCanvasRef.current;
-    if (!canvas || !offscreenCanvas) return;
+    if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
+    const offscreenCanvas = new OffscreenCanvas(canvas.width, canvas.height);
+    offscreenCanvasRef.current = offscreenCanvas;
     const gl = offscreenCanvas.getContext('webgl2');
     if (!gl) return;
     glRef.current = gl;
@@ -38,7 +39,7 @@ const NoAudioCanvas = () => {
       canvas.style.width = `${width}px`;
       canvas.style.height = `${height}px`;
 
-      // Set WebGL canvas size
+      // Set OffscreenCanvas size
       offscreenCanvas.width = width * dpr;
       offscreenCanvas.height = height * dpr;
       gl.viewport(0, 0, offscreenCanvas.width, offscreenCanvas.height);
@@ -175,7 +176,7 @@ const NoAudioCanvas = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       // Draw WebGL texture to 2D canvas
-      ctx.drawImage(offscreenCanvas, 0, 0);
+      ctx.drawImage(offscreenCanvas.transferToImageBitmap(), 0, 0);
 
       // Draw text
       ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
@@ -194,10 +195,7 @@ const NoAudioCanvas = () => {
   });
 
   return (
-    <>
-      <canvas ref={canvasRef} style={{ width: '100%', aspectRatio: '16/9' }} />
-      <canvas ref={offscreenCanvasRef} style={{ display: 'none' }} />
-    </>
+    <canvas ref={canvasRef} style={{ width: '100%', aspectRatio: '16/9' }} />
   );
 };
 
