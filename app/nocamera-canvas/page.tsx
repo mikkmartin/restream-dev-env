@@ -132,10 +132,11 @@ const NoAudioCanvas = () => {
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     textureRef.current = texture;
 
-    animate(circleSizeRef.current, 100, {
+    animate(circleSizeRef.current, 200, {
       duration: 2,
       repeat: Infinity,
       repeatType: "reverse",
+      ease: "easeInOut",
       onUpdate: (latest) => {
         circleSizeRef.current = latest;
       }
