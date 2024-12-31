@@ -1,59 +1,47 @@
 "use client";
 
 import React, { useEffect, useRef } from 'react';
-import { useAnimationFrame } from 'framer-motion';
+import { useAnimationFrame, animate } from 'framer-motion';
 
 const NoAudioCanvas = () => {
-  const glCanvasRef = useRef<HTMLCanvasElement>(null);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
   const startTimeRef = useRef<number>(Date.now());
+  const offscreenCanvasRef = useRef<HTMLCanvasElement>(null);
   const glRef = useRef<WebGL2RenderingContext | null>(null);
   const programRef = useRef<WebGLProgram | null>(null);
   const textureRef = useRef<WebGLTexture | null>(null);
   const timeLocationRef = useRef<WebGLUniformLocation | null>(null);
   const resolutionLocationRef = useRef<WebGLUniformLocation | null>(null);
   const textureLocationRef = useRef<WebGLUniformLocation | null>(null);
-  const offscreenCanvasRef = useRef<OffscreenCanvas | null>(null);
+  const circleSizeRef = useRef<number>(50);
 
   useEffect(() => {
-    const glCanvas = glCanvasRef.current;
-    if (!glCanvas) return;
+    const canvas = canvasRef.current;
+    const offscreenCanvas = offscreenCanvasRef.current;
+    if (!canvas || !offscreenCanvas) return;
 
-    const gl = glCanvas.getContext('webgl2');
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    const gl = offscreenCanvas.getContext('webgl2');
     if (!gl) return;
     glRef.current = gl;
 
-    // Create OffscreenCanvas for 2D drawing
-    const offscreenCanvas = new OffscreenCanvas(window.innerWidth, window.innerHeight);
-    offscreenCanvasRef.current = offscreenCanvas;
-    const ctx = offscreenCanvas.getContext('2d');
-    if (!ctx) return;
-
     // Set canvas sizes
     const setCanvasSize = () => {
-      const { width, height } = glCanvas.getBoundingClientRect();
+      const { width, height } = canvas.getBoundingClientRect();
       const dpr = window.devicePixelRatio || 1;
 
-      // Set WebGL canvas size
-      glCanvas.width = width * dpr;
-      glCanvas.height = height * dpr;
-      glCanvas.style.width = `${width}px`;
-      glCanvas.style.height = `${height}px`;
-      gl.viewport(0, 0, glCanvas.width, glCanvas.height);
+      // Set 2D canvas size
+      canvas.width = width * dpr;
+      canvas.height = height * dpr;
+      canvas.style.width = `${width}px`;
+      canvas.style.height = `${height}px`;
 
-      // Set OffscreenCanvas size
+      // Set WebGL canvas size
       offscreenCanvas.width = width * dpr;
       offscreenCanvas.height = height * dpr;
-
-      // Draw text
-      ctx.clearRect(0, 0, offscreenCanvas.width, offscreenCanvas.height);
-      ctx.fillStyle = 'white';
-      ctx.font = `${30 * dpr}px Arial`;
-      ctx.textAlign = 'center';
-      ctx.textBaseline = 'middle';
-      ctx.save();
-      ctx.scale(1, -1); // Flip the text vertically
-      ctx.fillText('No Audio Available', offscreenCanvas.width / 2, -offscreenCanvas.height / 2);
-      ctx.restore();
+      gl.viewport(0, 0, offscreenCanvas.width, offscreenCanvas.height);
     };
 
     setCanvasSize();
@@ -135,14 +123,23 @@ const NoAudioCanvas = () => {
     gl.enableVertexAttribArray(positionLocation);
     gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
 
-    // Create texture from OffscreenCanvas
+    // Create texture from WebGL content
     const texture = gl.createTexture();
     gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, offscreenCanvas);
+    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, offscreenCanvas.width, offscreenCanvas.height, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
     gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
     textureRef.current = texture;
+
+    animate(circleSizeRef.current, 100, {
+      duration: 2,
+      repeat: Infinity,
+      repeatType: "reverse",
+      onUpdate: (latest) => {
+        circleSizeRef.current = latest;
+      }
+    });
 
     return () => {
       window.removeEventListener('resize', setCanvasSize);
@@ -157,25 +154,49 @@ const NoAudioCanvas = () => {
     const resolutionLocation = resolutionLocationRef.current;
     const textureLocation = textureLocationRef.current;
     const offscreenCanvas = offscreenCanvasRef.current;
-    const glCanvas = glCanvasRef.current;
+    const canvas = canvasRef.current;
 
-    if (!gl || !program || !texture || !timeLocation || !resolutionLocation || !textureLocation || !offscreenCanvas || !glCanvas) return;
+    if (!gl || !program || !texture || !timeLocation || !resolutionLocation || !textureLocation || !offscreenCanvas || !canvas) return;
 
     const time = (Date.now() - startTimeRef.current) * 0.001;
 
-    // Update texture with OffscreenCanvas content
-    gl.bindTexture(gl.TEXTURE_2D, texture);
-    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, offscreenCanvas);
-
+    // Draw WebGL content to the offscreen canvas
+    gl.bindFramebuffer(gl.FRAMEBUFFER, null);
     gl.useProgram(program);
     gl.uniform1f(timeLocation, time);
-    gl.uniform2f(resolutionLocation, glCanvas.width, glCanvas.height);
+    gl.uniform2f(resolutionLocation, offscreenCanvas.width, offscreenCanvas.height);
     gl.uniform1i(textureLocation, 0);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+    // Update 2D context with WebGL content
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      // Draw WebGL texture to 2D canvas
+      ctx.drawImage(offscreenCanvas, 0, 0);
+
+      // Draw text
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+      ctx.font = `${30 * (window.devicePixelRatio || 1)}px Arial`;
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('Username', canvas.width / 2, canvas.height / 2);
+
+      // Draw circle
+      ctx.globalCompositeOperation = 'overlay';
+      ctx.beginPath();
+      ctx.arc(canvas.width / 2, canvas.height / 2, circleSizeRef.current, 0, 2 * Math.PI);
+      ctx.fill();
+      ctx.globalCompositeOperation = 'source-over';
+    }
   });
 
   return (
-    <canvas ref={glCanvasRef} style={{ width: '100%', aspectRatio: '16/9' }} />
+    <>
+      <canvas ref={canvasRef} style={{ width: '100%', aspectRatio: '16/9' }} />
+      <canvas ref={offscreenCanvasRef} style={{ display: 'none' }} />
+    </>
   );
 };
 
