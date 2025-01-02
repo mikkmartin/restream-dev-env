@@ -179,6 +179,7 @@ const NoAudioCanvas = () => {
       ctx.drawImage(offscreenCanvas.transferToImageBitmap(), 0, 0);
 
       // Draw text
+      ctx.globalCompositeOperation = 'overlay';
       ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
       ctx.font = `${30 * (window.devicePixelRatio || 1)}px Arial`;
       ctx.textAlign = 'center';
@@ -186,7 +187,6 @@ const NoAudioCanvas = () => {
       ctx.fillText('Username', canvas.width / 2, canvas.height / 2);
 
       // Draw circle
-      ctx.globalCompositeOperation = 'overlay';
       ctx.beginPath();
       ctx.arc(canvas.width / 2, canvas.height / 2, circleSizeRef.current, 0, 2 * Math.PI);
       ctx.fill();
