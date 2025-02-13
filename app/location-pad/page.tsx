@@ -152,6 +152,16 @@ export default function LocationPad() {
       </div>
       <div>
         <div ref={padContainerRef} className={styles.constraintsArea}>
+          {snapPoints.map((point, index) => (
+            <div
+              key={index}
+              className={styles.snapPoint}
+              style={{
+                transform: `translate(${point.x}px, ${point.y}px)`,
+                position: 'absolute',
+              }}
+            />
+          ))}
           <motion.div
             drag
             onDragEnd={handleDragEnd}
