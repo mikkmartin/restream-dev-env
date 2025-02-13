@@ -1,18 +1,27 @@
 .container {
   display: flex;
   gap: 2rem;
-  padding: 2rem;
-  height: 100vh;
   width: 100%;
   min-width: 30rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+
   --background-color: #f3f4f627;
 }
 
 .canvas {
   flex: 1;
+  aspect-ratio: 16/10;
   position: relative;
   background-color: var(--background-color);
-  border-radius: 1rem;
+  overflow: hidden;
+}
+
+.constraintsArea {
+  position: relative;
+  width: 12rem;
+  aspect-ratio: 16/10;
+  background-color: var(--background-color);
   overflow: hidden;
 }
 
@@ -23,15 +32,6 @@
   background-color: #ef4444;
   border-radius: 1rem;
   transition: transform 0.1s ease-out;
-}
-
-.constraintsArea {
-  position: relative;
-  width: 12rem;
-  height: 12rem;
-  background-color: var(--background-color);
-  border-radius: 0.5rem;
-  border: 2px solid #e5e7eb;
 }
 
 .draggableItem {
