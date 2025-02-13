@@ -14,9 +14,18 @@ export default function LocationPad() {
   const padContainerRef = useRef<HTMLDivElement>(null)
   const animationControls = useAnimation()
   const draggableItemRef = useRef<HTMLDivElement>(null)
+
+  // Add state for canvas dimensions
+  const [canvasDimensions, setCanvasDimensions] = useState({
+    width: 0,
+    height: 0,
+  })
+
   // Track x and y position of the draggable item
   const x = useMotionValue(0)
   const y = useMotionValue(0)
+
+  const [isDragging, setIsDragging] = useState(false)
 
   // State to track if Command key is pressed and container dimensions
   const [isCommandPressed, setIsCommandPressed] = useState(false)
@@ -29,9 +38,37 @@ export default function LocationPad() {
     number | null
   >(null)
 
-  // Transform pad coordinates to canvas coordinates
-  const canvasX = useTransform(x, [0, 100], [0, 400], { clamp: false })
-  const canvasY = useTransform(y, [0, 100], [0, 600], { clamp: false })
+  // Update canvas dimensions on mount and resize
+  useEffect(() => {
+    const updateCanvasDimensions = () => {
+      const canvas = canvasContainerRef.current
+      const pad = padContainerRef.current
+      if (!canvas || !pad) return
+      //calculate the ratio between the canvas and the pad
+      const ratioWidth =
+        canvas.getBoundingClientRect().width / pad.getBoundingClientRect().width
+      const ratioHeight =
+        canvas.getBoundingClientRect().height /
+        pad.getBoundingClientRect().height
+
+      setCanvasDimensions({
+        width: 100 * ratioWidth,
+        height: 100 * ratioHeight,
+      })
+    }
+
+    updateCanvasDimensions()
+    window.addEventListener('resize', updateCanvasDimensions)
+    return () => window.removeEventListener('resize', updateCanvasDimensions)
+  }, [])
+
+  // Transform pad coordinates to canvas coordinates using dynamic dimensions
+  const canvasX = useTransform(x, [0, 100], [0, canvasDimensions.width], {
+    clamp: false,
+  })
+  const canvasY = useTransform(y, [0, 100], [0, canvasDimensions.height], {
+    clamp: false,
+  })
 
   // Calculate snap points based on container size
   useEffect(() => {
@@ -144,6 +181,8 @@ export default function LocationPad() {
       return
     }
 
+    setIsDragging(true)
+
     // Get current position
     const currentX = x.get()
     const currentY = y.get()
@@ -155,6 +194,8 @@ export default function LocationPad() {
 
   function handleDragEnd() {
     if (isCommandPressed) return
+
+    setIsDragging(false)
 
     const draggable = draggableItemRef.current
     if (!draggable) return
@@ -179,6 +220,10 @@ export default function LocationPad() {
         stiffness: 300,
       },
     })
+  }
+
+  function handleDragStart() {
+    setIsDragging(true)
   }
 
   function handleSnapPointClick(point: { x: number; y: number }) {
@@ -227,7 +272,9 @@ export default function LocationPad() {
           ))}
           <motion.div
             drag
+            onDragStart={handleDragStart}
             onDrag={handleDrag}
+            onPointerUp={handleDragEnd}
             onDragEnd={handleDragEnd}
             dragMomentum={false}
             animate={animationControls}
@@ -236,7 +283,9 @@ export default function LocationPad() {
             className={styles.draggableItem}
           />
         </div>
-        <p>Hold ⌘ Command for precise movement.</p>
+        <motion.p animate={{ opacity: isDragging ? 1 : 0 }}>
+          Hold ⌘ Command for precise movement.
+        </motion.p>
         {isCommandPressed && <p>Holding Command.</p>}
       </div>
     </div>
