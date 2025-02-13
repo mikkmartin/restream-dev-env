@@ -53,8 +53,20 @@
   background-color: rgba(239, 68, 68, 0.1);
   border: 1px solid rgba(239, 68, 68, 0.2);
   border-radius: 0.25rem;
-  pointer-events: none;
   transition: all 0.2s ease;
+  cursor: pointer;
+  pointer-events: auto;
+
+  &:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+
+  &.snapPointActive {
+    background-color: rgba(239, 68, 68, 0.35);
+    border: 2px solid rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+  }
 }
 
 .snapLabel {

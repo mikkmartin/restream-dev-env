@@ -24,6 +24,11 @@ export default function LocationPad() {
     [],
   )
 
+  // Add state for tracking closest snap point
+  const [closestSnapPointIndex, setClosestSnapPointIndex] = useState<
+    number | null
+  >(null)
+
   // Transform pad coordinates to canvas coordinates
   const canvasX = useTransform(x, [0, 100], [0, 400], { clamp: false })
   const canvasY = useTransform(y, [0, 100], [0, 600], { clamp: false })
@@ -114,6 +119,40 @@ export default function LocationPad() {
     return closestPoint
   }
 
+  function getClosestSnapPointIndex(currentX: number, currentY: number) {
+    if (snapPoints.length === 0) return null
+
+    let closestIndex = 0
+    let minDistance = Infinity
+
+    snapPoints.forEach((point, index) => {
+      const distance = Math.sqrt(
+        Math.pow(currentX - point.x, 2) + Math.pow(currentY - point.y, 2),
+      )
+      if (distance < minDistance) {
+        minDistance = distance
+        closestIndex = index
+      }
+    })
+
+    return closestIndex
+  }
+
+  function handleDrag() {
+    if (isCommandPressed) {
+      setClosestSnapPointIndex(null)
+      return
+    }
+
+    // Get current position
+    const currentX = x.get()
+    const currentY = y.get()
+
+    // Find and set closest snap point index
+    const closestIndex = getClosestSnapPointIndex(currentX, currentY)
+    setClosestSnapPointIndex(closestIndex)
+  }
+
   function handleDragEnd() {
     if (isCommandPressed) return
 
@@ -127,10 +166,28 @@ export default function LocationPad() {
     // Find closest snap point
     const snapPoint = getClosestSnapPoint(currentX, currentY)
 
+    // Reset closest snap point highlight
+    setClosestSnapPointIndex(null)
+
     // Animate to snap point
     animationControls.start({
       x: snapPoint.x,
       y: snapPoint.y,
+      transition: {
+        type: 'spring',
+        damping: 20,
+        stiffness: 300,
+      },
+    })
+  }
+
+  function handleSnapPointClick(point: { x: number; y: number }) {
+    if (isCommandPressed) return
+
+    // Animate to clicked snap point
+    animationControls.start({
+      x: point.x,
+      y: point.y,
       transition: {
         type: 'spring',
         damping: 20,
@@ -153,17 +210,24 @@ export default function LocationPad() {
       <div>
         <div ref={padContainerRef} className={styles.constraintsArea}>
           {snapPoints.map((point, index) => (
-            <div
+            <motion.div
               key={index}
-              className={styles.snapPoint}
+              animate={{
+                opacity: !isCommandPressed ? 1 : 0,
+              }}
+              className={`${styles.snapPoint} ${
+                index === closestSnapPointIndex ? styles.snapPointActive : ''
+              }`}
               style={{
                 transform: `translate(${point.x}px, ${point.y}px)`,
                 position: 'absolute',
               }}
+              onClick={() => handleSnapPointClick(point)}
             />
           ))}
           <motion.div
             drag
+            onDrag={handleDrag}
             onDragEnd={handleDragEnd}
             dragMomentum={false}
             animate={animationControls}
