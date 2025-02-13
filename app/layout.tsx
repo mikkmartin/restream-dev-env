@@ -36,6 +36,7 @@ export default function RootLayout({
           <Link href="/mediabutton4">Media Button 4</Link>
           <Link href="/audio-gain">Audio Gain</Link>
           <Link href="/nocamera-canvas">No camera canvas</Link>
+          <Link href="/location-pad">Location Pad</Link>
         </nav>
         <div className="content">{children}</div>
       </body>
