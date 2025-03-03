@@ -12,13 +12,14 @@ import { useRef, useState, useEffect } from 'react'
 import styles from './page.module.scss'
 import useMeasure from 'react-use-measure'
 import { mergeRefs } from 'react-merge-refs'
+import { clamp } from 'motion'
 
 // Define shape types
 const shapes = ['landscape', 'portrait', 'square', 'circle'] as const
 type Shape = (typeof shapes)[number]
 
 export default function LocationPad() {
-  const [scale, setScale] = useState(0.35)
+  const [scale, setScale] = useState(1)
 
   const canvasContainerRef = useRef<HTMLDivElement>(null)
   const [canvasMeasureRef, canvasDimensions] = useMeasure()
@@ -123,7 +124,7 @@ export default function LocationPad() {
     updateSnapPoints()
     window.addEventListener('resize', updateSnapPoints)
     return () => window.removeEventListener('resize', updateSnapPoints)
-  }, [])
+  }, [scale])
 
   // Handle key events for precise movement
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -244,6 +245,12 @@ export default function LocationPad() {
     })
   }
 
+  const padScale = clamp(0.2, 1, scale)
+
+  useEffect(() => {
+    handleDragEnd()
+  }, [scale])
+
   return (
     <div className={styles.container}>
       {/* Canvas */}
@@ -260,7 +267,7 @@ export default function LocationPad() {
             y: canvasY,
           }}
           animate={{
-            width: 100 * scale + '%',
+            width: 40 * scale + '%',
           }}
         />
       </div>
@@ -269,6 +276,7 @@ export default function LocationPad() {
       <div>
         {/* Debug */}
         <Debug normalizedX={normalizedX} normalizedY={normalizedY} />
+
         {/* Pad container */}
         <div
           ref={mergeRefs([padContainerRef, padMeasureRef])}
@@ -286,6 +294,7 @@ export default function LocationPad() {
               style={{
                 transform: `translate(${point.x}px, ${point.y}px)`,
                 position: 'absolute',
+                width: 30 * padScale + '%',
               }}
               onClick={() => handleSnapPointClick(point)}
             />
@@ -298,7 +307,7 @@ export default function LocationPad() {
             onDragEnd={handleDragEnd}
             dragMomentum={false}
             animate={animationControls}
-            style={{ x, y }}
+            style={{ x, y, width: 30 * padScale + '%', zIndex: 999 }}
             ref={mergeRefs([draggableItemRef, draggableItemMeasureRef])}
             className={styles.draggableItem}
           />
@@ -339,8 +348,8 @@ export default function LocationPad() {
           <div className={styles.sliderContainer}>
             <input
               type="range"
-              min="0.2"
-              max="1.5"
+              min="0.4"
+              max="3"
               step="0.01"
               className={styles.slider}
               value={scale}
