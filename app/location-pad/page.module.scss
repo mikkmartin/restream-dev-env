@@ -46,6 +46,24 @@
   }
 }
 
+// Shape classes
+.shapeLandscape {
+  aspect-ratio: 16/10;
+}
+
+.shapePortrait {
+  aspect-ratio: 10/16;
+}
+
+.shapeSquare {
+  aspect-ratio: 1/1;
+}
+
+.shapeCircle {
+  aspect-ratio: 1/1;
+  border-radius: 50% !important;
+}
+
 .snapPoint {
   position: absolute;
   width: 30%;
@@ -92,4 +110,56 @@
   display: flex;
   flex-direction: column;
   gap: 0.25rem;
+}
+
+// Shape selector styles
+.shapeSelector {
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+
+  p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+}
+
+.radioGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  input {
+    cursor: pointer;
+  }
+}
+
+// Scale slider styles
+.scaleControl {
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+
+  p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+}
+
+.sliderContainer {
+  width: 100%;
+  padding: 0 0.25rem;
+}
+
+.slider {
+  width: 100%;
+  margin-left: -0.25rem;
 }

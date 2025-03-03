@@ -9,6 +9,10 @@ import {
 import { useRef, useState, useEffect } from 'react'
 import styles from './page.module.scss'
 
+// Define shape types
+const shapes = ['landscape', 'portrait', 'square', 'circle'] as const
+type Shape = (typeof shapes)[number]
+
 export default function LocationPad() {
   const canvasContainerRef = useRef<HTMLDivElement>(null)
   const padContainerRef = useRef<HTMLDivElement>(null)
@@ -20,6 +24,9 @@ export default function LocationPad() {
     width: 0,
     height: 0,
   })
+
+  // Add state for shape selection
+  const [selectedShape, setSelectedShape] = useState<Shape>('landscape')
 
   // Track x and y position of the draggable item
   const x = useMotionValue(0)
@@ -245,7 +252,7 @@ export default function LocationPad() {
     <div className={styles.container}>
       <div className={styles.canvas} ref={canvasContainerRef}>
         <motion.div
-          className={styles.movableElement}
+          className={`${styles.movableElement}`}
           style={{
             x: canvasX,
             y: canvasY,
@@ -253,6 +260,7 @@ export default function LocationPad() {
         />
       </div>
       <div>
+        {/* Pad container */}
         <div ref={padContainerRef} className={styles.constraintsArea}>
           {snapPoints.map((point, index) => (
             <motion.div
@@ -280,9 +288,11 @@ export default function LocationPad() {
             animate={animationControls}
             style={{ x, y }}
             ref={draggableItemRef}
-            className={styles.draggableItem}
+            className={`${styles.draggableItem}`}
           />
         </div>
+
+        {/* Pad instructions */}
         <div className={styles.instructions}>
           <motion.p animate={{ opacity: isDragging ? 1 : 0 }}>
             Hold ⌘ Command for precise movement.
@@ -290,6 +300,39 @@ export default function LocationPad() {
           <motion.p animate={{ opacity: isCommandPressed ? 1 : 0 }}>
             Holding Command.
           </motion.p>
+        </div>
+
+        {/* Shape selection radio inputs */}
+        <div className={styles.shapeSelector}>
+          <p>Shape:</p>
+          <div className={styles.radioGroup}>
+            {shapes.map((shape) => (
+              <label className={styles.radioLabel} key={shape}>
+                <input
+                  type="radio"
+                  name="shape"
+                  value={shape}
+                  checked={selectedShape === shape}
+                  onChange={() => setSelectedShape(shape)}
+                />
+                {shape}
+              </label>
+            ))}
+          </div>
+        </div>
+
+        {/* Scale slider */}
+        <div className={styles.scaleControl}>
+          <p>Scale:</p>
+          <div className={styles.sliderContainer}>
+            <input
+              type="range"
+              min="0.5"
+              max="2"
+              step="0.1"
+              className={styles.slider}
+            />
+          </div>
         </div>
       </div>
     </div>
