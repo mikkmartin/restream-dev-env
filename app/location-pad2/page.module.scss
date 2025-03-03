@@ -1,0 +1,165 @@
+.container {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  min-width: 30rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  --background-color: #f3f4f627;
+}
+
+.canvas {
+  flex: 1;
+  aspect-ratio: 16/10;
+  position: relative;
+  background-color: var(--background-color);
+  overflow: hidden;
+}
+
+.constraintsArea {
+  position: relative;
+  aspect-ratio: 16/10;
+  background-color: var(--background-color);
+  overflow: hidden;
+}
+
+.movableElement {
+  position: absolute;
+  width: 30%;
+  aspect-ratio: 16/10;
+  background-color: #ef4444;
+  border-radius: 1rem;
+  transition: transform 0.1s ease-out;
+}
+
+.draggableItem {
+  width: 30%;
+  aspect-ratio: 16/10;
+  background-color: #ef4444;
+  cursor: grab;
+  border-radius: 0.25rem;
+  z-index: 999;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
+
+// Shape classes
+.shapeLandscape {
+  aspect-ratio: 16/10;
+}
+
+.shapePortrait {
+  aspect-ratio: 10/16;
+}
+
+.shapeSquare {
+  aspect-ratio: 1/1;
+}
+
+.shapeCircle {
+  aspect-ratio: 1/1;
+  border-radius: 50% !important;
+}
+
+.snapPoint {
+  position: absolute;
+  width: 30%;
+  aspect-ratio: 16/10;
+  background-color: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 0.25rem;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  pointer-events: auto;
+
+  &:hover {
+    background-color: rgba(239, 68, 68, 0.2);
+    border-color: rgba(239, 68, 68, 0.4);
+  }
+
+  &.snapPointActive {
+    background-color: rgba(239, 68, 68, 0.35);
+    border: 2px solid rgba(239, 68, 68, 0.6);
+    box-shadow: 0 0 0 1px rgba(239, 68, 68, 0.2);
+  }
+}
+
+.snapLabel {
+  position: absolute;
+  font-size: 0.6rem;
+  color: rgba(255, 255, 255, 0.5);
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  pointer-events: none;
+  user-select: none;
+  font-family: monospace;
+}
+
+.instructions {
+  padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+// Shape selector styles
+.shapeSelector {
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+
+  p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+}
+
+.radioGroup {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.radioLabel {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+  cursor: pointer;
+
+  input {
+    cursor: pointer;
+  }
+}
+
+// Scale slider styles
+.scaleControl {
+  margin-top: 1rem;
+  padding: 0.5rem 0;
+
+  p {
+    margin: 0 0 0.5rem 0;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+}
+
+.sliderContainer {
+  width: 100%;
+  padding: 0 0.25rem;
+}
+
+.slider {
+  width: 100%;
+  margin-left: -0.25rem;
+}
