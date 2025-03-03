@@ -30,6 +30,7 @@ export default function LocationPad() {
 
   // Add state for shape selection
   const [selectedShape, setSelectedShape] = useState<Shape>('landscape')
+  const [canvasElementRef, canvasElementDimensions] = useMeasure()
 
   // Track x and y position of the draggable item
   const x = useMotionValue(0)
@@ -38,11 +39,13 @@ export default function LocationPad() {
     x,
     [0, padDimensions.width - draggableItemDimensions.width],
     [0, 1],
+    { clamp: false },
   )
   const normalizedY = useTransform(
     y,
     [0, padDimensions.height - draggableItemDimensions.height],
     [0, 1],
+    { clamp: false },
   )
 
   const [isDragging, setIsDragging] = useState(false)
@@ -78,12 +81,22 @@ export default function LocationPad() {
   }, [])
 
   // Transform pad coordinates to canvas coordinates using dynamic dimensions
-  const canvasX = useTransform(x, [0, 100], [0, canvasDimensions.width], {
-    clamp: false,
-  })
-  const canvasY = useTransform(y, [0, 100], [0, canvasDimensions.height], {
-    clamp: false,
-  })
+  const canvasX = useTransform(
+    normalizedX,
+    [0, 1],
+    [0, canvasDimensions.width - canvasElementDimensions.width],
+    {
+      clamp: false,
+    },
+  )
+  const canvasY = useTransform(
+    normalizedY,
+    [0, 1],
+    [0, canvasDimensions.height - canvasElementDimensions.height],
+    {
+      clamp: false,
+    },
+  )
 
   // Calculate snap points based on container size
   useEffect(() => {
@@ -263,6 +276,7 @@ export default function LocationPad() {
         ref={mergeRefs([canvasContainerRef, canvasMeasureRef])}
       >
         <motion.div
+          ref={canvasElementRef}
           className={styles.movableElement}
           style={{
             x: canvasX,
