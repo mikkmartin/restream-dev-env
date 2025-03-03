@@ -10,6 +10,7 @@ import {
 import { useRef, useState, useEffect } from 'react'
 import styles from './page.module.scss'
 import useMeasure from 'react-use-measure'
+import { mergeRefs } from 'react-merge-refs'
 
 // Define shape types
 const shapes = ['landscape', 'portrait', 'square', 'circle'] as const
@@ -17,15 +18,15 @@ type Shape = (typeof shapes)[number]
 
 export default function LocationPad() {
   const canvasContainerRef = useRef<HTMLDivElement>(null)
-  const padContainerRef = useRef<HTMLDivElement>(null)
-  const animationControls = useAnimation()
-  const draggableItemRef = useRef<HTMLDivElement>(null)
+  const [canvasMeasureRef, canvasDimensions] = useMeasure()
 
-  // Add state for canvas dimensions
-  const [canvasDimensions, setCanvasDimensions] = useState({
-    width: 0,
-    height: 0,
-  })
+  const padContainerRef = useRef<HTMLDivElement>(null)
+  const [padMeasureRef, padDimensions] = useMeasure()
+
+  const draggableItemRef = useRef<HTMLDivElement>(null)
+  const [draggableItemMeasureRef, draggableItemDimensions] = useMeasure()
+
+  const animationControls = useAnimation()
 
   // Add state for shape selection
   const [selectedShape, setSelectedShape] = useState<Shape>('landscape')
@@ -33,8 +34,16 @@ export default function LocationPad() {
   // Track x and y position of the draggable item
   const x = useMotionValue(0)
   const y = useMotionValue(0)
-  const normalizedX = useTransform(x, [0, canvasDimensions.width], [0, 1])
-  const normalizedY = useTransform(y, [0, canvasDimensions.height], [0, 1])
+  const normalizedX = useTransform(
+    x,
+    [0, padDimensions.width - draggableItemDimensions.width],
+    [0, 1],
+  )
+  const normalizedY = useTransform(
+    y,
+    [0, padDimensions.height - draggableItemDimensions.height],
+    [0, 1],
+  )
 
   const [isDragging, setIsDragging] = useState(false)
 
@@ -61,11 +70,6 @@ export default function LocationPad() {
       const ratioHeight =
         canvas.getBoundingClientRect().height /
         pad.getBoundingClientRect().height
-
-      setCanvasDimensions({
-        width: 100 * ratioWidth,
-        height: 100 * ratioHeight,
-      })
     }
 
     updateCanvasDimensions()
@@ -254,7 +258,10 @@ export default function LocationPad() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.canvas} ref={canvasContainerRef}>
+      <div
+        className={styles.canvas}
+        ref={mergeRefs([canvasContainerRef, canvasMeasureRef])}
+      >
         <motion.div
           className={styles.movableElement}
           style={{
@@ -266,7 +273,10 @@ export default function LocationPad() {
       <div>
         <Debug normalizedX={normalizedX} normalizedY={normalizedY} />
         {/* Pad container */}
-        <div ref={padContainerRef} className={styles.constraintsArea}>
+        <div
+          ref={mergeRefs([padContainerRef, padMeasureRef])}
+          className={styles.constraintsArea}
+        >
           {snapPoints.map((point, index) => (
             <motion.div
               key={index}
@@ -292,7 +302,7 @@ export default function LocationPad() {
             dragMomentum={false}
             animate={animationControls}
             style={{ x, y }}
-            ref={draggableItemRef}
+            ref={mergeRefs([draggableItemRef, draggableItemMeasureRef])}
             className={styles.draggableItem}
           />
         </div>
