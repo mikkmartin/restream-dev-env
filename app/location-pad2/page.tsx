@@ -6,6 +6,7 @@ import {
   useAnimation,
   useMotionValue,
   useTransform,
+  ValueAnimationTransition,
 } from 'motion/react'
 import { useRef, useState, useEffect } from 'react'
 import styles from './page.module.scss'
@@ -17,6 +18,8 @@ const shapes = ['landscape', 'portrait', 'square', 'circle'] as const
 type Shape = (typeof shapes)[number]
 
 export default function LocationPad() {
+  const [scale, setScale] = useState(0.35)
+
   const canvasContainerRef = useRef<HTMLDivElement>(null)
   const [canvasMeasureRef, canvasDimensions] = useMeasure()
 
@@ -223,11 +226,6 @@ export default function LocationPad() {
     animationControls.start({
       x: snapPoint.x,
       y: snapPoint.y,
-      transition: {
-        type: 'spring',
-        damping: 20,
-        stiffness: 300,
-      },
     })
   }
 
@@ -242,16 +240,13 @@ export default function LocationPad() {
     animationControls.start({
       x: point.x,
       y: point.y,
-      transition: {
-        type: 'spring',
-        damping: 20,
-        stiffness: 300,
-      },
+      transition,
     })
   }
 
   return (
     <div className={styles.container}>
+      {/* Canvas */}
       <div
         className={styles.canvas}
         ref={mergeRefs([canvasContainerRef, canvasMeasureRef])}
@@ -259,13 +254,20 @@ export default function LocationPad() {
         <motion.div
           ref={canvasElementRef}
           className={styles.movableElement}
+          transition={transition}
           style={{
             x: canvasX,
             y: canvasY,
           }}
+          animate={{
+            width: 100 * scale + '%',
+          }}
         />
       </div>
+
+      {/* Suidepanel */}
       <div>
+        {/* Debug */}
         <Debug normalizedX={normalizedX} normalizedY={normalizedY} />
         {/* Pad container */}
         <div
@@ -333,14 +335,16 @@ export default function LocationPad() {
 
         {/* Scale slider */}
         <div className={styles.scaleControl}>
-          <p>Scale:</p>
+          <p>Scale: {scale.toFixed(2)}</p>
           <div className={styles.sliderContainer}>
             <input
               type="range"
-              min="0.5"
-              max="2"
-              step="0.1"
+              min="0.2"
+              max="1.5"
+              step="0.01"
               className={styles.slider}
+              value={scale}
+              onChange={(e) => setScale(Number(e.target.value))}
             />
           </div>
         </div>
@@ -371,3 +375,25 @@ function Debug({
     </motion.pre>
   )
 }
+
+const slowmo = { duration: 2 } satisfies ValueAnimationTransition
+const bouncy = {
+  type: 'spring',
+  stiffness: 500,
+  damping: 25,
+  mass: 1,
+} satisfies ValueAnimationTransition
+const smooth = {
+  type: 'spring',
+  stiffness: 500,
+  damping: 60,
+  mass: 1,
+} satisfies ValueAnimationTransition
+const snappy = {
+  type: 'spring',
+  stiffness: 1000,
+  damping: 20,
+  mass: 0.01,
+} satisfies ValueAnimationTransition
+
+const transition = bouncy
