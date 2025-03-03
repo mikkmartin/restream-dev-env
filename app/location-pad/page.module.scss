@@ -19,7 +19,6 @@
 
 .constraintsArea {
   position: relative;
-  width: 12rem;
   aspect-ratio: 16/10;
   background-color: var(--background-color);
   overflow: hidden;
@@ -80,4 +79,17 @@
   pointer-events: none;
   user-select: none;
   font-family: monospace;
+}
+
+.instructions {
+  padding: 0.5rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.input {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
 }

@@ -283,10 +283,14 @@ export default function LocationPad() {
             className={styles.draggableItem}
           />
         </div>
-        <motion.p animate={{ opacity: isDragging ? 1 : 0 }}>
-          Hold ⌘ Command for precise movement.
-        </motion.p>
-        {isCommandPressed && <p>Holding Command.</p>}
+        <div className={styles.instructions}>
+          <motion.p animate={{ opacity: isDragging ? 1 : 0 }}>
+            Hold ⌘ Command for precise movement.
+          </motion.p>
+          <motion.p animate={{ opacity: isCommandPressed ? 1 : 0 }}>
+            Holding Command.
+          </motion.p>
+        </div>
       </div>
     </div>
   )
