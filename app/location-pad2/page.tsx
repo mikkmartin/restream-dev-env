@@ -2,12 +2,14 @@
 
 import {
   motion,
+  MotionValue,
   useAnimation,
   useMotionValue,
   useTransform,
-} from 'framer-motion'
+} from 'motion/react'
 import { useRef, useState, useEffect } from 'react'
 import styles from './page.module.scss'
+import useMeasure from 'react-use-measure'
 
 // Define shape types
 const shapes = ['landscape', 'portrait', 'square', 'circle'] as const
@@ -31,6 +33,8 @@ export default function LocationPad() {
   // Track x and y position of the draggable item
   const x = useMotionValue(0)
   const y = useMotionValue(0)
+  const normalizedX = useTransform(x, [0, canvasDimensions.width], [0, 1])
+  const normalizedY = useTransform(y, [0, canvasDimensions.height], [0, 1])
 
   const [isDragging, setIsDragging] = useState(false)
 
@@ -252,7 +256,7 @@ export default function LocationPad() {
     <div className={styles.container}>
       <div className={styles.canvas} ref={canvasContainerRef}>
         <motion.div
-          className={`${styles.movableElement}`}
+          className={styles.movableElement}
           style={{
             x: canvasX,
             y: canvasY,
@@ -260,6 +264,7 @@ export default function LocationPad() {
         />
       </div>
       <div>
+        <Debug normalizedX={normalizedX} normalizedY={normalizedY} />
         {/* Pad container */}
         <div ref={padContainerRef} className={styles.constraintsArea}>
           {snapPoints.map((point, index) => (
@@ -288,7 +293,7 @@ export default function LocationPad() {
             animate={animationControls}
             style={{ x, y }}
             ref={draggableItemRef}
-            className={`${styles.draggableItem}`}
+            className={styles.draggableItem}
           />
         </div>
 
@@ -336,5 +341,28 @@ export default function LocationPad() {
         </div>
       </div>
     </div>
+  )
+}
+
+function Debug({
+  normalizedX,
+  normalizedY,
+}: {
+  normalizedX: MotionValue<number>
+  normalizedY: MotionValue<number>
+}) {
+  const [x, setX] = useState(0)
+  const [y, setY] = useState(0)
+
+  normalizedX.on('change', setX)
+  normalizedY.on('change', setY)
+
+  return (
+    <motion.pre
+      className={styles.debug}
+      style={{ position: 'absolute', y: -20 }}
+    >
+      Norm x: <span>{x}</span>, y: <span>{y}</span>
+    </motion.pre>
   )
 }
