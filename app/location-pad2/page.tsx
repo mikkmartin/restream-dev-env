@@ -61,25 +61,6 @@ export default function LocationPad() {
     number | null
   >(null)
 
-  // Update canvas dimensions on mount and resize
-  useEffect(() => {
-    const updateCanvasDimensions = () => {
-      const canvas = canvasContainerRef.current
-      const pad = padContainerRef.current
-      if (!canvas || !pad) return
-      //calculate the ratio between the canvas and the pad
-      const ratioWidth =
-        canvas.getBoundingClientRect().width / pad.getBoundingClientRect().width
-      const ratioHeight =
-        canvas.getBoundingClientRect().height /
-        pad.getBoundingClientRect().height
-    }
-
-    updateCanvasDimensions()
-    window.addEventListener('resize', updateCanvasDimensions)
-    return () => window.removeEventListener('resize', updateCanvasDimensions)
-  }, [])
-
   // Transform pad coordinates to canvas coordinates using dynamic dimensions
   const canvasX = useTransform(
     normalizedX,
