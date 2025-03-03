@@ -110,18 +110,27 @@ export default function LocationPad() {
 
       const points = [
         // Corners
-        { x: halfItemWidth, y: halfItemHeight }, // top-left
-        { x: containerWidth - halfItemWidth, y: halfItemHeight }, // top-right
-        { x: halfItemWidth, y: containerHeight - halfItemHeight }, // bottom-left
+        { x: padding + halfItemWidth, y: padding + halfItemHeight }, // top-left
         {
-          x: containerWidth - halfItemWidth,
-          y: containerHeight - halfItemHeight,
+          x: containerWidth - padding - halfItemWidth,
+          y: padding + halfItemHeight,
+        }, // top-right
+        {
+          x: padding + halfItemWidth,
+          y: containerHeight - padding - halfItemHeight,
+        }, // bottom-left
+        {
+          x: containerWidth - padding - halfItemWidth,
+          y: containerHeight - padding - halfItemHeight,
         }, // bottom-right
         // Sides
-        { x: containerWidth / 2, y: halfItemHeight }, // top
-        { x: containerWidth / 2, y: containerHeight - halfItemHeight }, // bottom
-        { x: halfItemWidth, y: containerHeight / 2 }, // left
-        { x: containerWidth - halfItemWidth, y: containerHeight / 2 }, // right
+        { x: containerWidth / 2, y: padding + halfItemHeight }, // top
+        {
+          x: containerWidth / 2,
+          y: containerHeight - padding - halfItemHeight,
+        }, // bottom
+        { x: padding + halfItemWidth, y: containerHeight / 2 }, // left
+        { x: containerWidth - padding - halfItemWidth, y: containerHeight / 2 }, // right
       ].map((point) => ({
         x: point.x - halfItemWidth,
         y: point.y - halfItemHeight,
@@ -133,7 +142,7 @@ export default function LocationPad() {
     updateSnapPoints()
     window.addEventListener('resize', updateSnapPoints)
     return () => window.removeEventListener('resize', updateSnapPoints)
-  }, [scale])
+  }, [scale, padding])
 
   // Handle key events for precise movement
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -271,11 +280,11 @@ export default function LocationPad() {
     setSnappedPointIndex(clickedIndex)
   }
 
-  const padScale = clamp(0.2, 1, scale)
+  const padScale = clamp(0.15, 1, scale)
 
   useEffect(() => {
     handleDragEnd()
-  }, [scale])
+  }, [scale, padding])
 
   // When initializing the component, set the initial snapped point
   useEffect(() => {
