@@ -65,6 +65,11 @@ export default function LocationPad() {
     number | null
   >(null)
 
+  // Add state to track the currently snapped point index
+  const [snappedPointIndex, setSnappedPointIndex] = useState<number | null>(
+    null,
+  )
+
   // Transform pad coordinates to canvas coordinates using dynamic dimensions
   const canvasX = useTransform(
     normalizedX,
@@ -219,9 +224,13 @@ export default function LocationPad() {
 
     // Find closest snap point
     const snapPoint = getClosestSnapPoint(currentX, currentY)
+    // Get the index of the closest snap point
+    const snapIndex = getClosestSnapPointIndex(currentX, currentY)
 
     // Reset closest snap point highlight
     setClosestSnapPointIndex(null)
+    // Set the currently snapped point index
+    setSnappedPointIndex(snapIndex)
 
     // Animate to snap point
     animationControls.start({
@@ -237,12 +246,25 @@ export default function LocationPad() {
   function handleSnapPointClick(point: { x: number; y: number }) {
     if (isCommandPressed) return
 
-    // Animate to clicked snap point
+    // Find the index of the clicked point
+    const clickedIndex = snapPoints.findIndex(
+      (p) => p.x === point.x && p.y === point.y,
+    )
+
+    // If this is the currently snapped point, do nothing
+    if (clickedIndex === snappedPointIndex) {
+      return
+    }
+
+    // Otherwise, proceed with the original behavior
     animationControls.start({
       x: point.x,
       y: point.y,
       transition,
     })
+
+    // Update the snapped point index
+    setSnappedPointIndex(clickedIndex)
   }
 
   const padScale = clamp(0.2, 1, scale)
@@ -250,6 +272,22 @@ export default function LocationPad() {
   useEffect(() => {
     handleDragEnd()
   }, [scale])
+
+  // When initializing the component, set the initial snapped point
+  useEffect(() => {
+    if (snapPoints.length > 0) {
+      // Set initial snapped point to the center or first point
+      const initialIndex = 0 // Or whatever default you prefer
+      setSnappedPointIndex(initialIndex)
+
+      // Set initial position to the snapped point
+      animationControls.start({
+        x: snapPoints[initialIndex].x,
+        y: snapPoints[initialIndex].y,
+      })
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [snapPoints.length])
 
   return (
     <div className={styles.container}>
@@ -290,11 +328,12 @@ export default function LocationPad() {
               }}
               className={`${styles.snapPoint} ${
                 index === closestSnapPointIndex ? styles.snapPointActive : ''
-              }`}
+              } ${index === snappedPointIndex ? styles.snapPointSnapped : ''}`}
               style={{
                 transform: `translate(${point.x}px, ${point.y}px)`,
                 position: 'absolute',
                 width: 30 * padScale + '%',
+                pointerEvents: index === snappedPointIndex ? 'none' : 'auto',
               }}
               onClick={() => handleSnapPointClick(point)}
             />
