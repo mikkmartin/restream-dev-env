@@ -20,6 +20,7 @@ type Shape = (typeof shapes)[number]
 
 export default function LocationPad() {
   const [scale, setScale] = useState(1)
+  const [padding, setPadding] = useState(10)
 
   const canvasContainerRef = useRef<HTMLDivElement>(null)
   const [canvasMeasureRef, canvasDimensions] = useMeasure()
@@ -74,7 +75,7 @@ export default function LocationPad() {
   const canvasX = useTransform(
     normalizedX,
     [0, 1],
-    [0, canvasDimensions.width - canvasElementDimensions.width],
+    [padding, canvasDimensions.width - canvasElementDimensions.width - padding],
     {
       clamp: false,
     },
@@ -82,7 +83,10 @@ export default function LocationPad() {
   const canvasY = useTransform(
     normalizedY,
     [0, 1],
-    [0, canvasDimensions.height - canvasElementDimensions.height],
+    [
+      padding,
+      canvasDimensions.height - canvasElementDimensions.height - padding,
+    ],
     {
       clamp: false,
     },
@@ -305,7 +309,7 @@ export default function LocationPad() {
             y: canvasY,
           }}
           animate={{
-            width: 40 * scale + '%',
+            width: `calc(${40 * scale}% - ${padding * 2}px)`,
           }}
         />
       </div>
@@ -378,6 +382,22 @@ export default function LocationPad() {
                 {shape}
               </label>
             ))}
+          </div>
+        </div>
+
+        {/* Padding slider */}
+        <div className={styles.scaleControl}>
+          <p>Padding: {padding.toFixed(2)}</p>
+          <div className={styles.sliderContainer}>
+            <input
+              type="range"
+              min="0"
+              max="100"
+              step="1"
+              className={styles.slider}
+              value={padding}
+              onChange={(e) => setPadding(Number(e.target.value))}
+            />
           </div>
         </div>
 
