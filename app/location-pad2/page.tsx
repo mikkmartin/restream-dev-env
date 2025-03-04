@@ -8,7 +8,13 @@ import {
   useTransform,
   ValueAnimationTransition,
 } from 'motion/react'
-import { useRef, useState, useEffect } from 'react'
+import {
+  useRef,
+  useState,
+  useEffect,
+  ComponentProps,
+  CSSProperties,
+} from 'react'
 import styles from './page.module.scss'
 import useMeasure from 'react-use-measure'
 import { mergeRefs } from 'react-merge-refs'
@@ -447,6 +453,8 @@ export default function LocationPad() {
     // in the updateSnapPoints useEffect
   }
 
+  const [multipleElements, setMultipleElements] = useState(false)
+  const [debugMode, setDebugMode] = useState(false)
   return (
     <div className={styles.container}>
       {/* Canvas */}
@@ -454,17 +462,21 @@ export default function LocationPad() {
         className={styles.canvas}
         ref={mergeRefs([canvasContainerRef, canvasMeasureRef])}
       >
-        <motion.div
+        <CanvasElement
           ref={canvasElementRef}
-          className={styles.movableElement}
-          transition={transition}
+          shape={selectedShape}
+          multiple={multipleElements}
+          scale={scale}
+          snapIndex={isDragging ? closestSnapPointIndex : snappedPointIndex}
           style={{
             x: canvasX,
             y: canvasY,
             ...getShapeStyles(selectedShape),
           }}
           animate={{
-            width: `calc(${40 * scale}% - ${padding * 2}px)`,
+            width: `calc(${
+              selectedShape === 'portrait' ? 20 : 30
+            } * ${scale}% - ${padding * 2}px)`,
           }}
         />
       </div>
@@ -472,7 +484,9 @@ export default function LocationPad() {
       {/* Suidepanel */}
       <div>
         {/* Debug */}
-        <Debug normalizedX={normalizedX} normalizedY={normalizedY} />
+        {debugMode && (
+          <Debug normalizedX={normalizedX} normalizedY={normalizedY} />
+        )}
 
         {/* Pad container */}
         <div
@@ -496,7 +510,16 @@ export default function LocationPad() {
                 ...getShapeStyles(selectedShape),
               }}
               onClick={() => handleSnapPointClick(point)}
-            />
+            >
+              <motion.span
+                initial={false}
+                animate={{
+                  opacity: debugMode ? 1 : 0,
+                }}
+              >
+                {index}
+              </motion.span>
+            </motion.div>
           ))}
           <motion.div
             drag
@@ -533,10 +556,15 @@ export default function LocationPad() {
           <p>Shape:</p>
           <div className={styles.radioGroup}>
             {shapes.map((shape) => (
-              <label className={styles.radioLabel} key={shape}>
+              <label
+                className={styles.radioLabel}
+                data-disabled={multipleElements}
+                key={shape}
+              >
                 <input
                   type="radio"
                   name="shape"
+                  disabled={multipleElements}
                   value={shape}
                   checked={selectedShape === shape}
                   onChange={() => handleShapeChange(shape)}
@@ -578,6 +606,34 @@ export default function LocationPad() {
             />
           </div>
         </div>
+
+        {/* Multiple elements */}
+        <div className={styles.multipleElements}>
+          <input
+            type="checkbox"
+            id="multipleElements"
+            checked={multipleElements}
+            onChange={(e) => {
+              const checked = e.target.checked
+              setMultipleElements(checked)
+              if (checked) {
+                setSelectedShape('landscape')
+              }
+            }}
+          />
+          <label htmlFor="multipleElements">Multiple elements</label>
+        </div>
+
+        {/* Debug mode */}
+        <div className={styles.multipleElements}>
+          <input
+            type="checkbox"
+            id="debugMode"
+            checked={debugMode}
+            onChange={(e) => setDebugMode(e.target.checked)}
+          />
+          <label htmlFor="debugMode">Debug mode</label>
+        </div>
       </div>
     </div>
   )
@@ -604,6 +660,83 @@ function Debug({
       Norm x: <span>{x}</span>, y: <span>{y}</span>
     </motion.pre>
   )
+}
+
+type CanvasElementProps = ComponentProps<typeof motion.div> & {
+  shape?: Shape
+  multiple?: boolean
+  snapIndex: number | null
+  scale: number
+}
+
+function CanvasElement(props: CanvasElementProps) {
+  const getStyles = (): CSSProperties => {
+    switch (props.snapIndex) {
+      case 0:
+      case 2:
+        return {
+          flexDirection: 'row',
+        }
+      case 6:
+        return {
+          flexDirection: 'column',
+        }
+      case 1:
+      case 7:
+      case 3:
+        return {
+          flexDirection: 'row-reverse',
+        }
+      case 4:
+      case 5:
+        return {
+          flexDirection: 'row',
+          justifyContent: 'center',
+        }
+      default:
+        return {
+          flexDirection: 'column-reverse',
+        }
+    }
+  }
+
+  if (props.multiple) {
+    const finalStyles = {
+      x: props.style?.x,
+      y: props.style?.y,
+      aspectRatio: props.style?.aspectRatio,
+      borderRadius: props.style?.borderRadius,
+      ...getStyles(),
+    }
+    return (
+      <motion.div
+        {...props}
+        className={styles.ghostContainer}
+        style={finalStyles}
+      >
+        <motion.div
+          layout
+          transition={transition}
+          className={styles.movableElement}
+        />
+        {props.scale <= 1.2 && (
+          <motion.div
+            layout
+            transition={transition}
+            className={styles.ghostElement}
+          />
+        )}
+        {props.scale <= 0.7 && (
+          <motion.div
+            layout
+            transition={transition}
+            className={styles.ghostElement}
+          />
+        )}
+      </motion.div>
+    )
+  }
+  return <motion.div {...props} className={styles.movableElement} />
 }
 
 const slowmo = { duration: 2 } satisfies ValueAnimationTransition
