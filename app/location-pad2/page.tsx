@@ -78,8 +78,21 @@ export default function LocationPad() {
     y: number
   } | null>(null)
 
+  const getPadMaxScale = () => {
+    switch (selectedShape) {
+      case 'portrait':
+        return 0.45
+      case 'circle':
+        return 0.65
+      case 'square':
+        return 0.65
+      default:
+        return 1
+    }
+  }
+
   // Calculate the pad scale value
-  const maxScale = selectedShape === 'portrait' ? 0.4 : 1
+  const maxScale = getPadMaxScale()
   const padScale = clamp(0.15, maxScale - padding / 100, scale)
 
   // Transform pad coordinates to canvas coordinates using dynamic dimensions
