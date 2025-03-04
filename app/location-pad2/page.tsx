@@ -71,6 +71,17 @@ export default function LocationPad() {
     null,
   )
 
+  // Add state to track the last manually snapped position
+  const [lastManualSnapPosition, setLastManualSnapPosition] = useState<{
+    index: number | null
+    x: number
+    y: number
+  } | null>(null)
+
+  // Calculate the pad scale value
+  const maxScale = selectedShape === 'portrait' ? 0.4 : 1
+  const padScale = clamp(0.15, maxScale - padding / 100, scale)
+
   // Transform pad coordinates to canvas coordinates using dynamic dimensions
   const canvasX = useTransform(
     normalizedX,
@@ -92,6 +103,22 @@ export default function LocationPad() {
     },
   )
 
+  // Helper function to get shape-specific styles
+  const getShapeStyles = (shape: Shape) => {
+    switch (shape) {
+      case 'landscape':
+        return { aspectRatio: '16/10', borderRadius: '0.5rem' }
+      case 'portrait':
+        return { aspectRatio: '10/16', borderRadius: '0.5rem' }
+      case 'square':
+        return { aspectRatio: '1/1', borderRadius: '0.5rem' }
+      case 'circle':
+        return { aspectRatio: '1/1', borderRadius: '50%' }
+      default:
+        return { aspectRatio: '16/10', borderRadius: '0.5rem' }
+    }
+  }
+
   // Calculate snap points based on container size
   useEffect(() => {
     const updateSnapPoints = () => {
@@ -101,8 +128,32 @@ export default function LocationPad() {
 
       const { width: containerWidth, height: containerHeight } =
         container.getBoundingClientRect()
-      const { width: itemWidth, height: itemHeight } =
-        draggable.getBoundingClientRect()
+
+      // Get the current shape's aspect ratio
+      const shapeStyle = getShapeStyles(selectedShape)
+      const aspectRatioStr = shapeStyle.aspectRatio as string
+      const [widthRatio, heightRatio] = aspectRatioStr.split('/').map(Number)
+
+      // Calculate the draggable item dimensions based on the shape
+      let itemWidth, itemHeight
+
+      // Base width is 30% of container width * scale
+      const baseWidth = containerWidth * 0.3 * padScale
+
+      if (selectedShape === 'landscape') {
+        itemWidth = baseWidth
+        itemHeight = baseWidth * (heightRatio / widthRatio)
+      } else if (selectedShape === 'portrait') {
+        itemWidth = baseWidth
+        itemHeight = baseWidth * (heightRatio / widthRatio)
+      } else if (selectedShape === 'square' || selectedShape === 'circle') {
+        itemWidth = baseWidth
+        itemHeight = baseWidth
+      } else {
+        // Default to landscape
+        itemWidth = baseWidth
+        itemHeight = baseWidth * (10 / 16)
+      }
 
       // Adjust positions to account for draggable item center
       const halfItemWidth = itemWidth / 2
@@ -142,7 +193,7 @@ export default function LocationPad() {
     updateSnapPoints()
     window.addEventListener('resize', updateSnapPoints)
     return () => window.removeEventListener('resize', updateSnapPoints)
-  }, [scale, padding])
+  }, [scale, padding, selectedShape, padScale])
 
   // Handle key events for precise movement
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -224,7 +275,11 @@ export default function LocationPad() {
   }
 
   function handleDragEnd() {
-    if (isCommandPressed) return
+    if (isCommandPressed) {
+      // If command is pressed, don't snap and clear the snapped point index
+      setSnappedPointIndex(null)
+      return
+    }
 
     setIsDragging(false)
 
@@ -244,6 +299,13 @@ export default function LocationPad() {
     setClosestSnapPointIndex(null)
     // Set the currently snapped point index
     setSnappedPointIndex(snapIndex)
+
+    // Save the manually snapped position
+    setLastManualSnapPosition({
+      index: snapIndex,
+      x: snapPoint.x,
+      y: snapPoint.y,
+    })
 
     // Animate to snap point
     animationControls.start({
@@ -269,6 +331,13 @@ export default function LocationPad() {
       return
     }
 
+    // Save the manually snapped position
+    setLastManualSnapPosition({
+      index: clickedIndex,
+      x: point.x,
+      y: point.y,
+    })
+
     // Otherwise, proceed with the original behavior
     animationControls.start({
       x: point.x,
@@ -280,18 +349,74 @@ export default function LocationPad() {
     setSnappedPointIndex(clickedIndex)
   }
 
-  const padScale = clamp(0.15, 1, scale)
-
   useEffect(() => {
-    handleDragEnd()
+    // Only apply snap if we have a last manual snap position
+    if (lastManualSnapPosition) {
+      // If we have snap points and a valid last position, find the closest snap point
+      if (snapPoints.length > 0) {
+        // Find the closest snap point to the last manual position
+        const closestPoint = getClosestSnapPoint(
+          lastManualSnapPosition.x,
+          lastManualSnapPosition.y,
+        )
+        const closestIndex = getClosestSnapPointIndex(
+          lastManualSnapPosition.x,
+          lastManualSnapPosition.y,
+        )
+
+        // Animate to the closest snap point
+        animationControls.start({
+          x: closestPoint.x,
+          y: closestPoint.y,
+          transition,
+        })
+
+        // Update the snapped point index
+        setSnappedPointIndex(closestIndex)
+      }
+    }
   }, [scale, padding])
+
+  // Effect to reposition the draggable item when the shape changes
+  useEffect(() => {
+    // Only run if we have snap points and a last manual snap position
+    if (snapPoints.length > 0 && lastManualSnapPosition) {
+      // Find closest snap point after shape change
+      const closestPoint = getClosestSnapPoint(
+        lastManualSnapPosition.x,
+        lastManualSnapPosition.y,
+      )
+      const closestIndex = getClosestSnapPointIndex(
+        lastManualSnapPosition.x,
+        lastManualSnapPosition.y,
+      )
+
+      // Animate to the closest snap point
+      animationControls.start({
+        x: closestPoint.x,
+        y: closestPoint.y,
+        transition,
+      })
+
+      // Update the snapped point index
+      setSnappedPointIndex(closestIndex)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedShape, snapPoints.length])
 
   // When initializing the component, set the initial snapped point
   useEffect(() => {
-    if (snapPoints.length > 0) {
+    if (snapPoints.length > 0 && !lastManualSnapPosition) {
       // Set initial snapped point to the center or first point
       const initialIndex = 0 // Or whatever default you prefer
       setSnappedPointIndex(initialIndex)
+
+      // Save this as the last manual snap position
+      setLastManualSnapPosition({
+        index: initialIndex,
+        x: snapPoints[initialIndex].x,
+        y: snapPoints[initialIndex].y,
+      })
 
       // Set initial position to the snapped point
       animationControls.start({
@@ -301,6 +426,13 @@ export default function LocationPad() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [snapPoints.length])
+
+  // Function to handle shape change
+  const handleShapeChange = (shape: Shape) => {
+    setSelectedShape(shape)
+    // The snap points will be recalculated due to the dependency on selectedShape
+    // in the updateSnapPoints useEffect
+  }
 
   return (
     <div className={styles.container}>
@@ -316,6 +448,7 @@ export default function LocationPad() {
           style={{
             x: canvasX,
             y: canvasY,
+            ...getShapeStyles(selectedShape),
           }}
           animate={{
             width: `calc(${40 * scale}% - ${padding * 2}px)`,
@@ -347,6 +480,7 @@ export default function LocationPad() {
                 position: 'absolute',
                 width: 30 * padScale + '%',
                 pointerEvents: index === snappedPointIndex ? 'none' : 'auto',
+                ...getShapeStyles(selectedShape),
               }}
               onClick={() => handleSnapPointClick(point)}
             />
@@ -359,7 +493,13 @@ export default function LocationPad() {
             onDragEnd={handleDragEnd}
             dragMomentum={false}
             animate={animationControls}
-            style={{ x, y, width: 30 * padScale + '%', zIndex: 999 }}
+            style={{
+              x,
+              y,
+              width: 30 * padScale + '%',
+              zIndex: 999,
+              ...getShapeStyles(selectedShape),
+            }}
             ref={mergeRefs([draggableItemRef, draggableItemMeasureRef])}
             className={styles.draggableItem}
           />
@@ -386,7 +526,7 @@ export default function LocationPad() {
                   name="shape"
                   value={shape}
                   checked={selectedShape === shape}
-                  onChange={() => setSelectedShape(shape)}
+                  onChange={() => handleShapeChange(shape)}
                 />
                 {shape}
               </label>
