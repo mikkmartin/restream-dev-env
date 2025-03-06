@@ -1,6 +1,6 @@
 'use client'
 
-import { atom } from 'jotai'
+import { atom, useAtomValue } from 'jotai'
 import { useAtom, useSetAtom } from 'jotai'
 import {
   motion,
@@ -50,6 +50,9 @@ const canvasElementDimensionsAtom = atom<{ width: number; height: number }>({
   width: 0,
   height: 0,
 })
+
+type SavedElement = { x: number; y: number; scale: number; shape: Shape }
+const savedCanvasElementsAtom = atom<SavedElement[]>([])
 
 export default function Page() {
   return (
@@ -501,6 +504,24 @@ function EditPanel() {
   const [isDragging] = useAtom(isDraggingAtom)
   const [isCommandPressed] = useAtom(isCommandPressedAtom)
 
+  const setSavedCanvasElements = useSetAtom(savedCanvasElementsAtom)
+  const [position] = useAtom(canvasPositionAtom)
+
+  function handleAddElement() {
+    const newElement: SavedElement = {
+      scale,
+      x: position.x.get(),
+      y: position.y.get(),
+      shape: selectedShape,
+    }
+    setSavedCanvasElements((prev) => [...prev, newElement])
+    setScale(1)
+    setPadding(10)
+    setSelectedShape('landscape')
+    position.x.set(0)
+    position.y.set(0)
+  }
+
   return (
     <div>
       <DraggablePad />
@@ -591,6 +612,8 @@ function EditPanel() {
           Holding Command.
         </motion.p>
       </div>
+
+      <button onClick={handleAddElement}>Add element</button>
     </div>
   )
 }
@@ -619,12 +642,32 @@ function Canvas() {
     setCanvasElementDimensions(canvasElementDimensions)
   }, [canvasElementDimensions])
 
+  const savedElements = useAtomValue(savedCanvasElementsAtom)
+
   return (
     <>
       <div
         className={styles.canvas}
         ref={mergeRefs([canvasContainerRef, canvasMeasureRef])}
       >
+        {savedElements.map((el, i) => (
+          <CanvasElement
+            key={i}
+            scale={el.scale}
+            multiple={false}
+            snapIndex={null}
+            style={{
+              position: 'absolute',
+              backgroundColor: '#22c55e',
+              x: el.x,
+              y: el.y,
+              ...getShapeStyles(el.shape),
+              width: `calc(${el.shape === 'portrait' ? 20 : 30} * ${
+                el.scale
+              }% - ${padding * 2}px)`,
+            }}
+          />
+        ))}
         <CanvasElement
           ref={canvasElementMeasureRef}
           shape={selectedShape}
