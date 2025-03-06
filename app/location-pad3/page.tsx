@@ -30,6 +30,33 @@ export default function Page() {
   const animationControls = useAnimation()
   const x = useMotionValue(0)
   const y = useMotionValue(0)
+  const [isDragging, setIsDragging] = useState(false)
+  const [isResizing, setIsResizing] = useState(false)
+  const [resizeDirection, setResizeDirection] = useState<string | null>(null)
+  const [dimensions, setDimensions] = useState({ width: '30%', height: '30%' })
+  const initialResizeData = useRef({ x: 0, y: 0, width: 0, height: 0 })
+  const [edgesTouchingContainer, setEdgesTouchingContainer] = useState({
+    top: false,
+    right: false,
+    bottom: false,
+    left: false,
+  })
+
+  useEffect(() => {
+    const currentX = x.get()
+    const currentY = y.get()
+    const itemWidth = draggableItemDimensions.width
+    const itemHeight = draggableItemDimensions.height
+
+    const touching = {
+      top: Math.abs(currentY) < 1, // Top edge is touching
+      left: Math.abs(currentX) < 1, // Left edge is touching
+      right: Math.abs(currentX + itemWidth - containerDimensions.width) < 1, // Right edge is touching
+      bottom: Math.abs(currentY + itemHeight - containerDimensions.height) < 1, // Bottom edge is touching
+    }
+
+    setEdgesTouchingContainer(touching)
+  }, [x, y, draggableItemDimensions, containerDimensions])
 
   useEffect(() => {
     const updateSnapPoints = () => {
@@ -70,6 +97,7 @@ export default function Page() {
   }, [draggableItemDimensions, containerDimensions, setSnapPoints])
 
   const handleDragStart = () => {
+    setIsDragging(true)
     console.log('drag start')
   }
 
@@ -78,6 +106,7 @@ export default function Page() {
   }
 
   const handleDragEnd = () => {
+    setIsDragging(false)
     const snapPos = getClosestSnapPoint(x.get(), y.get())
     animationControls.start({ x: snapPos.x, y: snapPos.y })
   }
@@ -101,6 +130,168 @@ export default function Page() {
     return closestPoint
   }
 
+  const startResize = (direction: string, e: React.PointerEvent) => {
+    e.stopPropagation()
+    setIsResizing(true)
+    setResizeDirection(direction)
+
+    // Store initial values
+    initialResizeData.current = {
+      x: e.clientX,
+      y: e.clientY,
+      width: draggableItemDimensions.width,
+      height: draggableItemDimensions.height,
+    }
+  }
+
+  const handleResize = (e: React.PointerEvent) => {
+    if (!isResizing) return
+
+    const deltaX = e.clientX - initialResizeData.current.x
+    const deltaY = e.clientY - initialResizeData.current.y
+
+    let newWidth = initialResizeData.current.width
+    let newHeight = initialResizeData.current.height
+    let newX = x.get()
+    let newY = y.get()
+
+    // Calculate aspect ratio for corner resizing
+    const aspectRatio =
+      initialResizeData.current.width / initialResizeData.current.height
+
+    // Handle different resize directions
+    switch (resizeDirection) {
+      case 'right':
+        newWidth = Math.max(50, initialResizeData.current.width + deltaX)
+        break
+      case 'bottom':
+        newHeight = Math.max(50, initialResizeData.current.height + deltaY)
+        break
+      case 'left':
+        newWidth = Math.max(50, initialResizeData.current.width - deltaX)
+        newX = x.get() + (initialResizeData.current.width - newWidth)
+        break
+      case 'top':
+        newHeight = Math.max(50, initialResizeData.current.height - deltaY)
+        newY = y.get() + (initialResizeData.current.height - newHeight)
+        break
+      // Corner cases with aspect ratio preserved
+      case 'topLeft':
+        // Determine which delta is larger (using absolute values)
+        if (Math.abs(deltaX / aspectRatio) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, initialResizeData.current.width - deltaX)
+          newHeight = newWidth / aspectRatio
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, initialResizeData.current.height - deltaY)
+          newWidth = newHeight * aspectRatio
+        }
+        newX = x.get() + (initialResizeData.current.width - newWidth)
+        newY = y.get() + (initialResizeData.current.height - newHeight)
+        break
+      case 'topRight':
+        if (Math.abs(deltaX / aspectRatio) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, initialResizeData.current.width + deltaX)
+          newHeight = newWidth / aspectRatio
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, initialResizeData.current.height - deltaY)
+          newWidth = newHeight * aspectRatio
+        }
+        newY = y.get() + (initialResizeData.current.height - newHeight)
+        break
+      case 'bottomLeft':
+        if (Math.abs(deltaX / aspectRatio) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, initialResizeData.current.width - deltaX)
+          newHeight = newWidth / aspectRatio
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, initialResizeData.current.height + deltaY)
+          newWidth = newHeight * aspectRatio
+        }
+        newX = x.get() + (initialResizeData.current.width - newWidth)
+        break
+      case 'bottomRight':
+        if (Math.abs(deltaX / aspectRatio) > Math.abs(deltaY)) {
+          // Width change is dominant
+          newWidth = Math.max(50, initialResizeData.current.width + deltaX)
+          newHeight = newWidth / aspectRatio
+        } else {
+          // Height change is dominant
+          newHeight = Math.max(50, initialResizeData.current.height + deltaY)
+          newWidth = newHeight * aspectRatio
+        }
+        break
+    }
+
+    // Update position and dimensions
+    x.set(newX)
+    y.set(newY)
+    setDimensions({
+      width: `${newWidth}px`,
+      height: `${newHeight}px`,
+    })
+  }
+
+  const endResize = () => {
+    if (isResizing) {
+      setIsResizing(false)
+      setResizeDirection(null)
+    }
+  }
+
+  useEffect(() => {
+    if (isResizing) {
+      document.addEventListener('pointermove', handleResize as any)
+      document.addEventListener('pointerup', endResize)
+      return () => {
+        document.removeEventListener('pointermove', handleResize as any)
+        document.removeEventListener('pointerup', endResize)
+      }
+    }
+  }, [isResizing])
+
+  // Listen for x and y motion values changes to update edge state
+  useEffect(() => {
+    const unsubscribeX = x.on('change', () => {
+      const currentX = x.get()
+      const itemWidth = draggableItemDimensions.width
+
+      setEdgesTouchingContainer((prev) => ({
+        ...prev,
+        left: Math.abs(currentX) < 1,
+        right: Math.abs(currentX + itemWidth - containerDimensions.width) < 1,
+      }))
+    })
+
+    const unsubscribeY = y.on('change', () => {
+      const currentY = y.get()
+      const itemHeight = draggableItemDimensions.height
+
+      setEdgesTouchingContainer((prev) => ({
+        ...prev,
+        top: Math.abs(currentY) < 1,
+        bottom:
+          Math.abs(currentY + itemHeight - containerDimensions.height) < 1,
+      }))
+    })
+
+    return () => {
+      unsubscribeX()
+      unsubscribeY()
+    }
+  }, [
+    x,
+    y,
+    draggableItemDimensions.width,
+    draggableItemDimensions.height,
+    containerDimensions.width,
+    containerDimensions.height,
+  ])
+
   return (
     <div className={styles.container}>
       <div className={styles.canvas} ref={containerMeasureRef}>
@@ -108,13 +299,79 @@ export default function Page() {
           ref={draggableItemMeasureRef}
           onDragStart={handleDragStart}
           onDrag={handleDrag}
-          onPointerUp={handleDragEnd}
+          onPointerUp={!isResizing ? handleDragEnd : undefined}
           onDragEnd={handleDragEnd}
-          style={{ x, y, width: '30%' }}
+          style={{
+            x,
+            y,
+            width: dimensions.width,
+            height: dimensions.height,
+            position: 'relative',
+            touchAction: 'none',
+          }}
           className={styles.draggableItem}
           animate={animationControls}
-          drag
-        />
+          drag={!isResizing}
+          dragMomentum={false}
+        >
+          {/* Resize handles - only show if the corresponding edge is not touching the container */}
+          {!edgesTouchingContainer.top && (
+            <div
+              className={`${styles.resizeHandle} ${styles.top}`}
+              onPointerDown={(e) => startResize('top', e)}
+            />
+          )}
+
+          {!edgesTouchingContainer.right && (
+            <div
+              className={`${styles.resizeHandle} ${styles.right}`}
+              onPointerDown={(e) => startResize('right', e)}
+            />
+          )}
+
+          {!edgesTouchingContainer.bottom && (
+            <div
+              className={`${styles.resizeHandle} ${styles.bottom}`}
+              onPointerDown={(e) => startResize('bottom', e)}
+            />
+          )}
+
+          {!edgesTouchingContainer.left && (
+            <div
+              className={`${styles.resizeHandle} ${styles.left}`}
+              onPointerDown={(e) => startResize('left', e)}
+            />
+          )}
+
+          {/* Corner handles - only show if neither of the corresponding edges are touching */}
+          {!edgesTouchingContainer.top && !edgesTouchingContainer.left && (
+            <div
+              className={`${styles.resizeHandle} ${styles.topLeft}`}
+              onPointerDown={(e) => startResize('topLeft', e)}
+            />
+          )}
+
+          {!edgesTouchingContainer.top && !edgesTouchingContainer.right && (
+            <div
+              className={`${styles.resizeHandle} ${styles.topRight}`}
+              onPointerDown={(e) => startResize('topRight', e)}
+            />
+          )}
+
+          {!edgesTouchingContainer.bottom && !edgesTouchingContainer.left && (
+            <div
+              className={`${styles.resizeHandle} ${styles.bottomLeft}`}
+              onPointerDown={(e) => startResize('bottomLeft', e)}
+            />
+          )}
+
+          {!edgesTouchingContainer.bottom && !edgesTouchingContainer.right && (
+            <div
+              className={`${styles.resizeHandle} ${styles.bottomRight}`}
+              onPointerDown={(e) => startResize('bottomRight', e)}
+            />
+          )}
+        </motion.div>
       </div>
     </div>
   )
