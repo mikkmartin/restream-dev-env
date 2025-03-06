@@ -16,10 +16,12 @@ import {
   useRef,
   useEffect,
   useState,
+  RefCallback,
 } from 'react'
 import useMeasure from 'react-use-measure'
 import { mergeRefs } from 'react-merge-refs'
 import styles from './page.module.scss'
+import { motionValue } from 'motion/react'
 
 // Atoms
 const scaleAtom = atom(1)
@@ -37,12 +39,24 @@ const lastManualSnapPositionAtom = atom<{
   x: number
   y: number
 } | null>(null)
+const canvasPositionAtom = atom<{
+  x: MotionValue<number>
+  y: MotionValue<number>
+}>({ x: motionValue(0), y: motionValue(0) })
 
 export default function Page() {
+  const [canvasMeasureRef, canvasDimensions] = useMeasure()
+  const [canvasElementMeasureRef, canvasElementDimensions] = useMeasure()
+
   return (
     <div className={styles.container}>
-      <Canvas />
-      <EditPanel />
+      <Canvas refs={[canvasMeasureRef, canvasElementMeasureRef]} />
+      <EditPanel>
+        <DraggablePad
+          canvasDimensions={canvasDimensions}
+          canvasElementDimensions={canvasElementDimensions}
+        />
+      </EditPanel>
     </div>
   )
 }
@@ -196,13 +210,11 @@ interface DraggablePadProps {
     width: number
     height: number
   }
-  onPositionChange?: (x: MotionValue<number>, y: MotionValue<number>) => void
 }
 
 function DraggablePad({
   canvasDimensions,
   canvasElementDimensions,
-  onPositionChange,
 }: DraggablePadProps) {
   const [scale] = useAtom(scaleAtom)
   const [padding] = useAtom(paddingAtom)
@@ -257,9 +269,10 @@ function DraggablePad({
     { clamp: false },
   )
 
+  const setPosition = useSetAtom(canvasPositionAtom)
   useEffect(() => {
-    onPositionChange?.(canvasX, canvasY)
-  }, [canvasX, canvasY, onPositionChange])
+    setPosition({ x: canvasX, y: canvasY })
+  }, [canvasX, canvasY])
 
   const getPadMaxScale = (shape: Shape) => {
     switch (shape) {
@@ -427,44 +440,60 @@ function DraggablePad({
 
   return (
     <div
-      className={styles.padContainer}
       ref={mergeRefs([padContainerRef, padMeasureRef])}
-      style={{
-        transform: `scale(${padScale})`,
-      }}
+      className={styles.constraintsArea}
     >
-      <div className={styles.pad}>
-        {snapPoints.map((point, index) => (
-          <div
-            key={index}
-            className={styles.snapPoint}
-            style={{
-              left: point.x + draggableItemDimensions.width / 2,
-              top: point.y + draggableItemDimensions.height / 2,
-            }}
-            onClick={() => handleSnapPointClick(point)}
-          />
-        ))}
+      {snapPoints.map((point, index) => (
         <motion.div
-          ref={mergeRefs([draggableItemRef, draggableItemMeasureRef])}
-          className={styles.draggableItem}
-          drag
-          dragMomentum={false}
-          dragElastic={0}
-          dragConstraints={padContainerRef}
-          animate={animationControls}
-          onDrag={handleDrag}
-          onDragEnd={handleDragEnd}
-          onDragStart={handleDragStart}
-          style={{ x, y }}
-        />
-      </div>
-      <Debug normalizedX={normalizedX} normalizedY={normalizedY} />
+          key={index}
+          animate={{
+            opacity: !isCommandPressed ? 1 : 0,
+          }}
+          className={`${styles.snapPoint} ${
+            index === closestSnapPointIndex ? styles.snapPointActive : ''
+          } ${index === snappedPointIndex ? styles.snapPointSnapped : ''}`}
+          style={{
+            transform: `translate(${point.x}px, ${point.y}px)`,
+            position: 'absolute',
+            width: 30 * padScale + '%',
+            pointerEvents: index === snappedPointIndex ? 'none' : 'auto',
+            ...getShapeStyles(selectedShape),
+          }}
+          onClick={() => handleSnapPointClick(point)}
+        >
+          <motion.span
+            initial={false}
+            animate={{
+              opacity: 1,
+            }}
+          >
+            {index}
+          </motion.span>
+        </motion.div>
+      ))}
+      <motion.div
+        drag
+        onDragStart={handleDragStart}
+        onDrag={handleDrag}
+        onPointerUp={handleDragEnd}
+        onDragEnd={handleDragEnd}
+        dragMomentum={false}
+        animate={animationControls}
+        style={{
+          x,
+          y,
+          width: 30 * padScale + '%',
+          zIndex: 999,
+          ...getShapeStyles(selectedShape),
+        }}
+        ref={mergeRefs([draggableItemRef, draggableItemMeasureRef])}
+        className={styles.draggableItem}
+      />
     </div>
   )
 }
 
-function EditPanel() {
+function EditPanel({ children }: { children: React.ReactNode }) {
   const [scale, setScale] = useAtom(scaleAtom)
   const [padding, setPadding] = useAtom(paddingAtom)
   const [selectedShape, setSelectedShape] = useAtom(selectedShapeAtom)
@@ -475,6 +504,7 @@ function EditPanel() {
 
   return (
     <div>
+      {children}
       <div className={styles.shapeSelector}>
         <p>Shape:</p>
         <div className={styles.radioGroup}>
@@ -566,7 +596,7 @@ function EditPanel() {
   )
 }
 
-function Canvas() {
+function Canvas({ refs }: { refs: Array<RefCallback<HTMLDivElement>> }) {
   const [scale] = useAtom(scaleAtom)
   const [padding] = useAtom(paddingAtom)
   const [selectedShape] = useAtom(selectedShapeAtom)
@@ -576,20 +606,9 @@ function Canvas() {
   const [snappedPointIndex] = useAtom(snappedPointIndexAtom)
 
   const canvasContainerRef = useRef<HTMLDivElement>(null)
-  const [canvasMeasureRef, canvasDimensions] = useMeasure()
-  const [canvasElementRef, canvasElementDimensions] = useMeasure()
+  const [position] = useAtom(canvasPositionAtom)
 
-  const [position, setPosition] = useState<{
-    x: MotionValue<number> | null
-    y: MotionValue<number> | null
-  }>({ x: null, y: null })
-
-  const handlePositionChange = (
-    x: MotionValue<number>,
-    y: MotionValue<number>,
-  ) => {
-    setPosition({ x, y })
-  }
+  const [canvasMeasureRef, canvasElementMeasureRef] = refs
 
   return (
     <>
@@ -598,7 +617,7 @@ function Canvas() {
         ref={mergeRefs([canvasContainerRef, canvasMeasureRef])}
       >
         <CanvasElement
-          ref={canvasElementRef}
+          ref={canvasElementMeasureRef}
           shape={selectedShape}
           multiple={multipleElements}
           snapIndex={isDragging ? closestSnapPointIndex : snappedPointIndex}
@@ -615,11 +634,6 @@ function Canvas() {
           }}
         />
       </div>
-      <DraggablePad
-        canvasDimensions={canvasDimensions}
-        canvasElementDimensions={canvasElementDimensions}
-        onPositionChange={handlePositionChange}
-      />
     </>
   )
 }
