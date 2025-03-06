@@ -392,38 +392,78 @@ function DraggablePad() {
 
   useEffect(() => {
     const updateSnapPoints = () => {
-      if (!padDimensions.width || !padDimensions.height) return
+      const container = padContainerRef.current
+      const draggable = draggableItemRef.current
+      if (!container || !draggable) return
 
-      const horizontalCenter =
-        padDimensions.width / 2 - draggableItemDimensions.width / 2
-      const verticalCenter =
-        padDimensions.height / 2 - draggableItemDimensions.height / 2
+      const { width: containerWidth, height: containerHeight } =
+        container.getBoundingClientRect()
+
+      // Get the current shape's aspect ratio
+      const shapeStyle = getShapeStyles(selectedShape)
+      const aspectRatioStr = shapeStyle.aspectRatio as string
+      const [widthRatio, heightRatio] = aspectRatioStr.split('/').map(Number)
+
+      // Calculate the draggable item dimensions based on the shape
+      let itemWidth, itemHeight
+
+      // Base width is 30% of container width * scale
+      const baseWidth = containerWidth * 0.3 * padScale
+
+      if (selectedShape === 'landscape') {
+        itemWidth = baseWidth
+        itemHeight = baseWidth * (heightRatio / widthRatio)
+      } else if (selectedShape === 'portrait') {
+        itemWidth = baseWidth
+        itemHeight = baseWidth * (heightRatio / widthRatio)
+      } else if (selectedShape === 'square' || selectedShape === 'circle') {
+        itemWidth = baseWidth
+        itemHeight = baseWidth
+      } else {
+        // Default to landscape
+        itemWidth = baseWidth
+        itemHeight = baseWidth * (10 / 16)
+      }
+
+      // Adjust positions to account for draggable item center
+      const halfItemWidth = itemWidth / 2
+      const halfItemHeight = itemHeight / 2
 
       const points = [
-        { x: 0, y: 0 }, // Top left
-        { x: padDimensions.width - draggableItemDimensions.width, y: 0 }, // Top right
-        { x: 0, y: verticalCenter }, // Middle left
+        // Corners
+        { x: padding + halfItemWidth, y: padding + halfItemHeight }, // top-left
         {
-          x: padDimensions.width - draggableItemDimensions.width,
-          y: verticalCenter,
-        }, // Middle right
-        { x: horizontalCenter, y: verticalCenter }, // Center
-        { x: horizontalCenter, y: 0 }, // Top center
+          x: containerWidth - padding - halfItemWidth,
+          y: padding + halfItemHeight,
+        }, // top-right
         {
-          x: horizontalCenter,
-          y: padDimensions.height - draggableItemDimensions.height,
-        }, // Bottom center
+          x: padding + halfItemWidth,
+          y: containerHeight - padding - halfItemHeight,
+        }, // bottom-left
         {
-          x: padDimensions.width - draggableItemDimensions.width,
-          y: padDimensions.height - draggableItemDimensions.height,
-        }, // Bottom right
-      ]
+          x: containerWidth - padding - halfItemWidth,
+          y: containerHeight - padding - halfItemHeight,
+        }, // bottom-right
+        // Sides
+        { x: containerWidth / 2, y: padding + halfItemHeight }, // top
+        {
+          x: containerWidth / 2,
+          y: containerHeight - padding - halfItemHeight,
+        }, // bottom
+        { x: padding + halfItemWidth, y: containerHeight / 2 }, // left
+        { x: containerWidth - padding - halfItemWidth, y: containerHeight / 2 }, // right
+      ].map((point) => ({
+        x: point.x - halfItemWidth,
+        y: point.y - halfItemHeight,
+      }))
 
       setSnapPoints(points)
     }
 
     updateSnapPoints()
-  }, [padDimensions, draggableItemDimensions, setSnapPoints])
+    window.addEventListener('resize', updateSnapPoints)
+    return () => window.removeEventListener('resize', updateSnapPoints)
+  }, [scale, padding, selectedShape, padScale])
 
   return (
     <div
