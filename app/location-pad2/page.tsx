@@ -43,20 +43,20 @@ const canvasPositionAtom = atom<{
   x: MotionValue<number>
   y: MotionValue<number>
 }>({ x: motionValue(0), y: motionValue(0) })
+const canvasDimensionsAtom = atom<{ width: number; height: number }>({
+  width: 0,
+  height: 0,
+})
+const canvasElementDimensionsAtom = atom<{ width: number; height: number }>({
+  width: 0,
+  height: 0,
+})
 
 export default function Page() {
-  const [canvasMeasureRef, canvasDimensions] = useMeasure()
-  const [canvasElementMeasureRef, canvasElementDimensions] = useMeasure()
-
   return (
     <div className={styles.container}>
-      <Canvas refs={[canvasMeasureRef, canvasElementMeasureRef]} />
-      <EditPanel>
-        <DraggablePad
-          canvasDimensions={canvasDimensions}
-          canvasElementDimensions={canvasElementDimensions}
-        />
-      </EditPanel>
+      <Canvas />
+      <EditPanel />
     </div>
   )
 }
@@ -212,10 +212,7 @@ interface DraggablePadProps {
   }
 }
 
-function DraggablePad({
-  canvasDimensions,
-  canvasElementDimensions,
-}: DraggablePadProps) {
+function DraggablePad() {
   const [scale] = useAtom(scaleAtom)
   const [padding] = useAtom(paddingAtom)
   const [selectedShape] = useAtom(selectedShapeAtom)
@@ -252,6 +249,9 @@ function DraggablePad({
     [0, 1],
     { clamp: false },
   )
+
+  const [canvasDimensions] = useAtom(canvasDimensionsAtom)
+  const [canvasElementDimensions] = useAtom(canvasElementDimensionsAtom)
 
   const canvasX = useTransform(
     normalizedX,
@@ -493,7 +493,7 @@ function DraggablePad({
   )
 }
 
-function EditPanel({ children }: { children: React.ReactNode }) {
+function EditPanel() {
   const [scale, setScale] = useAtom(scaleAtom)
   const [padding, setPadding] = useAtom(paddingAtom)
   const [selectedShape, setSelectedShape] = useAtom(selectedShapeAtom)
@@ -504,7 +504,7 @@ function EditPanel({ children }: { children: React.ReactNode }) {
 
   return (
     <div>
-      {children}
+      <DraggablePad />
       <div className={styles.shapeSelector}>
         <p>Shape:</p>
         <div className={styles.radioGroup}>
@@ -596,7 +596,7 @@ function EditPanel({ children }: { children: React.ReactNode }) {
   )
 }
 
-function Canvas({ refs }: { refs: Array<RefCallback<HTMLDivElement>> }) {
+function Canvas() {
   const [scale] = useAtom(scaleAtom)
   const [padding] = useAtom(paddingAtom)
   const [selectedShape] = useAtom(selectedShapeAtom)
@@ -606,9 +606,19 @@ function Canvas({ refs }: { refs: Array<RefCallback<HTMLDivElement>> }) {
   const [snappedPointIndex] = useAtom(snappedPointIndexAtom)
 
   const canvasContainerRef = useRef<HTMLDivElement>(null)
+  const [canvasMeasureRef, canvasDimensions] = useMeasure()
+  const [canvasElementMeasureRef, canvasElementDimensions] = useMeasure()
+  const setCanvasDimensions = useSetAtom(canvasDimensionsAtom)
+  const setCanvasElementDimensions = useSetAtom(canvasElementDimensionsAtom)
   const [position] = useAtom(canvasPositionAtom)
 
-  const [canvasMeasureRef, canvasElementMeasureRef] = refs
+  useEffect(() => {
+    setCanvasDimensions(canvasDimensions)
+  }, [canvasDimensions])
+
+  useEffect(() => {
+    setCanvasElementDimensions(canvasElementDimensions)
+  }, [canvasElementDimensions])
 
   return (
     <>
