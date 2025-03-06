@@ -2,6 +2,7 @@
 
 import {
   motion,
+  MotionStyle,
   MotionValue,
   useAnimation,
   useMotionValue,
@@ -42,7 +43,7 @@ export default function LocationPad() {
 
   // Add state for shape selection
   const [selectedShape, setSelectedShape] = useState<Shape>('landscape')
-  const [canvasElementRef, canvasElementDimensions] = useMeasure()
+  const [canvasElementMeasureRef, canvasElementDimensions] = useMeasure()
 
   // Track x and y position of the draggable item
   const x = useMotionValue(0)
@@ -129,13 +130,13 @@ export default function LocationPad() {
       case 'landscape':
         return { aspectRatio: '16/10', borderRadius: '0.3rem' }
       case 'portrait':
-        return { aspectRatio: '10/16', borderRadius: '0.5rem' }
+        return { aspectRatio: '10/16', borderRadius: '0.3rem' }
       case 'square':
-        return { aspectRatio: '1/1', borderRadius: '0.5rem' }
+        return { aspectRatio: '1/1', borderRadius: '0.3rem' }
       case 'circle':
         return { aspectRatio: '1/1', borderRadius: '50%' }
       default:
-        return { aspectRatio: '16/10', borderRadius: '0.5rem' }
+        return { aspectRatio: '16/10', borderRadius: '0.3rem' }
     }
   }
 
@@ -496,6 +497,21 @@ export default function LocationPad() {
 
   const [multipleElements, setMultipleElements] = useState(false)
   const [debugMode, setDebugMode] = useState(false)
+
+  const [snapShotKey, setSnapShotKey] = useState<null | string>(null)
+  const [snapShotStyles, setSnapShotStyles] = useState<null | MotionStyle>(null)
+  const canvasElementRef = useRef<HTMLDivElement>(null)
+  function handleSnapshot() {
+    if (!canvasElementRef.current) return
+    setSnapShotKey(Math.random().toString(36).substring(2, 15))
+    setSnapShotStyles({
+      width: canvasElementDimensions.width,
+      height: canvasElementDimensions.height,
+      x: canvasX.get(),
+      y: canvasY.get(),
+    })
+  }
+
   return (
     <div className={styles.container}>
       {/* Canvas */}
@@ -503,8 +519,22 @@ export default function LocationPad() {
         className={styles.canvas}
         ref={mergeRefs([canvasContainerRef, canvasMeasureRef])}
       >
+        {snapShotStyles && (
+          <motion.div
+            key={snapShotKey}
+            style={{
+              ...snapShotStyles,
+              backgroundColor: '#22c55e',
+              border: '1px solid #22c55e',
+              position: 'absolute',
+              borderRadius: '0.5rem',
+            }}
+            initial={{ scale: 1.1 }}
+            animate={{ scale: 1 }}
+          />
+        )}
         <CanvasElement
-          ref={canvasElementRef}
+          ref={mergeRefs([canvasElementRef, canvasElementMeasureRef])}
           shape={selectedShape}
           multiple={multipleElements}
           scale={scale}
@@ -670,8 +700,16 @@ export default function LocationPad() {
           <label htmlFor="multipleElements">Multiple elements</label>
         </div>
 
+        <button
+          disabled={multipleElements || selectedShape !== 'landscape'}
+          className={styles.snapshotButton}
+          onClick={handleSnapshot}
+        >
+          Snapshot current position
+        </button>
+
         {/* Debug mode */}
-        <div className={styles.multipleElements}>
+        {/* <div className={styles.multipleElements}>
           <input
             type="checkbox"
             id="debugMode"
@@ -679,7 +717,7 @@ export default function LocationPad() {
             onChange={(e) => setDebugMode(e.target.checked)}
           />
           <label htmlFor="debugMode">Debug mode</label>
-        </div>
+        </div> */}
       </div>
     </div>
   )
