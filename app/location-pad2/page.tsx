@@ -16,7 +16,6 @@ import {
   useRef,
   useEffect,
   useState,
-  RefCallback,
 } from 'react'
 import useMeasure from 'react-use-measure'
 import { mergeRefs } from 'react-merge-refs'
