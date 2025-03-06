@@ -27,7 +27,6 @@ const scaleAtom = atom(1)
 const paddingAtom = atom(10)
 const selectedShapeAtom = atom<Shape>('landscape')
 const multipleElementsAtom = atom(false)
-const debugModeAtom = atom(false)
 const snapPointsAtom = atom<Array<{ x: number; y: number }>>([])
 const isDraggingAtom = atom(false)
 const isCommandPressedAtom = atom(false)
@@ -198,17 +197,6 @@ function Debug({ normalizedX, normalizedY }: DebugProps) {
       Norm x: <span>{x}</span>, y: <span>{y}</span>
     </motion.pre>
   )
-}
-
-interface DraggablePadProps {
-  canvasDimensions: {
-    width: number
-    height: number
-  }
-  canvasElementDimensions: {
-    width: number
-    height: number
-  }
 }
 
 function DraggablePad() {
@@ -497,7 +485,6 @@ function EditPanel() {
   const [padding, setPadding] = useAtom(paddingAtom)
   const [selectedShape, setSelectedShape] = useAtom(selectedShapeAtom)
   const [multipleElements, setMultipleElements] = useAtom(multipleElementsAtom)
-  const [debugMode, setDebugMode] = useAtom(debugModeAtom)
   const [isDragging] = useAtom(isDraggingAtom)
   const [isCommandPressed] = useAtom(isCommandPressedAtom)
 
@@ -571,16 +558,6 @@ function EditPanel() {
           }}
         />
         <label htmlFor="multipleElements">Multiple elements</label>
-      </div>
-
-      <div className={styles.multipleElements}>
-        <input
-          type="checkbox"
-          id="debugMode"
-          checked={debugMode}
-          onChange={(e) => setDebugMode(e.target.checked)}
-        />
-        <label htmlFor="debugMode">Debug mode</label>
       </div>
 
       <div className={styles.instructions}>
