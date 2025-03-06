@@ -61,8 +61,8 @@ export default function Page() {
 }
 
 // Types
-export type Shape = 'landscape' | 'portrait' | 'square' | 'circle'
-export const shapes: Shape[] = ['landscape', 'portrait', 'square', 'circle']
+export const shapes = ['landscape', 'portrait', 'square', 'circle'] as const
+export type Shape = (typeof shapes)[number]
 
 // Utils
 export const getShapeStyles = (shape: Shape): CSSProperties => {
