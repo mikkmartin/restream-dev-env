@@ -1,0 +1,30 @@
+.container {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  min-width: 30rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  --background-color: #f3f4f627;
+}
+
+.canvas {
+  flex: 1;
+  aspect-ratio: 16/10;
+  position: relative;
+  background-color: var(--background-color);
+  overflow: hidden;
+}
+
+.draggableItem {
+  aspect-ratio: 16/10;
+  background-color: #ef4444;
+  cursor: grab;
+  border-radius: 0.5rem;
+  z-index: 999;
+
+  &:active {
+    cursor: grabbing;
+  }
+}
