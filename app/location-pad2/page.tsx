@@ -15,6 +15,7 @@ import {
   ComponentProps,
   CSSProperties,
   useMemo,
+  useLayoutEffect,
 } from 'react'
 import styles from './page.module.scss'
 import useMeasure from 'react-use-measure'
@@ -453,34 +454,44 @@ export default function LocationPad() {
     // in the updateSnapPoints useEffect
   }
 
-  const snapPointsOverlap = useMemo((): boolean => {
-    const parent = padContainerRef.current
-    if (!parent) return false
+  const [snapPointsOverlap, setSnapPointsOverlap] = useState(false)
+  useLayoutEffect(() => {
+    const checkForOverlap = (): boolean => {
+      const parent = padContainerRef.current
+      if (!parent) return false
 
-    const snapPoints = parent.querySelectorAll('[data-snapoint="true"]')
-    if (snapPoints.length === 0) return false
+      const snapPoints = parent.querySelectorAll('[data-snapoint="true"]')
+      if (snapPoints.length === 0) return false
 
-    const rects = Array.from(snapPoints).map((snapPoint) =>
-      snapPoint.getBoundingClientRect(),
-    )
+      const rects = Array.from(snapPoints)
+        .map((snapPoint) => snapPoint.getBoundingClientRect())
+        .map((rect) => ({
+          ...rect,
+          x: rect.x - 3,
+          y: rect.y - 3,
+          width: rect.width + 6,
+          height: rect.height + 6,
+        }))
 
-    for (let i = 0; i < rects.length; i++) {
-      for (let j = i + 1; j < rects.length; j++) {
-        const rect1 = rects[i]
-        const rect2 = rects[j]
+      for (let i = 0; i < rects.length; i++) {
+        for (let j = i + 1; j < rects.length; j++) {
+          const rect1 = rects[i]
+          const rect2 = rects[j]
 
-        const overlapX =
-          Math.abs(rect1.x - rect2.x) < (rect1.width + rect2.width) / 2
-        const overlapY =
-          Math.abs(rect1.y - rect2.y) < (rect1.height + rect2.height) / 2
+          const overlapX =
+            Math.abs(rect1.x - rect2.x) < (rect1.width + rect2.width) / 2
+          const overlapY =
+            Math.abs(rect1.y - rect2.y) < (rect1.height + rect2.height) / 2
 
-        if (overlapX && overlapY) {
-          return true
+          if (overlapX && overlapY) {
+            return true
+          }
         }
       }
-    }
 
-    return false
+      return false
+    }
+    setSnapPointsOverlap(checkForOverlap())
   }, [padding, selectedShape, scale])
 
   const [multipleElements, setMultipleElements] = useState(false)
@@ -522,6 +533,9 @@ export default function LocationPad() {
         <div
           ref={mergeRefs([padContainerRef, padMeasureRef])}
           className={styles.constraintsArea}
+          style={{
+            maxWidth: 200,
+          }}
         >
           {snapPoints.map((point, index) => (
             <motion.div
