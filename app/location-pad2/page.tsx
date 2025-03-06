@@ -14,19 +14,19 @@ import {
   useEffect,
   ComponentProps,
   CSSProperties,
+  useMemo,
 } from 'react'
 import styles from './page.module.scss'
 import useMeasure from 'react-use-measure'
 import { mergeRefs } from 'react-merge-refs'
-import { clamp } from 'motion'
 
 // Define shape types
 const shapes = ['landscape', 'portrait', 'square', 'circle'] as const
 type Shape = (typeof shapes)[number]
 
 export default function LocationPad() {
-  const [scale, setScale] = useState(1)
-  const [padding, setPadding] = useState(10)
+  const [scale, setScale] = useState(0.75)
+  const [padding, setPadding] = useState(5)
 
   const canvasContainerRef = useRef<HTMLDivElement>(null)
   const [canvasMeasureRef, canvasDimensions] = useMeasure()
@@ -99,7 +99,7 @@ export default function LocationPad() {
 
   // Calculate the pad scale value
   const maxScale = getPadMaxScale()
-  const padScale = clamp(0.15, maxScale - padding / 100, scale)
+  const pastMaxScale = scale > maxScale
 
   // Transform pad coordinates to canvas coordinates using dynamic dimensions
   const canvasX = useTransform(
@@ -126,7 +126,7 @@ export default function LocationPad() {
   const getShapeStyles = (shape: Shape) => {
     switch (shape) {
       case 'landscape':
-        return { aspectRatio: '16/10', borderRadius: '0.5rem' }
+        return { aspectRatio: '16/10', borderRadius: '0.3rem' }
       case 'portrait':
         return { aspectRatio: '10/16', borderRadius: '0.5rem' }
       case 'square':
@@ -157,7 +157,7 @@ export default function LocationPad() {
       let itemWidth, itemHeight
 
       // Base width is 30% of container width * scale
-      const baseWidth = containerWidth * 0.3 * padScale
+      const baseWidth = containerWidth * 0.3 * scale
 
       if (selectedShape === 'landscape') {
         itemWidth = baseWidth
@@ -212,7 +212,7 @@ export default function LocationPad() {
     updateSnapPoints()
     window.addEventListener('resize', updateSnapPoints)
     return () => window.removeEventListener('resize', updateSnapPoints)
-  }, [scale, padding, selectedShape, padScale])
+  }, [scale, padding, selectedShape, scale])
 
   // Handle key events for precise movement
   const handleKeyDown = (e: KeyboardEvent) => {
@@ -453,6 +453,36 @@ export default function LocationPad() {
     // in the updateSnapPoints useEffect
   }
 
+  const snapPointsOverlap = useMemo((): boolean => {
+    const parent = padContainerRef.current
+    if (!parent) return false
+
+    const snapPoints = parent.querySelectorAll('[data-snapoint="true"]')
+    if (snapPoints.length === 0) return false
+
+    const rects = Array.from(snapPoints).map((snapPoint) =>
+      snapPoint.getBoundingClientRect(),
+    )
+
+    for (let i = 0; i < rects.length; i++) {
+      for (let j = i + 1; j < rects.length; j++) {
+        const rect1 = rects[i]
+        const rect2 = rects[j]
+
+        const overlapX =
+          Math.abs(rect1.x - rect2.x) < (rect1.width + rect2.width) / 2
+        const overlapY =
+          Math.abs(rect1.y - rect2.y) < (rect1.height + rect2.height) / 2
+
+        if (overlapX && overlapY) {
+          return true
+        }
+      }
+    }
+
+    return false
+  }, [padding, selectedShape, scale])
+
   const [multipleElements, setMultipleElements] = useState(false)
   const [debugMode, setDebugMode] = useState(false)
   return (
@@ -496,6 +526,8 @@ export default function LocationPad() {
           {snapPoints.map((point, index) => (
             <motion.div
               key={index}
+              data-snapoint="true"
+              data-snapoint-overlap={snapPointsOverlap}
               animate={{
                 opacity: !isCommandPressed ? 1 : 0,
               }}
@@ -505,7 +537,7 @@ export default function LocationPad() {
               style={{
                 transform: `translate(${point.x}px, ${point.y}px)`,
                 position: 'absolute',
-                width: 30 * padScale + '%',
+                width: 30 * scale + '%',
                 pointerEvents: index === snappedPointIndex ? 'none' : 'auto',
                 ...getShapeStyles(selectedShape),
               }}
@@ -532,7 +564,7 @@ export default function LocationPad() {
             style={{
               x,
               y,
-              width: 30 * padScale + '%',
+              width: 30 * scale + '%',
               zIndex: 999,
               ...getShapeStyles(selectedShape),
             }}
@@ -678,11 +710,11 @@ function CanvasElement(props: CanvasElementProps) {
           flexDirection: 'row',
         }
       case 6:
+      case 7:
         return {
           flexDirection: 'column',
         }
       case 1:
-      case 7:
       case 3:
         return {
           flexDirection: 'row-reverse',
@@ -719,14 +751,14 @@ function CanvasElement(props: CanvasElementProps) {
           transition={transition}
           className={styles.movableElement}
         />
-        {props.scale <= 1.2 && (
+        {props.scale <= 1.4 && (
           <motion.div
             layout
             transition={transition}
             className={styles.ghostElement}
           />
         )}
-        {props.scale <= 0.7 && (
+        {props.scale <= 1 && (
           <motion.div
             layout
             transition={transition}
