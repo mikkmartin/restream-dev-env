@@ -9,12 +9,24 @@
   --background-color: #f3f4f627;
 }
 
-.canvas {
-  flex: 1;
-  aspect-ratio: 16/10;
+.canvasContainer {
   position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.canvas {
+  position: relative;
+  width: 100%;
+  height: 100%;
   background-color: var(--background-color);
+  border-radius: 8px;
   overflow: hidden;
+
+  &.dragOver {
+    border: 2px dashed #3b82f6;
+    background-color: rgba(59, 130, 246, 0.1);
+  }
 }
 
 .constraintsArea {
@@ -197,4 +209,32 @@
 .snapshotButton {
   left: 0;
   margin-top: 1rem;
+}
+
+.dragOverlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: rgba(255, 255, 255, 0.7);
+  z-index: 1000;
+  pointer-events: none;
+  border-radius: 8px;
+
+  p {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #3b82f6;
+  }
+}
+
+.buttonControls {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+  flex-wrap: wrap;
 }

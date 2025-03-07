@@ -21,14 +21,24 @@ import {
 import styles from './page.module.scss'
 import useMeasure from 'react-use-measure'
 import { mergeRefs } from 'react-merge-refs'
+import { atom, useAtom, useSetAtom, useAtomValue } from 'jotai'
 
 // Define shape types
 const shapes = ['landscape', 'portrait', 'square', 'circle'] as const
 type Shape = (typeof shapes)[number]
 
+// Add atom for background image
+const backgroundImageAtom = atom<string | null>(null)
+
+// Derived atom for whether a background image exists
+const hasBackgroundImageAtom = atom((get) => get(backgroundImageAtom) !== null)
+
 export default function LocationPad() {
   const [scale, setScale] = useState(0.75)
   const [padding, setPadding] = useState(5)
+  const [backgroundImage, setBackgroundImage] = useAtom(backgroundImageAtom)
+  const hasBackgroundImage = useAtomValue(hasBackgroundImageAtom)
+  const [dragOver, setDragOver] = useState(false)
 
   const canvasContainerRef = useRef<HTMLDivElement>(null)
   const [canvasMeasureRef, canvasDimensions] = useMeasure()
@@ -512,12 +522,114 @@ export default function LocationPad() {
     })
   }
 
+  // Handle background image upload
+  const handleBackgroundImageUpload = (
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+
+      // Check if the file is an image
+      if (file.type.match(/image.*/)) {
+        const reader = new FileReader()
+
+        reader.onload = (loadEvent) => {
+          if (loadEvent.target?.result) {
+            setBackgroundImage(loadEvent.target.result as string)
+          }
+        }
+
+        reader.readAsDataURL(file)
+      }
+
+      // Clear the input value so the same file can be selected again
+      e.target.value = ''
+    }
+  }
+
+  const handleRemoveBackground = () => {
+    setBackgroundImage(null)
+  }
+
+  // Handle drag and drop for background images
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDragOver(true)
+  }
+
+  const handleDragLeave = () => {
+    setDragOver(false)
+  }
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault()
+    setDragOver(false)
+
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const file = e.dataTransfer.files[0]
+
+      // Check if the file is an image
+      if (file.type.match(/image.*/)) {
+        const reader = new FileReader()
+
+        reader.onload = (loadEvent) => {
+          if (loadEvent.target?.result) {
+            setBackgroundImage(loadEvent.target.result as string)
+          }
+        }
+
+        reader.readAsDataURL(file)
+      }
+    }
+  }
+
+  // Handle paste events for images
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      if (e.clipboardData) {
+        const items = e.clipboardData.items
+
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf('image') !== -1) {
+            const blob = items[i].getAsFile()
+
+            if (blob) {
+              const reader = new FileReader()
+
+              reader.onload = (loadEvent) => {
+                if (loadEvent.target?.result) {
+                  setBackgroundImage(loadEvent.target.result as string)
+                }
+              }
+
+              reader.readAsDataURL(blob)
+              break
+            }
+          }
+        }
+      }
+    }
+
+    document.addEventListener('paste', handlePaste)
+    return () => {
+      document.removeEventListener('paste', handlePaste)
+    }
+  }, [setBackgroundImage])
+
   return (
     <div className={styles.container}>
       {/* Canvas */}
       <div
-        className={styles.canvas}
+        className={`${styles.canvas} ${dragOver ? styles.dragOver : ''}`}
         ref={mergeRefs([canvasContainerRef, canvasMeasureRef])}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
+        style={{
+          backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'none',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
       >
         {snapShotStyles && (
           <motion.div
@@ -550,6 +662,13 @@ export default function LocationPad() {
             } * ${scale}% - ${padding * 2}px)`,
           }}
         />
+
+        {/* Drag overlay - moved inside the canvas div */}
+        {dragOver && (
+          <div className={styles.dragOverlay}>
+            <p>Drop image to set as background</p>
+          </div>
+        )}
       </div>
 
       {/* Suidepanel */}
@@ -700,24 +819,19 @@ export default function LocationPad() {
           <label htmlFor="multipleElements">Multiple elements</label>
         </div>
 
-        <button
-          disabled={multipleElements || selectedShape !== 'landscape'}
-          className={styles.snapshotButton}
-          onClick={handleSnapshot}
-        >
-          Snapshot current position
-        </button>
-
-        {/* Debug mode */}
-        {/* <div className={styles.multipleElements}>
-          <input
-            type="checkbox"
-            id="debugMode"
-            checked={debugMode}
-            onChange={(e) => setDebugMode(e.target.checked)}
-          />
-          <label htmlFor="debugMode">Debug mode</label>
-        </div> */}
+        {/* Button controls */}
+        <div className={styles.buttonControls}>
+          <button
+            disabled={multipleElements || selectedShape !== 'landscape'}
+            className={styles.snapshotButton}
+            onClick={handleSnapshot}
+          >
+            Snapshot current position
+          </button>
+          {backgroundImage && (
+            <button onClick={handleRemoveBackground}>Remove Background</button>
+          )}
+        </div>
       </div>
     </div>
   )
