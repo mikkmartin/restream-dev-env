@@ -461,6 +461,30 @@ export default function LocationPad() {
   // Function to handle shape change
   const handleShapeChange = (shape: Shape) => {
     setSelectedShape(shape)
+
+    // Re-snap to the most recent snap point when shape changes
+    if (lastManualSnapPosition) {
+      // Apply the animation to snap back to the last position
+      animationControls.start({
+        x: lastManualSnapPosition.x,
+        y: lastManualSnapPosition.y,
+        transition: {
+          type: 'spring',
+          stiffness: 500,
+          damping: 25,
+          mass: 1,
+        },
+      })
+    } else if (snappedPointIndex !== null && snapPoints.length > 0) {
+      // If we have a snapped point index but no manual position, use the snap point
+      const snapPoint = snapPoints[snappedPointIndex]
+      animationControls.start({
+        x: snapPoint.x,
+        y: snapPoint.y,
+        transition,
+      })
+    }
+
     // The snap points will be recalculated due to the dependency on selectedShape
     // in the updateSnapPoints useEffect
   }
@@ -615,6 +639,24 @@ export default function LocationPad() {
       document.removeEventListener('paste', handlePaste)
     }
   }, [setBackgroundImage])
+
+  // Add an effect to handle repositioning when snapPoints change due to shape changes
+  useEffect(() => {
+    // Only reposition if we have snap points and a snapped index
+    if (snapPoints.length > 0 && snappedPointIndex !== null) {
+      // Make sure the index is within the valid range
+      if (snappedPointIndex < snapPoints.length) {
+        const snapPoint = snapPoints[snappedPointIndex]
+
+        // Apply the animation to snap to the updated position
+        animationControls.start({
+          x: snapPoint.x,
+          y: snapPoint.y,
+          transition,
+        })
+      }
+    }
+  }, [snapPoints, snappedPointIndex]) // Run this effect when snapPoints or snappedPointIndex changes
 
   return (
     <div className={styles.container}>
