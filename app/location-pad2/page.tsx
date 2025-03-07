@@ -15,7 +15,6 @@ import {
   useEffect,
   ComponentProps,
   CSSProperties,
-  useMemo,
   useLayoutEffect,
 } from 'react'
 import styles from './page.module.scss'
@@ -306,12 +305,6 @@ export default function LocationPad() {
   }
 
   function handleDragEnd() {
-    if (isCommandPressed) {
-      // If command is pressed, don't snap and clear the snapped point index
-      setSnappedPointIndex(null)
-      return
-    }
-
     setIsDragging(false)
 
     const draggable = draggableItemRef.current
@@ -320,6 +313,13 @@ export default function LocationPad() {
     // Get current position
     const currentX = x.get()
     const currentY = y.get()
+
+    if (isCommandPressed) {
+      // If command is pressed, don't snap and clear the snapped point index
+      setSnappedPointIndex(null)
+      setPreciseMovementSet(true) // Set to true when releasing with command key pressed
+      return
+    }
 
     // Find closest snap point
     const snapPoint = getClosestSnapPoint(currentX, currentY)
@@ -346,7 +346,9 @@ export default function LocationPad() {
   }
 
   function handleDragStart() {
+    setDidDrag(true)
     setIsDragging(true)
+    setPreciseMovementSet(false) // Reset precise movement state on drag start
   }
 
   function handleSnapPointClick(point: { x: number; y: number }) {
@@ -461,30 +463,7 @@ export default function LocationPad() {
   // Function to handle shape change
   const handleShapeChange = (shape: Shape) => {
     setSelectedShape(shape)
-
-    // Re-snap to the most recent snap point when shape changes
-    if (lastManualSnapPosition) {
-      // Apply the animation to snap back to the last position
-      animationControls.start({
-        x: lastManualSnapPosition.x,
-        y: lastManualSnapPosition.y,
-        transition: {
-          type: 'spring',
-          stiffness: 500,
-          damping: 25,
-          mass: 1,
-        },
-      })
-    } else if (snappedPointIndex !== null && snapPoints.length > 0) {
-      // If we have a snapped point index but no manual position, use the snap point
-      const snapPoint = snapPoints[snappedPointIndex]
-      animationControls.start({
-        x: snapPoint.x,
-        y: snapPoint.y,
-        transition,
-      })
-    }
-
+    setPreciseMovementSet(false)
     // The snap points will be recalculated due to the dependency on selectedShape
     // in the updateSnapPoints useEffect
   }
@@ -640,23 +619,9 @@ export default function LocationPad() {
     }
   }, [setBackgroundImage])
 
-  // Add an effect to handle repositioning when snapPoints change due to shape changes
-  useEffect(() => {
-    // Only reposition if we have snap points and a snapped index
-    if (snapPoints.length > 0 && snappedPointIndex !== null) {
-      // Make sure the index is within the valid range
-      if (snappedPointIndex < snapPoints.length) {
-        const snapPoint = snapPoints[snappedPointIndex]
-
-        // Apply the animation to snap to the updated position
-        animationControls.start({
-          x: snapPoint.x,
-          y: snapPoint.y,
-          transition,
-        })
-      }
-    }
-  }, [snapPoints, snappedPointIndex]) // Run this effect when snapPoints or snappedPointIndex changes
+  const [didDrag, setDidDrag] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const [preciseMovementSet, setPreciseMovementSet] = useState(false)
 
   return (
     <div className={styles.container}>
@@ -721,9 +686,11 @@ export default function LocationPad() {
         )}
 
         {/* Pad container */}
-        <div
+        <motion.div
           ref={mergeRefs([padContainerRef, padMeasureRef])}
           className={styles.constraintsArea}
+          onHoverStart={() => setIsHovered(true)}
+          onHoverEnd={() => setIsHovered(false)}
           style={{
             maxWidth: 200,
           }}
@@ -734,7 +701,10 @@ export default function LocationPad() {
               data-snapoint="true"
               data-snapoint-overlap={snapPointsOverlap}
               animate={{
-                opacity: !isCommandPressed ? 1 : 0,
+                opacity:
+                  !isCommandPressed && (isHovered || !preciseMovementSet)
+                    ? 1
+                    : 0,
               }}
               className={`${styles.snapPoint} ${
                 index === closestSnapPointIndex ? styles.snapPointActive : ''
@@ -743,7 +713,11 @@ export default function LocationPad() {
                 transform: `translate(${point.x}px, ${point.y}px)`,
                 position: 'absolute',
                 width: 30 * scale + '%',
-                pointerEvents: index === snappedPointIndex ? 'none' : 'auto',
+                pointerEvents:
+                  index === snappedPointIndex ||
+                  (preciseMovementSet && !isHovered)
+                    ? 'none'
+                    : 'auto',
                 ...getShapeStyles(selectedShape),
               }}
               onClick={() => handleSnapPointClick(point)}
@@ -776,15 +750,29 @@ export default function LocationPad() {
             ref={mergeRefs([draggableItemRef, draggableItemMeasureRef])}
             className={styles.draggableItem}
           />
-        </div>
+        </motion.div>
 
         {/* Pad instructions */}
         <div className={styles.instructions}>
-          <motion.p animate={{ opacity: isDragging ? 1 : 0 }}>
+          <motion.p
+            initial={false}
+            animate={{ opacity: isHovered && !didDrag ? 1 : 0 }}
+          >
+            Drag element to move.
+          </motion.p>
+          <motion.p
+            initial={false}
+            style={{ position: 'absolute' }}
+            animate={{ opacity: isDragging && !isCommandPressed ? 1 : 0 }}
+          >
             Hold ⌘ Command for precise movement.
           </motion.p>
-          <motion.p animate={{ opacity: isCommandPressed ? 1 : 0 }}>
-            Holding Command.
+          <motion.p
+            initial={false}
+            style={{ position: 'absolute' }}
+            animate={{ opacity: isCommandPressed ? 1 : 0 }}
+          >
+            Release to set position.
           </motion.p>
         </div>
 
