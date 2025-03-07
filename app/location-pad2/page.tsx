@@ -354,6 +354,9 @@ export default function LocationPad() {
   function handleSnapPointClick(point: { x: number; y: number }) {
     if (isCommandPressed) return
 
+    // Clear the precise movement set state when clicking on a snap point
+    setPreciseMovementSet(false)
+
     // Find the index of the clicked point
     const clickedIndex = snapPoints.findIndex(
       (p) => p.x === point.x && p.y === point.y,
