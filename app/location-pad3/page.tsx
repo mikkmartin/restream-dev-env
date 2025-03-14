@@ -15,7 +15,6 @@ import {
   ComponentProps,
   CSSProperties,
 } from 'react'
-import styles from './page.module.scss'
 import useMeasure from 'react-use-measure'
 import { mergeRefs } from 'react-merge-refs'
 import { clamp } from 'motion'
@@ -293,8 +292,11 @@ export default function Page() {
   ])
 
   return (
-    <div className={styles.container}>
-      <div className={styles.canvas} ref={containerMeasureRef}>
+    <div className="flex gap-8 w-full min-w-[30rem] justify-start items-start">
+      <div
+        className="flex-1 aspect-[16/10] relative bg-[#f3f4f627] overflow-hidden"
+        ref={containerMeasureRef}
+      >
         <motion.div
           ref={draggableItemMeasureRef}
           onDragStart={handleDragStart}
@@ -309,7 +311,7 @@ export default function Page() {
             position: 'relative',
             touchAction: 'none',
           }}
-          className={styles.draggableItem}
+          className="relative bg-red-500 cursor-grab rounded-lg touch-none select-none"
           animate={animationControls}
           drag={!isResizing}
           dragMomentum={false}
@@ -317,28 +319,28 @@ export default function Page() {
           {/* Resize handles - only show if the corresponding edge is not touching the container */}
           {!edgesTouchingContainer.top && (
             <div
-              className={`${styles.resizeHandle} ${styles.top}`}
+              className="absolute bg-black/10 hover:bg-black/20 z-10 h-2 w-[calc(100%-16px)] left-2 top-0 -translate-y-1/2 cursor-ns-resize"
               onPointerDown={(e) => startResize('top', e)}
             />
           )}
 
           {!edgesTouchingContainer.right && (
             <div
-              className={`${styles.resizeHandle} ${styles.right}`}
+              className="absolute bg-black/10 hover:bg-black/20 z-10 w-2 h-[calc(100%-16px)] top-2 right-0 translate-x-1/2 cursor-ew-resize"
               onPointerDown={(e) => startResize('right', e)}
             />
           )}
 
           {!edgesTouchingContainer.bottom && (
             <div
-              className={`${styles.resizeHandle} ${styles.bottom}`}
+              className="absolute bg-black/10 hover:bg-black/20 z-10 h-2 w-[calc(100%-16px)] left-2 bottom-0 translate-y-1/2 cursor-ns-resize"
               onPointerDown={(e) => startResize('bottom', e)}
             />
           )}
 
           {!edgesTouchingContainer.left && (
             <div
-              className={`${styles.resizeHandle} ${styles.left}`}
+              className="absolute bg-black/10 hover:bg-black/20 z-10 w-2 h-[calc(100%-16px)] top-2 left-0 -translate-x-1/2 cursor-ew-resize"
               onPointerDown={(e) => startResize('left', e)}
             />
           )}
@@ -346,28 +348,28 @@ export default function Page() {
           {/* Corner handles - only show if neither of the corresponding edges are touching */}
           {!edgesTouchingContainer.top && !edgesTouchingContainer.left && (
             <div
-              className={`${styles.resizeHandle} ${styles.topLeft}`}
+              className="absolute bg-black/10 hover:bg-black/20 z-10 w-3 h-3 rounded-full top-0 left-0 -translate-x-1/2 -translate-y-1/2 cursor-nwse-resize"
               onPointerDown={(e) => startResize('topLeft', e)}
             />
           )}
 
           {!edgesTouchingContainer.top && !edgesTouchingContainer.right && (
             <div
-              className={`${styles.resizeHandle} ${styles.topRight}`}
+              className="absolute bg-black/10 hover:bg-black/20 z-10 w-3 h-3 rounded-full top-0 right-0 translate-x-1/2 -translate-y-1/2 cursor-nesw-resize"
               onPointerDown={(e) => startResize('topRight', e)}
             />
           )}
 
           {!edgesTouchingContainer.bottom && !edgesTouchingContainer.left && (
             <div
-              className={`${styles.resizeHandle} ${styles.bottomLeft}`}
+              className="absolute bg-black/10 hover:bg-black/20 z-10 w-3 h-3 rounded-full bottom-0 left-0 -translate-x-1/2 translate-y-1/2 cursor-nesw-resize"
               onPointerDown={(e) => startResize('bottomLeft', e)}
             />
           )}
 
           {!edgesTouchingContainer.bottom && !edgesTouchingContainer.right && (
             <div
-              className={`${styles.resizeHandle} ${styles.bottomRight}`}
+              className="absolute bg-black/10 hover:bg-black/20 z-10 w-3 h-3 rounded-full bottom-0 right-0 translate-x-1/2 translate-y-1/2 cursor-nwse-resize"
               onPointerDown={(e) => startResize('bottomRight', e)}
             />
           )}
