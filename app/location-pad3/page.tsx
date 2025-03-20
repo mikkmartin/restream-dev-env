@@ -212,6 +212,8 @@ export default function LocationPad() {
         }, // bottom
         { x: padding + halfItemWidth, y: containerHeight / 2 }, // left
         { x: containerWidth - padding - halfItemWidth, y: containerHeight / 2 }, // right
+        // Center
+        { x: containerWidth / 2, y: containerHeight / 2 }, // center
       ].map((point) => ({
         x: point.x - halfItemWidth,
         y: point.y - halfItemHeight,
