@@ -7,6 +7,17 @@ import {
   useTransform,
 } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
+import {
+  CornerUpLeft,
+  CornerUpRight,
+  CornerDownLeft,
+  CornerDownRight,
+  ArrowUp,
+  ArrowDown,
+  ArrowLeft,
+  ArrowRight,
+  Plus
+} from 'lucide-react'
 
 export default function LocationPad() {
   const canvasContainerRef = useRef<HTMLDivElement>(null)
@@ -258,20 +269,35 @@ export default function LocationPad() {
       </div>
       <div>
         <div ref={padContainerRef} className="relative aspect-[16/10] bg-[#f3f4f627] max-w-[10rem] overflow-hidden">
-          {snapPoints.map((point, index) => (
-            <motion.div
-              key={index}
-              animate={{
-                opacity: !isCommandPressed ? 1 : 0,
-              }}
-              className={`absolute w-[30%] aspect-[16/10] bg-red-500/10 border border-red-500/20 rounded transition-all duration-200 ease-in-out cursor-pointer pointer-events-auto hover:bg-red-500/20 hover:border-red-500/40 ${index === closestSnapPointIndex ? 'bg-red-500/35 border-2 border-red-500/60 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]' : ''
-                }`}
-              style={{
-                transform: `translate(${point.x}px, ${point.y}px)`,
-              }}
-              onClick={() => handleSnapPointClick(point)}
-            />
-          ))}
+          {snapPoints.map((point, index) => {
+            const Icon = [
+              CornerUpLeft, // top-left
+              CornerUpRight, // top-right
+              CornerDownLeft, // bottom-left
+              CornerDownRight, // bottom-right
+              ArrowUp, // top
+              ArrowDown, // bottom
+              ArrowLeft, // left
+              ArrowRight, // right
+              Plus // center
+            ][index]
+
+            return (
+              <motion.div
+                key={index}
+                animate={{
+                  opacity: !isCommandPressed ? 1 : 0,
+                }}
+                className={`absolute w-[30%] aspect-[16/10] bg-red-500/10 border border-red-500/20 rounded transition-all duration-200 ease-in-out cursor-pointer pointer-events-auto hover:bg-red-500/20 hover:border-red-500/40 flex items-center justify-center ${index === closestSnapPointIndex ? 'bg-red-500/35 border-2 border-red-500/60 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]' : ''}`}
+                style={{
+                  transform: `translate(${point.x}px, ${point.y}px)`,
+                }}
+                onClick={() => handleSnapPointClick(point)}
+              >
+                <Icon className="w-4 h-4 text-red-500/60" />
+              </motion.div>
+            )
+          })}
           <motion.div
             drag
             onDragStart={handleDragStart}
