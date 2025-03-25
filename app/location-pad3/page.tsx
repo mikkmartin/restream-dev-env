@@ -14,6 +14,8 @@ export default function LocationPad() {
   const animationControls = useAnimation()
   const draggableItemRef = useRef<HTMLDivElement>(null)
 
+  const [padding, setPadding] = useState(0)
+  const [size, setSize] = useState(0)
   // Add state for canvas dimensions
   const [canvasDimensions, setCanvasDimensions] = useState({
     width: 0,
@@ -99,6 +101,9 @@ export default function LocationPad() {
         { x: containerWidth / 2, y: containerHeight - halfItemHeight }, // bottom
         { x: halfItemWidth, y: containerHeight / 2 }, // left
         { x: containerWidth - halfItemWidth, y: containerHeight / 2 }, // right
+
+        // Center
+        { x: containerWidth / 2, y: containerHeight / 2 },
       ].map((point) => ({
         x: point.x - halfItemWidth,
         y: point.y - halfItemHeight,
@@ -299,6 +304,38 @@ export default function LocationPad() {
             }}
           />
           <label htmlFor="multipleElements">Snap</label>
+        </div>
+
+        {/* Padding slider */}
+        <div className="flex flex-col gap-2">
+          <p>Padding: {padding.toFixed(2)}</p>
+          <div className="flex-1">
+            <input
+              type="range"
+              min="0"
+              max="20"
+              step="1"
+              className="w-full"
+              value={padding}
+              onChange={(e) => setPadding(Number(e.target.value))}
+            />
+          </div>
+        </div>
+
+        {/* Size slider */}
+        <div className="flex flex-col gap-2">
+          <p>Size: {size.toFixed(2)}</p>
+          <div className="flex-1">
+            <input
+              type="range"
+              min="0"
+              max="20"
+              step="1"
+              className="w-full"
+              value={size}
+              onChange={(e) => setSize(Number(e.target.value))}
+            />
+          </div>
         </div>
       </div>
     </div>
