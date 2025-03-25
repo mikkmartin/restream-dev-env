@@ -21,35 +21,55 @@ import {
 import useMeasure from 'react-use-measure'
 import { mergeRefs } from 'react-merge-refs'
 
+const noClampOption = {
+  clamp: false
+}
+
 export default function LocationPad() {
   const x = useMotionValue(0) //normalised x position
   const y = useMotionValue(0) //normalised y position
 
-  const [size, setSize] = useState(0)
+  const [size, setSize] = useState(0.2)
+
   const [padRef, padBounds] = useMeasure()
   const [dragElementRef, dragElementBounds] = useMeasure()
 
+  const [canvasElementRef, canvasElementBounds] = useMeasure()
+  const [canvasRef, canvasBounds] = useMeasure()
 
   return (
     <div className='w-full h-full flex items-start gap-4'>
-      <div className='flex-1/2 aspect-[16/9] bg-red-500'>
-
+      <div className='flex-1/2 aspect-[16/9] overflow-clip' ref={canvasRef}>
+        <motion.div className='aspect-[16/9] bg-red-500' ref={canvasElementRef} style={{
+          x: useTransform(x, [0, 1], [0, canvasBounds.width - canvasElementBounds.width], noClampOption),
+          y: useTransform(y, [0, 1], [0, canvasBounds.height - canvasElementBounds.height], noClampOption),
+          width: `${size * 100}%`,
+        }} />
       </div>
       <div className='flex-1'>
         <div className='w-full aspect-[16/9] bg-blue-500/10 overflow-clip' ref={padRef}>
           <motion.div
-            className='w-1/3 h-1/3 bg-green-500 cursor-grab active:cursor-grabbing'
-            onDrag={(e, info) => {
+            className='aspect-[16/9] bg-green-500 cursor-grab active:cursor-grabbing'
+            dragMomentum={false}
+            dragConstraints={{
+              top: -dragElementBounds.height + 24,
+              left: -dragElementBounds.width + 24,
+              bottom: padBounds.height - 24,
+              right: padBounds.width - 24,
+            }}
+            onDrag={(e) => {
               const el = e.target as HTMLDivElement
               const elBounds = el.getBoundingClientRect()
 
-              //calculate normalised x and y
               const normalizedX = (elBounds.x - padBounds.x) / (padBounds.width - el.offsetWidth)
               const normalizedY = (elBounds.y - padBounds.y) / (padBounds.height - el.offsetHeight)
 
               x.set(normalizedX)
               y.set(normalizedY)
 
+            }}
+            style={{
+              width: `${size * 100}%`,
             }}
             ref={dragElementRef}
             drag
