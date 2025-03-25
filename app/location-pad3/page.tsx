@@ -7,7 +7,6 @@ import {
   useTransform,
 } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
-import styles from './page.module.scss'
 
 export default function LocationPad() {
   const canvasContainerRef = useRef<HTMLDivElement>(null)
@@ -242,10 +241,10 @@ export default function LocationPad() {
   }
 
   return (
-    <div className={styles.container}>
-      <div className={styles.canvas} ref={canvasContainerRef}>
+    <div className="flex gap-8 w-full min-w-[30rem] justify-start items-start">
+      <div className="flex-1 aspect-[16/10] relative bg-[#f3f4f627] overflow-hidden" ref={canvasContainerRef}>
         <motion.div
-          className={styles.movableElement}
+          className="absolute w-[30%] aspect-[16/10] bg-red-500 rounded-2xl transition-transform duration-100 ease-out"
           style={{
             x: canvasX,
             y: canvasY,
@@ -253,18 +252,17 @@ export default function LocationPad() {
         />
       </div>
       <div>
-        <div ref={padContainerRef} className={styles.constraintsArea}>
+        <div ref={padContainerRef} className="relative aspect-[16/10] bg-[#f3f4f627] max-w-[10rem] overflow-hidden">
           {snapPoints.map((point, index) => (
             <motion.div
               key={index}
               animate={{
                 opacity: !isCommandPressed ? 1 : 0,
               }}
-              className={`${styles.snapPoint} ${index === closestSnapPointIndex ? styles.snapPointActive : ''
+              className={`absolute w-[30%] aspect-[16/10] bg-red-500/10 border border-red-500/20 rounded transition-all duration-200 ease-in-out cursor-pointer pointer-events-auto hover:bg-red-500/20 hover:border-red-500/40 ${index === closestSnapPointIndex ? 'bg-red-500/35 border-2 border-red-500/60 shadow-[0_0_0_1px_rgba(239,68,68,0.2)]' : ''
                 }`}
               style={{
                 transform: `translate(${point.x}px, ${point.y}px)`,
-                position: 'absolute',
               }}
               onClick={() => handleSnapPointClick(point)}
             />
@@ -279,16 +277,28 @@ export default function LocationPad() {
             animate={animationControls}
             style={{ x, y }}
             ref={draggableItemRef}
-            className={styles.draggableItem}
+            className="w-[30%] aspect-[16/10] bg-red-500 cursor-grab rounded-sm z-[999] active:cursor-grabbing"
           />
         </div>
-        <div className={styles.instructions}>
+        <div className="py-2 flex flex-col gap-1">
           <motion.p animate={{ opacity: isDragging ? 1 : 0 }}>
             Hold ⌘ Command for precise movement.
           </motion.p>
           <motion.p animate={{ opacity: isCommandPressed ? 1 : 0 }}>
             Holding Command.
           </motion.p>
+        </div>
+
+        <div className="flex gap-2">
+          <input
+            type="checkbox"
+            id="multipleElements"
+            onChange={(e) => {
+              const checked = e.target.checked
+              setIsCommandPressed(!checked)
+            }}
+          />
+          <label htmlFor="multipleElements">Snap</label>
         </div>
       </div>
     </div>
