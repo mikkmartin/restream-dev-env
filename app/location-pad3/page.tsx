@@ -22,14 +22,19 @@ import {
 } from 'lucide-react'
 import useMeasure from 'react-use-measure'
 import { mergeRefs } from 'react-merge-refs'
-import { atom, useAtom } from 'jotai'
+import { atom, useAtom, useSetAtom } from 'jotai'
+import { transform } from 'motion'
 const noClampOption = {
   clamp: false
 }
 
 const snapIndexAtom = atom(0)
+const isSnappedAtom = atom(false)
 
 export default function LocationPad() {
+  const setSnapIndex = useSetAtom(snapIndexAtom)
+  const [isSnapped, setIsSnapped] = useAtom(isSnappedAtom)
+
   const x = useMotionValue(0) //normalised x position
   const y = useMotionValue(0) //normalised y position
 
@@ -41,52 +46,82 @@ export default function LocationPad() {
   const [canvasElementRef, canvasElementBounds] = useMeasure()
   const [canvasRef, canvasBounds] = useMeasure()
 
-  const [isSnapped, setIsSnapped] = useState(false)
+
+
+  const elOffsetRef = useRef({ x: 0, y: 0 })
+
+  const [elementX, setElementX] = useState(0)
+  const [elementY, setElementY] = useState(0)
+
+  useEffect(() => {
+    x.on('change', setElementX)
+    y.on('change', setElementY)
+  }, [x, y])
+
+  const padX = useTransform(x, [0, 1], [0, padBounds.width - dragElementBounds.width], noClampOption)
+  const padY = useTransform(y, [0, 1], [0, padBounds.height - dragElementBounds.height], noClampOption)
 
   return (
     <MotionConfig transition={snappy}>
       <div className='w-full h-full flex items-start gap-4'>
-        <div className='flex-1/2 aspect-[16/9] overflow-clip' ref={canvasRef}>
-          <motion.div className='aspect-[16/9] bg-red-500' ref={canvasElementRef} style={{
-            x: useTransform(x, [0, 1], [0, canvasBounds.width - canvasElementBounds.width], noClampOption),
-            y: useTransform(y, [0, 1], [0, canvasBounds.height - canvasElementBounds.height], noClampOption),
-            width: `${size * 100}%`,
-          }} />
+        <div className='flex-1/2 aspect-[16/9] overflow-clip bg-white/20' ref={canvasRef}>
+          <motion.div
+            className='aspect-[16/9] bg-red-500'
+            ref={canvasElementRef}
+            style={{
+            }}
+            animate={{
+              x: transform(elementX, [0, 1], [0, canvasBounds.width - canvasElementBounds.width], noClampOption),
+              y: transform(elementY, [0, 1], [0, canvasBounds.height - canvasElementBounds.height], noClampOption),
+              width: `${size * 100}%`,
+            }}
+          />
         </div>
         <div className='flex-1'>
-          {isSnapped ? <AlignPad
-            setPosition={(_x, _y) => {
-              x.set(_x)
-              y.set(_y)
-            }} />
+          {isSnapped ?
+            <AlignPad
+              setPosition={(_x, _y) => {
+                x.set(_x)
+                y.set(_y)
+              }} />
             :
             <div className='w-full aspect-[16/9] bg-blue-500/10 overflow-clip' ref={padRef}>
               <motion.div
                 layoutId='pad'
+                ref={dragElementRef}
                 className='aspect-[16/9] bg-green-500 cursor-grab active:cursor-grabbing'
-                dragMomentum={false}
-                dragConstraints={{
-                  top: -dragElementBounds.height + 24,
-                  left: -dragElementBounds.width + 24,
-                  bottom: padBounds.height - 24,
-                  right: padBounds.width - 24,
+                style={{
+                  x: padX,
+                  y: padY,
+                  width: `${size * 100}%`,
                 }}
-                onDrag={(e) => {
+                // drag
+                // dragMomentum={false}
+                // dragConstraints={{
+                //   top: -dragElementBounds.height + 24,
+                //   left: -dragElementBounds.width + 24,
+                //   bottom: padBounds.height - 24,
+                //   right: padBounds.width - 24,
+                // }}
+                onTapStart={(e) => {
                   const el = e.target as HTMLDivElement
                   const elBounds = el.getBoundingClientRect()
+                  //@ts-ignore
+                  const offset = { x: e.clientX - elBounds.x, y: e.clientY - elBounds.y }
+                  elOffsetRef.current = offset
+                }}
+                onPan={(e, info) => {
+                  const offset = elOffsetRef.current
 
-                  const normalizedX = (elBounds.x - padBounds.x) / (padBounds.width - el.offsetWidth)
-                  const normalizedY = (elBounds.y - padBounds.y) / (padBounds.height - el.offsetHeight)
+                  const _x = info.point.x - offset.x - padBounds.left
+                  const _y = info.point.y - offset.y - padBounds.top
+
+                  const normalizedX = _x / (padBounds.width - dragElementBounds.width)
+                  const normalizedY = _y / (padBounds.height - dragElementBounds.height)
 
                   x.set(normalizedX)
                   y.set(normalizedY)
-
                 }}
-                style={{
-                  width: `${size * 100}%`,
-                }}
-                ref={dragElementRef}
-                drag
               />
             </div>}
           <div className='flex flex-col gap-2'>
@@ -95,7 +130,20 @@ export default function LocationPad() {
           </div>
           <div className='flex flex-col gap-2'>
             <p>Snapped:</p>
-            <input type='checkbox' checked={isSnapped} onChange={(e) => setIsSnapped(e.target.checked)} />
+            <input type='checkbox' checked={isSnapped} onChange={(e) => {
+              const isChecked = e.target.checked
+              setIsSnapped(isChecked)
+              if (isChecked) {
+                //snap to nearest 0.5
+                const normalizedX = Math.round(x.get() * 2) / 2
+                const normalizedY = Math.round(y.get() * 2) / 2
+                x.set(normalizedX)
+                y.set(normalizedY)
+                //set snap index based on nearest 0.5
+                const snapIndex = posToIndex(normalizedX, normalizedY)
+                setSnapIndex(snapIndex)
+              }
+            }} />
           </div>
           <div>
             <p>x: <motion.span className="absolute">{x}</motion.span></p>
@@ -107,8 +155,34 @@ export default function LocationPad() {
   )
 }
 
+function posToIndex(x: number, y: number) {
+  switch (true) {
+    case x === 0 && y === 0:
+      return 0
+    case x === 0.5 && y === 0:
+      return 1
+    case x === 1 && y === 0:
+      return 2
+    case x === 0 && y === 0.5:
+      return 3
+    case x === 0.5 && y === 0.5:
+      return 4
+    case x === 1 && y === 0.5:
+      return 5
+    case x === 0 && y === 1:
+      return 6
+    case x === 0.5 && y === 1:
+      return 7
+    case x === 1 && y === 1:
+      return 8
+    default:
+      return 4 // Default to center if no match is found
+  }
+}
+
 function AlignPad({ setPosition }: { setPosition: (x: number, y: number) => void }) {
   const [snapIndex, setSnapIndex] = useAtom(snapIndexAtom)
+  const [isSnapped] = useAtom(isSnappedAtom)
 
   function handleClick(index: number) {
     setSnapIndex(index)
@@ -144,7 +218,7 @@ function AlignPad({ setPosition }: { setPosition: (x: number, y: number) => void
   }
 
   return (
-    <div className='w-full aspect-[16/9] bg-blue-500/10 overflow-clip grid grid-cols-3 grid-rows-3 gap-1'>
+    <div className="w-full aspect-[16/9] bg-blue-500/10 overflow-clip grid grid-cols-3 grid-rows-3 gap-1">
       {Array.from({ length: 9 }).map((_, i) => (
         <motion.div key={i} className='bg-green-500/10 hover:bg-green-500/20 rounded-xs' onClick={() => handleClick(i)}>
           {snapIndex === i && <motion.div layoutId="pad" className='w-full h-full bg-green-500 rounded-xs' />}
@@ -152,6 +226,13 @@ function AlignPad({ setPosition }: { setPosition: (x: number, y: number) => void
       ))}
     </div>
   )
+}
+
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+
+function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs))
 }
 
 const slowmo = { duration: 2 } satisfies ValueAnimationTransition
