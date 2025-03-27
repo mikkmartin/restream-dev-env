@@ -64,7 +64,7 @@ export default function LocationPad() {
 
   return (
     <MotionConfig transition={snappy}>
-      <div className='w-full h-full flex items-start gap-4'>
+      <div className='w-full h-full flex items-start gap-8'>
         <div className='flex-1/2 aspect-[16/9] overflow-clip bg-white/20' ref={canvasRef}>
           <motion.div
             className='aspect-[16/9] bg-red-500'
@@ -76,62 +76,65 @@ export default function LocationPad() {
             }}
           />
         </div>
-        <div className='flex-1'>
-          {isSnapped ?
-            <AlignPad
-              setPosition={(_x, _y) => {
-                x.set(_x)
-                y.set(_y)
-              }} />
-            :
-            <div className='w-full aspect-[16/9] bg-blue-500/10 overflow-clip' ref={padRef}>
-              <motion.div
-                layoutId='pad'
-                ref={dragElementRef}
-                className='aspect-[16/9] bg-green-500 cursor-grab active:cursor-grabbing'
-                animate={{
-                  x: padX,
-                  y: padY,
-                }}
-                style={{
-                  width: `${size * 100}%`,
-                }}
-                // drag
-                // dragMomentum={false}
-                // dragConstraints={{
-                //   top: -dragElementBounds.height + 24,
-                //   left: -dragElementBounds.width + 24,
-                //   bottom: padBounds.height - 24,
-                //   right: padBounds.width - 24,
-                // }}
-                onTapStart={(e) => {
-                  const el = e.target as HTMLDivElement
-                  const elBounds = el.getBoundingClientRect()
-                  //@ts-ignore
-                  const offset = { x: e.clientX - elBounds.x, y: e.clientY - elBounds.y }
-                  elOffsetRef.current = offset
-                }}
-                onPan={(e, info) => {
-                  const offset = elOffsetRef.current
+        <div className='flex-1 flex flex-col gap-4 min-w-[300px]'>
+          <div className='flex flex-row gap-2'>
+            <p className="flex-1/2">Position:</p>
+            {isSnapped ?
+              <AlignPad
+                setPosition={(_x, _y) => {
+                  x.set(_x)
+                  y.set(_y)
+                }} />
+              :
+              <div className='w-full aspect-[16/9] bg-blue-500/10 overflow-clip' ref={padRef}>
+                <motion.div
+                  layoutId='pad'
+                  ref={dragElementRef}
+                  className='aspect-[16/9] bg-green-500 cursor-grab active:cursor-grabbing'
+                  animate={{
+                    x: padX,
+                    y: padY,
+                  }}
+                  style={{
+                    width: `${size * 100}%`,
+                  }}
+                  // drag
+                  // dragMomentum={false}
+                  // dragConstraints={{
+                  //   top: -dragElementBounds.height + 24,
+                  //   left: -dragElementBounds.width + 24,
+                  //   bottom: padBounds.height - 24,
+                  //   right: padBounds.width - 24,
+                  // }}
+                  onTapStart={(e) => {
+                    const el = e.target as HTMLDivElement
+                    const elBounds = el.getBoundingClientRect()
+                    //@ts-ignore
+                    const offset = { x: e.clientX - elBounds.x, y: e.clientY - elBounds.y }
+                    elOffsetRef.current = offset
+                  }}
+                  onPan={(e, info) => {
+                    const offset = elOffsetRef.current
 
-                  const _x = info.point.x - offset.x - padBounds.left
-                  const _y = info.point.y - offset.y - padBounds.top
+                    const _x = info.point.x - offset.x - padBounds.left
+                    const _y = info.point.y - offset.y - padBounds.top
 
-                  const normalizedX = _x / (padBounds.width - dragElementBounds.width)
-                  const normalizedY = _y / (padBounds.height - dragElementBounds.height)
+                    const normalizedX = _x / (padBounds.width - dragElementBounds.width)
+                    const normalizedY = _y / (padBounds.height - dragElementBounds.height)
 
-                  x.set(normalizedX)
-                  y.set(normalizedY)
-                }}
-              />
-            </div>}
-          <div className='flex flex-col gap-2'>
-            <p>Size: {size.toFixed(2)}</p>
-            <input type='range' min={.2} max={1} step={0.01} value={size} onChange={(e) => setSize(e.target.valueAsNumber)} />
+                    x.set(normalizedX)
+                    y.set(normalizedY)
+                  }}
+                />
+              </div>}
           </div>
-          <div className='flex flex-col gap-2'>
-            <p>Snapped:</p>
-            <input type='checkbox' checked={isSnapped} onChange={(e) => {
+          <div className='flex flex-row gap-2 mt-4'>
+            <p className='flex-1/2'>Size: {size.toFixed(2)}</p>
+            <input className='w-full' type='range' min={.2} max={1} step={0.01} value={size} onChange={(e) => setSize(e.target.valueAsNumber)} />
+          </div>
+          <div className='flex flex-row gap-2 mt-4'>
+            <p className='flex-1/2'>Snapped:</p>
+            <input className="h-8 aspect-square" type='checkbox' checked={isSnapped} onChange={(e) => {
               const isChecked = e.target.checked
               setIsSnapped(isChecked)
               if (isChecked) {
