@@ -3,33 +3,28 @@
 import {
   motion,
   MotionConfig,
-  useAnimation,
   useMotionValue,
   useTransform,
   ValueAnimationTransition,
 } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
-import {
-  CornerUpLeft,
-  CornerUpRight,
-  CornerDownLeft,
-  CornerDownRight,
-  ArrowUp,
-  ArrowDown,
-  ArrowLeft,
-  ArrowRight,
-  Plus
-} from 'lucide-react'
 import useMeasure from 'react-use-measure'
-import { mergeRefs } from 'react-merge-refs'
 import { atom, useAtom, useSetAtom } from 'jotai'
 import { transform } from 'motion'
+import { clsx, type ClassValue } from 'clsx'
+import { twMerge } from 'tailwind-merge'
+import {
+  CornerTopLeft,
+  EdgeTop,
+  Center
+} from './icons'
+
 const noClampOption = {
   clamp: false
 }
 
 const snapIndexAtom = atom(0)
-const isSnappedAtom = atom(false)
+const isSnappedAtom = atom(true)
 
 export default function LocationPad() {
   const setSnapIndex = useSetAtom(snapIndexAtom)
@@ -46,8 +41,6 @@ export default function LocationPad() {
   const [canvasElementRef, canvasElementBounds] = useMeasure()
   const [canvasRef, canvasBounds] = useMeasure()
 
-
-
   const elOffsetRef = useRef({ x: 0, y: 0 })
 
   const [elementX, setElementX] = useState(0)
@@ -58,8 +51,16 @@ export default function LocationPad() {
     y.on('change', setElementY)
   }, [x, y])
 
-  const padX = useTransform(x, [0, 1], [0, padBounds.width - dragElementBounds.width], noClampOption)
-  const padY = useTransform(y, [0, 1], [0, padBounds.height - dragElementBounds.height], noClampOption)
+  const padX = transform(elementX, [0, 1], [0, padBounds.width - dragElementBounds.width], noClampOption)
+  const padY = transform(elementY, [0, 1], [0, padBounds.height - dragElementBounds.height], noClampOption)
+
+  useEffect(() => {
+    if (!isSnapped) {
+      setTimeout(() => {
+        setSize(p => p >= 1 ? 1 : p + 0.001)
+      }, 20)
+    }
+  }, [isSnapped])
 
   return (
     <MotionConfig transition={snappy}>
@@ -68,8 +69,6 @@ export default function LocationPad() {
           <motion.div
             className='aspect-[16/9] bg-red-500'
             ref={canvasElementRef}
-            style={{
-            }}
             animate={{
               x: transform(elementX, [0, 1], [0, canvasBounds.width - canvasElementBounds.width], noClampOption),
               y: transform(elementY, [0, 1], [0, canvasBounds.height - canvasElementBounds.height], noClampOption),
@@ -90,9 +89,11 @@ export default function LocationPad() {
                 layoutId='pad'
                 ref={dragElementRef}
                 className='aspect-[16/9] bg-green-500 cursor-grab active:cursor-grabbing'
-                style={{
+                animate={{
                   x: padX,
                   y: padY,
+                }}
+                style={{
                   width: `${size * 100}%`,
                 }}
                 // drag
@@ -125,7 +126,7 @@ export default function LocationPad() {
               />
             </div>}
           <div className='flex flex-col gap-2'>
-            <p>Size: <motion.span>{size}</motion.span></p>
+            <p>Size: {size.toFixed(2)}</p>
             <input type='range' min={.2} max={1} step={0.01} value={size} onChange={(e) => setSize(e.target.valueAsNumber)} />
           </div>
           <div className='flex flex-col gap-2'>
@@ -182,7 +183,31 @@ function posToIndex(x: number, y: number) {
 
 function AlignPad({ setPosition }: { setPosition: (x: number, y: number) => void }) {
   const [snapIndex, setSnapIndex] = useAtom(snapIndexAtom)
-  const [isSnapped] = useAtom(isSnappedAtom)
+
+  const getIcon = (index: number) => {
+    switch (index) {
+      case 0:
+        return <CornerTopLeft />
+      case 1:
+        return <EdgeTop />
+      case 2:
+        return <CornerTopLeft className='scale-x-[-1]' />
+      case 3:
+        return <EdgeTop className='-rotate-90' />
+      case 4:
+        return <Center />
+      case 5:
+        return <EdgeTop className='rotate-90' />
+      case 6:
+        return <CornerTopLeft className='scale-y-[-1]' />
+      case 7:
+        return <EdgeTop className='scale-y-[-1]' />
+      case 8:
+        return <CornerTopLeft className='scale-y-[-1] scale-x-[-1]' />
+      default:
+        return null
+    }
+  }
 
   function handleClick(index: number) {
     setSnapIndex(index)
@@ -220,16 +245,28 @@ function AlignPad({ setPosition }: { setPosition: (x: number, y: number) => void
   return (
     <div className="w-full aspect-[16/9] bg-blue-500/10 overflow-clip grid grid-cols-3 grid-rows-3 gap-1">
       {Array.from({ length: 9 }).map((_, i) => (
-        <motion.div key={i} className='bg-green-500/10 hover:bg-green-500/20 rounded-xs' onClick={() => handleClick(i)}>
-          {snapIndex === i && <motion.div layoutId="pad" className='w-full h-full bg-green-500 rounded-xs' />}
+        <motion.div
+          key={i}
+          className={cn(
+            'relative bg-green-500/10 hover:bg-green-500/20 rounded-xs flex items-center justify-center',
+            snapIndex === i && 'text-green-500'
+          )}
+          onClick={() => handleClick(i)}
+        >
+          <div className="absolute inset-0 flex items-center justify-center">
+            {getIcon(i)}
+          </div>
+          {snapIndex === i && (
+            <motion.div
+              layoutId="pad"
+              className='absolute inset-0 bg-green-500 rounded-xs -z-10'
+            />
+          )}
         </motion.div>
       ))}
     </div>
   )
 }
-
-import { clsx, type ClassValue } from 'clsx'
-import { twMerge } from 'tailwind-merge'
 
 function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
