@@ -29,6 +29,7 @@ const isSnappedAtom = atom(true)
 export default function LocationPad() {
   const setSnapIndex = useSetAtom(snapIndexAtom)
   const [isSnapped, setIsSnapped] = useAtom(isSnappedAtom)
+  const [padding, setPadding] = useState(0)
 
   const x = useMotionValue(0) //normalised x position
   const y = useMotionValue(0) //normalised y position
@@ -54,24 +55,33 @@ export default function LocationPad() {
   const padX = transform(elementX, [0, 1], [0, padBounds.width - dragElementBounds.width], noClampOption)
   const padY = transform(elementY, [0, 1], [0, padBounds.height - dragElementBounds.height], noClampOption)
 
+  // Calculate padding in pixels based on the canvas size
+  const paddingPixels = Math.round(padding * canvasBounds.width)
+
   useEffect(() => {
     if (!isSnapped) {
       setTimeout(() => {
         setSize(p => p >= 1 ? 1 : p + 0.001)
-      }, 20)
+      }, 30)
     }
   }, [isSnapped])
 
   return (
     <MotionConfig transition={snappy}>
       <div className='w-full h-full flex items-start gap-8'>
-        <div className='flex-1/2 aspect-[16/9] overflow-clip bg-white/20' ref={canvasRef}>
+        <div className='flex-1/2 aspect-[16/9] overflow-clip bg-white/20 rounded-2xl' ref={canvasRef}>
           <motion.div
-            className='aspect-[16/9] bg-red-500'
+            className='aspect-[16/9] border-4 border-red-500 rounded-2xl bg-red-500/10'
             ref={canvasElementRef}
             animate={{
-              x: transform(elementX, [0, 1], [0, canvasBounds.width - canvasElementBounds.width], noClampOption),
-              y: transform(elementY, [0, 1], [0, canvasBounds.height - canvasElementBounds.height], noClampOption),
+              x: transform(elementX, [0, 1], [
+                isSnapped ? paddingPixels : 0,
+                isSnapped ? canvasBounds.width - canvasElementBounds.width - paddingPixels : canvasBounds.width - canvasElementBounds.width
+              ], noClampOption),
+              y: transform(elementY, [0, 1], [
+                isSnapped ? paddingPixels : 0,
+                isSnapped ? canvasBounds.height - canvasElementBounds.height - paddingPixels : canvasBounds.height - canvasElementBounds.height
+              ], noClampOption),
               width: `${size * 100}%`,
             }}
           />
@@ -90,7 +100,7 @@ export default function LocationPad() {
                 <motion.div
                   layoutId='pad'
                   ref={dragElementRef}
-                  className='aspect-[16/9] bg-green-500 cursor-grab active:cursor-grabbing'
+                  className='aspect-[16/9] bg-white/40 rounded-sm cursor-grab active:cursor-grabbing'
                   animate={{
                     x: padX,
                     y: padY,
@@ -129,10 +139,6 @@ export default function LocationPad() {
               </div>}
           </div>
           <div className='flex flex-row gap-2 mt-4'>
-            <p className='flex-1/2'>Size: {size.toFixed(2)}</p>
-            <input className='w-full' type='range' min={.2} max={1} step={0.01} value={size} onChange={(e) => setSize(e.target.valueAsNumber)} />
-          </div>
-          <div className='flex flex-row gap-2 mt-4'>
             <p className='flex-1/2'>Snapped:</p>
             <input className="h-8 aspect-square" type='checkbox' checked={isSnapped} onChange={(e) => {
               const isChecked = e.target.checked
@@ -149,10 +155,27 @@ export default function LocationPad() {
               }
             }} />
           </div>
-          <div>
+          <div className='flex flex-row gap-2 mt-4'>
+            <p className='flex-1/2'>Size: {(size * 100).toFixed(2)}%</p>
+            <input className='w-full' type='range' min={.2} max={1} step={0.01} value={size} onChange={(e) => setSize(e.target.valueAsNumber)} />
+          </div>
+          <div className='flex flex-row gap-2 mt-4'>
+            <p className={cn('flex-1/2', !isSnapped && 'opacity-50')}>Padding: {(padding * 100).toFixed(0)}%</p>
+            <input
+              className={cn('w-full', !isSnapped && 'opacity-20')}
+              type='range'
+              min={0}
+              max={0.2}
+              step={0.01}
+              value={padding}
+              onChange={(e) => setPadding(e.target.valueAsNumber)}
+              disabled={!isSnapped}
+            />
+          </div>
+          {/* <div>
             <p>x: <motion.span className="absolute">{x}</motion.span></p>
             <p>y: <motion.span className="absolute">{y}</motion.span></p>
-          </div>
+          </div> */}
         </div>
       </div>
     </MotionConfig>
@@ -246,13 +269,13 @@ function AlignPad({ setPosition }: { setPosition: (x: number, y: number) => void
   }
 
   return (
-    <div className="w-full aspect-[16/9] bg-blue-500/10 overflow-clip grid grid-cols-3 grid-rows-3 gap-1">
+    <div className="w-full aspect-[16/9] bg-black/20 p-2 overflow-clip grid grid-cols-3 grid-rows-3 gap-1">
       {Array.from({ length: 9 }).map((_, i) => (
         <motion.div
           key={i}
           className={cn(
-            'relative bg-green-500/10 hover:bg-green-500/20 rounded-xs flex items-center justify-center',
-            snapIndex === i && 'text-green-500'
+            'relative hover:bg-white/20 rounded-xs flex items-center justify-center opacity-30 hover:text-white',
+            snapIndex === i && 'opacity-100'
           )}
           onClick={() => handleClick(i)}
         >
@@ -262,7 +285,7 @@ function AlignPad({ setPosition }: { setPosition: (x: number, y: number) => void
           {snapIndex === i && (
             <motion.div
               layoutId="pad"
-              className='absolute inset-0 bg-green-500 rounded-xs -z-10'
+              className='absolute inset-0 bg-white/40 rounded-xs -z-10'
             />
           )}
         </motion.div>
