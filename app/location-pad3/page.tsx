@@ -68,7 +68,7 @@ export default function LocationPad() {
 
   return (
     <MotionConfig transition={snappy}>
-      <div className='w-full h-full flex items-start gap-8'>
+      <div className='w-full h-full flex items-start gap-4'>
         <div className='flex-1/2 aspect-[16/9] overflow-clip bg-white/20 rounded-2xl' ref={canvasRef}>
           <motion.div
             className='aspect-[16/9] border-4 border-red-500 rounded-2xl bg-red-500/10'
@@ -86,7 +86,7 @@ export default function LocationPad() {
             }}
           />
         </div>
-        <div className='flex-1 flex flex-col gap-4 min-w-[300px]'>
+        <div className='flex-1 flex flex-col gap-4 min-w-[300px] bg-[#182B4E] !p-6 rounded-2xl'>
           <div className='flex flex-row gap-2'>
             <p className="flex-1/2">Position:</p>
             {isSnapped ?
@@ -96,7 +96,7 @@ export default function LocationPad() {
                   y.set(_y)
                 }} />
               :
-              <div className='w-full aspect-[16/9] bg-blue-500/10 overflow-clip' ref={padRef}>
+              <div className='w-full aspect-[16/9] bg-[#081E42] overflow-clip' ref={padRef}>
                 <motion.div
                   layoutId='pad'
                   ref={dragElementRef}
@@ -269,7 +269,7 @@ function AlignPad({ setPosition }: { setPosition: (x: number, y: number) => void
   }
 
   return (
-    <div className="w-full aspect-[16/9] bg-black/20 p-2 overflow-clip grid grid-cols-3 grid-rows-3 gap-1">
+    <div className="w-full aspect-[16/9] bg-[#081E42] overflow-clip grid grid-cols-3 grid-rows-3 gap-1 !p-1 rounded-md">
       {Array.from({ length: 9 }).map((_, i) => (
         <motion.div
           key={i}
@@ -285,7 +285,7 @@ function AlignPad({ setPosition }: { setPosition: (x: number, y: number) => void
           {snapIndex === i && (
             <motion.div
               layoutId="pad"
-              className='absolute inset-0 bg-white/40 rounded-xs -z-10'
+              className='absolute inset-0 bg-white/40 rounded-xs'
             />
           )}
         </motion.div>
