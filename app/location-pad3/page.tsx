@@ -165,7 +165,7 @@ export default function LocationPad() {
               className={cn('w-full', !isSnapped && 'opacity-20')}
               type='range'
               min={0}
-              max={0.1}
+              max={0.05}
               step={0.01}
               value={padding}
               onChange={(e) => setPadding(e.target.valueAsNumber)}
