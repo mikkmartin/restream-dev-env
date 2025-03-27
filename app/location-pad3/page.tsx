@@ -68,7 +68,7 @@ export default function LocationPad() {
 
   return (
     <MotionConfig transition={snappy}>
-      <div className='w-full h-full flex items-start gap-4'>
+      <div className='w-full h-full flex items-start gap-4 font-mono text-xs'>
         <div className='flex-1/2 aspect-[16/9] overflow-clip bg-white/20 rounded-2xl' ref={canvasRef}>
           <motion.div
             className='aspect-[16/9] border-4 border-red-500 rounded-2xl bg-red-500/10'
@@ -165,7 +165,7 @@ export default function LocationPad() {
               className={cn('w-full', !isSnapped && 'opacity-20')}
               type='range'
               min={0}
-              max={0.2}
+              max={0.1}
               step={0.01}
               value={padding}
               onChange={(e) => setPadding(e.target.valueAsNumber)}
