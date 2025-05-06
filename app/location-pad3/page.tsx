@@ -4,7 +4,6 @@ import {
   motion,
   MotionConfig,
   useMotionValue,
-  useTransform,
   ValueAnimationTransition,
 } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
@@ -69,9 +68,9 @@ export default function LocationPad() {
   return (
     <MotionConfig transition={snappy}>
       <div className='w-full h-full flex items-start gap-4 font-mono text-xs'>
-        <div className='flex-1/2 aspect-[16/9] overflow-clip bg-white/20 rounded-2xl' ref={canvasRef}>
+        <div className='flex-1/2 aspect-[16/9] overflow-hidden bg-white/20 rounded-2xl relative' ref={canvasRef}>
           <motion.div
-            className='aspect-[16/9] border-4 border-red-500 rounded-2xl bg-red-500/10'
+            className='aspect-[16/9] absolute border-4 border-red-500 rounded-2xl bg-red-500/10 pointer-events-none'
             ref={canvasElementRef}
             animate={{
               x: transform(elementX, [0, 1], [
@@ -96,11 +95,11 @@ export default function LocationPad() {
                   y.set(_y)
                 }} />
               :
-              <div className='w-full aspect-[16/9] bg-[#081E42] overflow-clip' ref={padRef}>
+              <div className='w-full aspect-[16/9] bg-[#081E42] overflow-clip relative' ref={padRef}>
                 <motion.div
                   layoutId='pad'
                   ref={dragElementRef}
-                  className='aspect-[16/9] bg-white/40 rounded-sm cursor-grab active:cursor-grabbing'
+                  className='aspect-[16/9] bg-white/40 rounded-sm cursor-grab active:cursor-grabbing absolute'
                   animate={{
                     x: padX,
                     y: padY,
@@ -157,7 +156,7 @@ export default function LocationPad() {
           </div>
           <div className='flex flex-row gap-2 mt-4'>
             <p className='flex-1/2'>Size: {(size * 100).toFixed(2)}%</p>
-            <input className='w-full' type='range' min={.2} max={1} step={0.01} value={size} onChange={(e) => setSize(e.target.valueAsNumber)} />
+            <input className='w-full' type='range' min={.2} max={2} step={0.01} value={size} onChange={(e) => setSize(e.target.valueAsNumber)} />
           </div>
           <div className='flex flex-row gap-2 mt-4'>
             <p className={cn('flex-1/2', !isSnapped && 'opacity-50')}>Padding: {(padding * 100).toFixed(0)}%</p>
@@ -172,10 +171,10 @@ export default function LocationPad() {
               disabled={!isSnapped}
             />
           </div>
-          {/* <div>
+          <div>
             <p>x: <motion.span className="absolute">{x}</motion.span></p>
             <p>y: <motion.span className="absolute">{y}</motion.span></p>
-          </div> */}
+          </div>
         </div>
       </div>
     </MotionConfig>
