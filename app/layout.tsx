@@ -25,21 +25,19 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className={`${geistSans.variable} ${geistMono.variable}`}>
         <nav>
-          <Link href="/">Home</Link>
           <Link href="/slider">Slider</Link>
           <Link href="/mediabutton">Media Button</Link>
           <Link href="/mediabutton2">Media Button 2</Link>
           <Link href="/mediabutton3">Media Button 3</Link>
           <Link href="/mediabutton4">Media Button 4</Link>
-          <Link href="/audio-gain">Audio Gain</Link>
-          <Link href="/nocamera-canvas">No camera canvas</Link>
           <Link href="/location-pad">Location Pad</Link>
           <Link href="/location-pad2">Location Pad 2</Link>
           <Link href="/location-pad3">Location Pad 3</Link>
           <Link href="/private-chat">Private Chat</Link>
+          <Link href="/layout-editor">Layout Editor</Link>
         </nav>
         <div className="content">{children}</div>
       </body>

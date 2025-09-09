@@ -1,0 +1,10 @@
+.container {
+  display: flex;
+  gap: 2rem;
+  width: 100%;
+  min-width: 30rem;
+  justify-content: flex-start;
+  align-items: flex-start;
+
+  --background-color: #f3f4f627;
+}
