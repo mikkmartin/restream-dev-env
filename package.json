@@ -31,7 +31,8 @@
     "react-merge-refs": "^2.1.1",
     "react-use-measure": "^2.1.7",
     "tailwind-merge": "^3.0.2",
-    "tailwindcss": "^4.0.14"
+    "tailwindcss": "^4.0.14",
+    "usehooks-ts": "^3.1.1"
   },
   "devDependencies": {
     "@types/node": "^22.13.8",
