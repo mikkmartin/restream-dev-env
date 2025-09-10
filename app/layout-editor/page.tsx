@@ -1,15 +1,8 @@
 'use client'
 
 import { cn } from '@/app/utils/utils'
-import {
-  motion,
-  useAnimation,
-  useMotionValue,
-  useTransform,
-  ValueAnimationTransition,
-} from 'framer-motion'
-import { useRef, useState, useEffect } from 'react'
-import styles from './page.module.scss'
+import { motion, ValueAnimationTransition } from 'framer-motion'
+import { useRef, useState } from 'react'
 import { useOnClickOutside } from 'usehooks-ts'
 
 export default function LayoutEditor2() {
@@ -23,7 +16,7 @@ export default function LayoutEditor2() {
   useOnClickOutside(elRef, () => setSelected(false))
 
   return (
-    <div className="flex flex-col w-full">
+    <div className="flex flex-col w-full gap-1">
       <div
         ref={containerRef}
         onMouseEnter={() => setContainerHovered(true)}
@@ -37,7 +30,7 @@ export default function LayoutEditor2() {
           ref={elRef}
           onClick={() => setSelected(true)}
           className={cn([
-            'absolute top-1/2 left-1/2 text-white text-9xl font-bold rounded-xl flex flex-col gap-2',
+            'absolute top-1/2 left-1/2 text-white text-9xl font-bold rounded-xl flex flex-col gap-2 px-4 py-2',
           ])}
           drag
           dragConstraints={containerRef}
@@ -45,7 +38,6 @@ export default function LayoutEditor2() {
           style={{
             x: '-50%',
             y: '-50%',
-            padding: '8px 16px',
           }}
         >
           <span>10:00</span>
@@ -154,22 +146,33 @@ export default function LayoutEditor2() {
         </motion.div>
       </div>
       <div
-        style={{
-          padding: '0.5vw 1vw',
-        }}
         className={cn(
           'flex flex-row justify-between w-full',
           editMode &&
-            'bg-blue-500 outline-4 outline-blue-500 rounded-xl shadow-[0_-20px_0_4px_#2b7fff]',
+            'bg-blue-500 outline-4 outline-blue-500 rounded-xl shadow-[0_-30px_0_4px_#2b7fff] p-1',
         )}
       >
-        <div className="flex gap-2">
-          <Button>back</Button>
-          <Button>forward</Button>
-        </div>
-        <div>
-          <Button onClick={() => setEditMode(!editMode)}>Edit</Button>
-        </div>
+        {editMode ? (
+          <>
+            <div className="flex gap-2">
+              <Button>Undo</Button>
+              <Button>Redo</Button>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => setEditMode(!editMode)}>Cancel</Button>
+              <Button
+                className="bg-white text-blue-500"
+                onClick={() => setEditMode(!editMode)}
+              >
+                Save
+              </Button>
+            </div>
+          </>
+        ) : (
+          <Button className="ml-auto" onClick={() => setEditMode(!editMode)}>
+            Edit
+          </Button>
+        )}
       </div>
     </div>
   )
@@ -178,14 +181,16 @@ export default function LayoutEditor2() {
 function Button({
   children,
   onClick,
+  className,
 }: {
   children: React.ReactNode
   onClick?: () => void
+  className?: string
 }) {
   return (
     <button
       onClick={onClick}
-      className="bg-blue-500 text-white px-4 py-2 rounded-md"
+      className={cn('bg-blue-500 text-white px-4 py-2 rounded-md', className)}
     >
       {children}
     </button>
