@@ -9,6 +9,7 @@ export default function LayoutEditor2() {
   const [editMode, setEditMode] = useState(false)
   const [containerHovered, setContainerHovered] = useState(false)
   const [selected, setSelected] = useState(false)
+  const [siblingHovered, setSiblingHovered] = useState(false)
 
   const elRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
@@ -24,6 +25,7 @@ export default function LayoutEditor2() {
         className={cn([
           'w-full aspect-[16/9] overflow-hidden bg-slate-900 rounded-xl relative outline-4 outline-transparent',
           editMode && 'outline-blue-500',
+          !editMode && 'pointer-events-none',
         ])}
       >
         <motion.div
@@ -53,12 +55,14 @@ export default function LayoutEditor2() {
               selected: { opacity: 1 },
             }}
             className={cn(
-              'absolute inset-0 rounded-2xl',
+              'absolute inset-0 rounded-2xl transition-all outline-2 outline-transparent',
               containerHovered &&
                 !selected &&
-                'bg-white/10 hover:outline-2 outline-white/60',
+                'bg-red-500/10 hover:outline-2 hover:outline-red-500/80',
+              selected && 'bg-red-500/10 outline-red-500/40',
               selected &&
-                'bg-white/10 hover:bg-white/20 hover:outline-2 outline-white/60',
+                !siblingHovered &&
+                'bg-red-500/20 outline-red-500 outline-2',
             )}
           />
           {Array.from({ length: 4 }).map((_, i) => (
@@ -78,6 +82,8 @@ export default function LayoutEditor2() {
                 rotate: i === 0 ? 0 : i === 1 ? 90 : i === 2 ? 180 : 270,
               }}
               whileHover="selfHovered"
+              onMouseEnter={() => setSiblingHovered(true)}
+              onMouseLeave={() => setSiblingHovered(false)}
               variants={{
                 initial: {
                   opacity: 0,
@@ -129,7 +135,7 @@ export default function LayoutEditor2() {
                 },
               }}
               className={cn([
-                'absolute size-8 cursor-nesw-resize',
+                'absolute size-8 cursor-nesw-resize text-red-500',
                 i === 0 && 'top-0 left-0 cursor-nwse-resize',
                 i === 1 && 'right-0 top-0',
                 i === 2 && 'bottom-0 right-0 cursor-nwse-resize',
@@ -138,7 +144,7 @@ export default function LayoutEditor2() {
             >
               <path
                 d="M41 4H40C20.1178 4 4 20.1177 4 40V41"
-                stroke="white"
+                stroke="currentColor"
                 strokeWidth="8"
                 strokeLinecap="round"
               />
