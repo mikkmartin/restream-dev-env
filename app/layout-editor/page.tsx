@@ -116,7 +116,7 @@ export default function LayoutEditor2() {
                         : 0,
                 },
                 selected: {
-                  opacity: 0.1,
+                  opacity: 0.2,
                   x:
                     i === 0 || i === 3
                       ? '-45%'
@@ -142,11 +142,22 @@ export default function LayoutEditor2() {
                 i === 3 && 'bottom-0 left-0',
               ])}
             >
-              <path
+              <motion.path
                 d="M41 4H40C20.1178 4 4 20.1177 4 40V41"
                 stroke="currentColor"
                 strokeWidth="8"
                 strokeLinecap="round"
+                // transition={bouncy}
+                // variants={{
+                //   initial: {
+                //     pathOffset: 0.5,
+                //     pathLength: 0,
+                //   },
+                //   selfHovered: {
+                //     pathOffset: 0,
+                //     pathLength: 0.9,
+                //   },
+                // }}
               />
             </motion.svg>
           ))}
