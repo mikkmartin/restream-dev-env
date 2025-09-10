@@ -31,6 +31,7 @@ export default function LayoutEditor2() {
           onClick={() => setSelected(true)}
           className={cn([
             'absolute top-1/2 left-1/2 text-white text-9xl font-bold rounded-xl flex flex-col gap-2 px-4 py-2',
+            editMode && 'cursor-grab active:cursor-grabbing',
           ])}
           drag
           dragConstraints={containerRef}
@@ -128,10 +129,10 @@ export default function LayoutEditor2() {
                 },
               }}
               className={cn([
-                'absolute size-8',
-                i === 0 && 'top-0 left-0',
+                'absolute size-8 cursor-nesw-resize',
+                i === 0 && 'top-0 left-0 cursor-nwse-resize',
                 i === 1 && 'right-0 top-0',
-                i === 2 && 'bottom-0 right-0',
+                i === 2 && 'bottom-0 right-0 cursor-nwse-resize',
                 i === 3 && 'bottom-0 left-0',
               ])}
             >
