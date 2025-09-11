@@ -24,8 +24,14 @@ export default function LayoutEditor2() {
     height: 150,
   })
 
+  const firstRender = useRef(true)
+
   // Center the panel in the container
-  React.useEffect(() => {
+  React.useLayoutEffect(() => {
+    if (firstRender.current) {
+      firstRender.current = false
+    }
+
     if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect()
       const centerX = (rect.width - panelState.width) / 2
@@ -223,6 +229,7 @@ export default function LayoutEditor2() {
     <div className="flex flex-col w-full gap-1">
       <div
         ref={containerRef}
+        style={{ opacity: firstRender.current ? 0 : 1 }}
         onMouseEnter={() => setContainerHovered(true)}
         onMouseLeave={() => setContainerHovered(false)}
         className={cn([
