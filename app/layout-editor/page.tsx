@@ -5,25 +5,6 @@ import { motion, ValueAnimationTransition } from 'framer-motion'
 import React, { useRef, useState, useCallback } from 'react'
 import { useOnClickOutside } from 'usehooks-ts'
 
-interface PanelState {
-  x: number
-  y: number
-  width: number
-  height: number
-}
-
-interface DragState {
-  isDragging: boolean
-  isResizing: boolean
-  resizeHandle: string | null
-  startX: number
-  startY: number
-  startWidth: number
-  startHeight: number
-  startPanelX: number
-  startPanelY: number
-}
-
 export default function LayoutEditor2() {
   const [editMode, setEditMode] = useState(false)
   const [containerHovered, setContainerHovered] = useState(false)
@@ -475,6 +456,25 @@ function Timer() {
       />
     </svg>
   )
+}
+
+interface PanelState {
+  x: number
+  y: number
+  width: number
+  height: number
+}
+
+interface DragState {
+  isDragging: boolean
+  isResizing: boolean
+  resizeHandle: string | null
+  startX: number
+  startY: number
+  startWidth: number
+  startHeight: number
+  startPanelX: number
+  startPanelY: number
 }
 
 const slowmo = { duration: 2 } satisfies ValueAnimationTransition
