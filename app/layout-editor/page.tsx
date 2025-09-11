@@ -1,7 +1,11 @@
 'use client'
 
 import { cn } from '@/app/utils/utils'
-import { motion, ValueAnimationTransition } from 'framer-motion'
+import {
+  AnimatePresence,
+  motion,
+  ValueAnimationTransition,
+} from 'framer-motion'
 import React, { useRef, useState, useCallback } from 'react'
 import { useOnClickOutside } from 'usehooks-ts'
 
@@ -236,8 +240,8 @@ export default function LayoutEditor2() {
         }}
         onMouseLeave={() => setContainerHovered(false)}
         className={cn([
-          'w-full aspect-[16/9] overflow-hidden bg-slate-900 rounded-xl relative outline-4 outline-transparent',
-          editMode && 'outline-blue-500',
+          'w-full aspect-[16/9] overflow-hidden bg-slate-900 rounded-xl relative transition-all outline-0 outline-transparent',
+          editMode && 'outline-blue-500 outline-4',
         ])}
       >
         <motion.div
@@ -393,9 +397,9 @@ export default function LayoutEditor2() {
       </div>
       <div
         className={cn(
-          'flex flex-row justify-between w-full',
+          'flex flex-row justify-between w-full transition-all outline-0 outline-transparent',
           editMode &&
-            'bg-blue-500 outline-4 outline-blue-500 rounded-xl shadow-[0_-30px_0_4px_#2b7fff] p-1',
+            'bg-blue-500 outline-blue-500 outline-4 rounded-xl shadow-[0_-30px_0_4px_#2b7fff] p-1',
         )}
       >
         {editMode ? (
