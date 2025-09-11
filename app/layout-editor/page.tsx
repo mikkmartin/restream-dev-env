@@ -230,19 +230,24 @@ export default function LayoutEditor2() {
       <div
         ref={containerRef}
         style={{ opacity: firstRender.current ? 0 : 1 }}
-        onMouseEnter={() => setContainerHovered(true)}
+        onMouseEnter={() => {
+          if (!editMode) return
+          setContainerHovered(true)
+        }}
         onMouseLeave={() => setContainerHovered(false)}
         className={cn([
           'w-full aspect-[16/9] overflow-hidden bg-slate-900 rounded-xl relative outline-4 outline-transparent',
           editMode && 'outline-blue-500',
-          !editMode && 'pointer-events-none',
         ])}
       >
         <motion.div
           ref={elRef}
-          onClick={() => setSelected(true)}
+          onClick={() => {
+            if (!editMode) return
+            setSelected(true)
+          }}
           className={cn([
-            'absolute text-white text-9xl font-bold rounded-xl flex flex-col gap-2 px-4 py-2',
+            'absolute text-white text-9xl font-bold rounded-xl flex flex-col gap-2 px-4 py-2 group',
             editMode &&
               (dragState.isDragging ? 'cursor-grabbing' : 'cursor-grab'),
             dragState.isResizing && 'cursor-resizing',
@@ -255,6 +260,12 @@ export default function LayoutEditor2() {
           }}
           onMouseDown={(e) => handleMouseDown(e)}
         >
+          {!editMode && (
+            <img
+              src="/bar.png"
+              className="w-full backdrop-blur-3xl rounded-xl object-cover absolute -top-9 left-0 opacity-0 group-hover:opacity-100"
+            />
+          )}
           <Timer />
           <motion.div
             initial="initial"
@@ -355,6 +366,7 @@ export default function LayoutEditor2() {
                   i === 1 && 'right-0 top-0',
                   i === 2 && 'bottom-0 left-0',
                   i === 3 && 'bottom-0 right-0 cursor-nwse-resize',
+                  !editMode && 'pointer-events-none',
                 ])}
               >
                 <motion.path
