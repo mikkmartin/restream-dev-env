@@ -419,8 +419,8 @@ export default function LayoutEditor2() {
               side="top"
               sideOffset={editMode ? 20 : -5}
               className={cn(
-                "bg-red-500/10 rounded-xl backdrop-blur-3xl relative after:content-['']",
-                'after:bg-red-500/50',
+                "bg-black/30 rounded-xl backdrop-blur-3xl relative after:content-['']",
+                // 'after:bg-red-500/50',
                 'after:absolute after:right-0 after:-bottom-10after:size-10',
                 editMode && 'after:w-full after:h-5 after:-bottom-5',
               )}
@@ -560,7 +560,7 @@ export default function LayoutEditor2() {
                 <X />
               </Button>
             </div>
-            <img src="/sidepanel-content.png" className="w-full" />
+            <img src="/sidepanel-content-minimal.png" className="w-full" />
             <div className="p-3 flex flex-row justify-end flex-1 gap-2 pb-6 w-full">
               <Button
                 variant="ghost"
