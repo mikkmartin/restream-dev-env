@@ -1,24 +1,25 @@
 'use client'
 
 import { cn } from '@/app/utils/utils'
+import { Button } from '@/components/ui/button'
 import {
   AnimatePresence,
   motion,
   ValueAnimationTransition,
 } from 'framer-motion'
+import { X } from 'lucide-react'
 import React, { useRef, useState, useCallback } from 'react'
 import { useOnClickOutside } from 'usehooks-ts'
 
 export default function LayoutEditor2() {
   const [editMode, setEditMode] = useState(false)
   const [containerHovered, setContainerHovered] = useState(false)
-  const [selected, setSelected] = useState(false)
   const [siblingHovered, setSiblingHovered] = useState(false)
 
   const elRef = useRef<HTMLDivElement>(null)
   const containerRef = useRef<HTMLDivElement>(null)
   //@ts-ignore
-  useOnClickOutside(elRef, () => setSelected(false))
+  // useOnClickOutside(elRef, () => setSelected(false))
 
   // Panel state management
   const [panelState, setPanelState] = useState<PanelState>({
@@ -26,11 +27,69 @@ export default function LayoutEditor2() {
     y: 0,
     width: 450,
     height: 150,
+    relativeX: 0.5, // Center horizontally
+    relativeY: 0.5, // Center vertically
+    relativeWidth: 0.3, // 30% of container width
+    relativeHeight: 0.2, // 20% of container height
   })
 
   const firstRender = useRef(true)
 
-  // Center the panel in the container
+  // Helper functions to convert between relative and absolute positions
+  const calculateAbsolutePosition = useCallback(
+    (containerRect: DOMRect) => {
+      const absoluteX =
+        panelState.relativeX * containerRect.width -
+        (panelState.relativeWidth * containerRect.width) / 2
+      const absoluteY =
+        panelState.relativeY * containerRect.height -
+        (panelState.relativeHeight * containerRect.height) / 2
+      const absoluteWidth = panelState.relativeWidth * containerRect.width
+      const absoluteHeight = panelState.relativeHeight * containerRect.height
+
+      return {
+        x: Math.max(
+          0,
+          Math.min(containerRect.width - absoluteWidth, absoluteX),
+        ),
+        y: Math.max(
+          0,
+          Math.min(containerRect.height - absoluteHeight, absoluteY),
+        ),
+        width: absoluteWidth,
+        height: absoluteHeight,
+      }
+    },
+    [
+      panelState.relativeX,
+      panelState.relativeY,
+      panelState.relativeWidth,
+      panelState.relativeHeight,
+    ],
+  )
+
+  const calculateRelativePosition = useCallback(
+    (
+      absoluteX: number,
+      absoluteY: number,
+      absoluteWidth: number,
+      absoluteHeight: number,
+      containerRect: DOMRect,
+    ) => {
+      const centerX = absoluteX + absoluteWidth / 2
+      const centerY = absoluteY + absoluteHeight / 2
+
+      return {
+        relativeX: centerX / containerRect.width,
+        relativeY: centerY / containerRect.height,
+        relativeWidth: absoluteWidth / containerRect.width,
+        relativeHeight: absoluteHeight / containerRect.height,
+      }
+    },
+    [],
+  )
+
+  // Initialize absolute positions from relative positions
   React.useLayoutEffect(() => {
     if (firstRender.current) {
       firstRender.current = false
@@ -38,16 +97,37 @@ export default function LayoutEditor2() {
 
     if (containerRef.current) {
       const rect = containerRef.current.getBoundingClientRect()
-      const centerX = (rect.width - panelState.width) / 2
-      const centerY = (rect.height - panelState.height) / 2
+      const absolutePos = calculateAbsolutePosition(rect)
 
       setPanelState((prev) => ({
         ...prev,
-        x: centerX,
-        y: centerY,
+        ...absolutePos,
       }))
     }
-  }, [])
+  }, [calculateAbsolutePosition])
+
+  // Handle container resize to maintain relative positioning
+  React.useEffect(() => {
+    if (!containerRef.current) return
+
+    const resizeObserver = new ResizeObserver((entries) => {
+      for (const entry of entries) {
+        const rect = entry.contentRect
+        const absolutePos = calculateAbsolutePosition(rect)
+
+        setPanelState((prev) => ({
+          ...prev,
+          ...absolutePos,
+        }))
+      }
+    })
+
+    resizeObserver.observe(containerRef.current)
+
+    return () => {
+      resizeObserver.disconnect()
+    }
+  }, [calculateAbsolutePosition])
 
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
@@ -137,10 +217,20 @@ export default function LayoutEditor2() {
           ),
         )
 
+        // Calculate new relative positions
+        const newRelativePos = calculateRelativePosition(
+          newX,
+          newY,
+          panelState.width,
+          panelState.height,
+          rect,
+        )
+
         setPanelState((prev) => ({
           ...prev,
           x: newX,
           y: newY,
+          ...newRelativePos,
         }))
       } else if (dragState.isResizing && dragState.resizeHandle) {
         // Handle resizing with aspect ratio preservation
@@ -191,15 +281,32 @@ export default function LayoutEditor2() {
         newX = Math.max(0, Math.min(maxX, newX))
         newY = Math.max(0, Math.min(maxY, newY))
 
+        // Calculate new relative positions
+        const newRelativePos = calculateRelativePosition(
+          newX,
+          newY,
+          newWidth,
+          newHeight,
+          rect,
+        )
+
         setPanelState({
           x: newX,
           y: newY,
           width: newWidth,
           height: newHeight,
+          ...newRelativePos,
         })
       }
     },
-    [editMode, dragState, panelState.width, panelState.height, aspectRatio],
+    [
+      editMode,
+      dragState,
+      panelState.width,
+      panelState.height,
+      aspectRatio,
+      calculateRelativePosition,
+    ],
   )
 
   const handleMouseUp = useCallback(() => {
@@ -247,10 +354,6 @@ export default function LayoutEditor2() {
       >
         <motion.div
           ref={elRef}
-          onClick={() => {
-            if (!editMode) return
-            setSelected(true)
-          }}
           className={cn([
             'absolute text-white text-9xl font-bold rounded-xl flex flex-col gap-2 px-4 py-2 group',
             editMode &&
@@ -267,10 +370,7 @@ export default function LayoutEditor2() {
         >
           <img
             src="/bar.png"
-            onClick={() => {
-              setEditMode(true)
-              setSelected(true)
-            }}
+            onClick={() => setEditMode(true)}
             className="w-full backdrop-blur-3xl rounded-xl object-cover absolute -top-9 left-0 opacity-0 group-hover:opacity-100"
           />
           <Timer />
@@ -287,10 +387,10 @@ export default function LayoutEditor2() {
             className={cn(
               'absolute inset-0 rounded-2xl transition-all outline-2 outline-transparent',
               containerHovered &&
-                !selected &&
+                !editMode &&
                 'bg-red-500/10 hover:outline-2 hover:outline-red-500/80',
-              selected && 'bg-red-500/10 outline-red-500/40',
-              selected &&
+              editMode && 'bg-red-500/10 outline-red-500/40',
+              editMode &&
                 !siblingHovered &&
                 'bg-red-500/20 outline-red-500 outline-2',
             )}
@@ -309,7 +409,7 @@ export default function LayoutEditor2() {
                 initial="initial"
                 animate={[
                   // containerHovered ? 'containerHovered' : '',
-                  selected ? 'selected' : '',
+                  editMode ? 'selected' : '',
                 ]}
                 transition={transition}
                 style={{
@@ -373,7 +473,7 @@ export default function LayoutEditor2() {
                   i === 1 && 'right-0 top-0',
                   i === 2 && 'bottom-0 left-0',
                   i === 3 && 'bottom-0 right-0 cursor-nwse-resize',
-                  !selected && 'pointer-events-none',
+                  !editMode && 'pointer-events-none',
                 ])}
               >
                 <motion.path
@@ -398,27 +498,30 @@ export default function LayoutEditor2() {
           })}
         </motion.div>
       </motion.div>
-      {editMode && <div className="w-1/3 h-full bg-red-500">Sidepanel</div>}
+      <AnimatePresence mode="popLayout">
+        {editMode && (
+          <motion.div
+            key="sidepanel"
+            className="w-1/3 h-full bg-red-500"
+            transition={{ ...snappy, opacity: { duration: 0.1 } }}
+            initial={{ opacity: 0, x: 100 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 100 }}
+          >
+            <div className="flex flex-row justify-between">
+              Sidepanel{' '}
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => setEditMode(false)}
+              >
+                <X />
+              </Button>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
-  )
-}
-
-function Button({
-  children,
-  onClick,
-  className,
-}: {
-  children: React.ReactNode
-  onClick?: () => void
-  className?: string
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn('bg-blue-500 text-white px-4 py-2 rounded-md', className)}
-    >
-      {children}
-    </button>
   )
 }
 
@@ -461,6 +564,11 @@ interface PanelState {
   y: number
   width: number
   height: number
+  // Relative positions as percentages (0-1)
+  relativeX: number
+  relativeY: number
+  relativeWidth: number
+  relativeHeight: number
 }
 
 interface DragState {
