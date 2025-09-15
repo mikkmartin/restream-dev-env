@@ -38,7 +38,21 @@ export default function LayoutEditor2() {
 
   // Panel state management
   const [panelState, setPanelState] = useState<PanelState>(initialPanelState)
-  const isInitialState = panelState === initialPanelState
+
+  // Helper function to check if panel is in initial state
+  const isInitialState = useCallback(() => {
+    return (
+      panelState.relativeX === initialPanelState.relativeX &&
+      panelState.relativeY === initialPanelState.relativeY &&
+      panelState.relativeWidth === initialPanelState.relativeWidth &&
+      panelState.relativeHeight === initialPanelState.relativeHeight
+    )
+  }, [
+    panelState.relativeX,
+    panelState.relativeY,
+    panelState.relativeWidth,
+    panelState.relativeHeight,
+  ])
 
   const firstRender = useRef(true)
 
@@ -551,9 +565,9 @@ export default function LayoutEditor2() {
               <Button
                 variant="ghost"
                 className="flex-1 bg-white/10"
-                disabled={isInitialState}
+                disabled={isInitialState()}
                 onClick={() => {
-                  if (!isInitialState) setPanelState(initialPanelState)
+                  if (!isInitialState()) setPanelState(initialPanelState)
                 }}
               >
                 Reset
