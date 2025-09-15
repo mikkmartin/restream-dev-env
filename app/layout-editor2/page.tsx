@@ -15,6 +15,17 @@ import {
   HoverCardTrigger,
 } from '@/components/ui/hover-card'
 
+const initialPanelState = {
+  x: 0,
+  y: 0,
+  width: 450,
+  height: 150,
+  relativeX: 0.5,
+  relativeY: 0.5,
+  relativeWidth: 0.3,
+  relativeHeight: 0.2,
+}
+
 export default function LayoutEditor2() {
   const [editMode, setEditMode] = useState(false)
   const [containerHovered, setContainerHovered] = useState(false)
@@ -26,16 +37,8 @@ export default function LayoutEditor2() {
   // useOnClickOutside(elRef, () => setSelected(false))
 
   // Panel state management
-  const [panelState, setPanelState] = useState<PanelState>({
-    x: 0,
-    y: 0,
-    width: 450,
-    height: 150,
-    relativeX: 0.5, // Center horizontally
-    relativeY: 0.5, // Center vertically
-    relativeWidth: 0.3, // 30% of container width
-    relativeHeight: 0.2, // 20% of container height
-  })
+  const [panelState, setPanelState] = useState<PanelState>(initialPanelState)
+  const isInitialState = panelState === initialPanelState
 
   const firstRender = useRef(true)
 
@@ -345,6 +348,7 @@ export default function LayoutEditor2() {
       <motion.div
         layout
         ref={containerRef}
+        transition={transition}
         style={{ opacity: firstRender.current ? 0 : 1 }}
         onPointerEnter={() => {
           if (!editMode) return
@@ -352,8 +356,7 @@ export default function LayoutEditor2() {
         }}
         onPointerLeave={() => setContainerHovered(false)}
         className={cn([
-          'w-full aspect-[16/9] overflow-hidden bg-slate-900 rounded-xl relative transition-all outline-0 outline-transparent',
-          editMode && 'outline-blue-500 outline-4',
+          'w-full aspect-[16/9] overflow-hidden bg-slate-900 rounded-xl relative z-10',
         ])}
       >
         {/* Panel */}
@@ -380,7 +383,7 @@ export default function LayoutEditor2() {
                 initial="initial"
                 whileHover="hover"
                 animate={containerHovered ? 'containerHovered' : undefined}
-                transition={smooth}
+                transition={transition}
                 variants={{
                   initial: { opacity: 1 },
                   hover: { opacity: 1 },
@@ -398,8 +401,25 @@ export default function LayoutEditor2() {
                 )}
               />
             </HoverCardTrigger>
-            <HoverCardContent side="top" onClick={() => setEditMode(true)}>
+            <HoverCardContent
+              side="top"
+              sideOffset={editMode ? 20 : -5}
+              className={cn(
+                "bg-red-500/10 rounded-xl backdrop-blur-3xl relative after:content-['']",
+                'after:bg-red-500/50',
+                'after:absolute after:right-0 after:-bottom-10after:size-10',
+                editMode && 'after:w-full after:h-5 after:-bottom-5',
+              )}
+              onClick={() => setEditMode(true)}
+            >
               <img src="/bar.png" className="w-full rounded-xl" />
+              <Button
+                variant="ghost"
+                size="icon"
+                className="absolute top-[2px] right-[2px] hover:bg-white/10"
+              >
+                <EditLayoutIcon />
+              </Button>
             </HoverCardContent>
           </HoverCard>
           {Array.from({ length: 4 }).map((_, i) => {
@@ -510,13 +530,13 @@ export default function LayoutEditor2() {
         {editMode && (
           <motion.div
             key="sidepanel"
-            className="w-1/3 h-full bg-red-500"
+            className="w-1/3 h-full flex flex-col bg-white/5 rounded-xl"
             transition={{ ...snappy, opacity: { duration: 0.1 } }}
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 100 }}
           >
-            <div className="flex flex-row justify-between">
+            <div className="flex flex-row justify-between items-center p-2 pl-4">
               Sidepanel{' '}
               <Button
                 size="icon"
@@ -526,10 +546,62 @@ export default function LayoutEditor2() {
                 <X />
               </Button>
             </div>
+            <img src="/sidepanel-content.png" className="w-full" />
+            <div className="p-3 flex flex-row justify-end flex-1 gap-2 pb-6 w-full">
+              <Button
+                variant="ghost"
+                className="flex-1 bg-white/10"
+                disabled={isInitialState}
+                onClick={() => {
+                  if (!isInitialState) setPanelState(initialPanelState)
+                }}
+              >
+                Reset
+              </Button>
+              <Button
+                variant="ghost"
+                className="flex-1 bg-white/10"
+                onClick={() => {
+                  setEditMode(false)
+                }}
+              >
+                Done
+              </Button>
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
     </div>
+  )
+}
+
+function EditLayoutIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      className="size-5"
+      width="20"
+      height="20"
+      viewBox="0 0 20 20"
+      fill="none"
+    >
+      <g opacity="0.75">
+        <path
+          d="M17.9691 8.69901V4.41701C17.9691 3.54201 17.1401 2.83301 16.1181 2.83301H3.16008C2.13708 2.83301 1.30908 3.54301 1.30908 4.41701V15.5C1.30908 16.374 2.13708 17.083 3.15908 17.083H5.89208M5.89208 17.083L5.89308 7.14601M5.89208 17.083H8.54508M1.31008 7.14601H17.9691"
+          stroke="white"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M11.1541 12.861H16.2021M16.2021 12.861C16.2021 13.59 16.7671 14.181 17.4641 14.181C18.1611 14.181 18.7261 13.59 18.7261 12.861C18.7261 12.132 18.1611 11.541 17.4641 11.541C16.7671 11.541 16.2021 12.132 16.2021 12.861ZM13.6781 16.38H18.7261M13.6781 16.38C13.6781 17.108 13.1131 17.7 12.4161 17.7C11.7191 17.7 11.1541 17.108 11.1541 16.38C11.1541 15.652 11.7191 15.06 12.4161 15.06C13.1131 15.06 13.6781 15.651 13.6781 16.38Z"
+          stroke="white"
+          strokeWidth="1.2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+    </svg>
   )
 }
 
@@ -606,7 +678,7 @@ const smooth = {
 } satisfies ValueAnimationTransition
 const snappy = {
   type: 'spring',
-  stiffness: 1000,
+  stiffness: 500,
   damping: 20,
   mass: 0.01,
 } satisfies ValueAnimationTransition
