@@ -426,11 +426,11 @@ export default function LayoutEditor2() {
               )}
               onClick={() => setEditMode(true)}
             >
-              <img src="/bar.png" className="w-full rounded-xl" />
+              <img src="/bar-2.png" className="w-full rounded-xl" />
               <Button
                 variant="ghost"
                 size="icon"
-                className="absolute top-[2px] right-[2px] hover:bg-white/10"
+                className="absolute top-[1px] right-[34px] hover:bg-white/10"
               >
                 <EditLayoutIcon />
               </Button>

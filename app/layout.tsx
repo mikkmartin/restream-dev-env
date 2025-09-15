@@ -38,6 +38,7 @@ export default function RootLayout({
           <Link href="/location-pad3">Location Pad 3</Link>
           <Link href="/private-chat">Private Chat</Link>
           <Link href="/layout-editor">Layout Editor</Link>
+          <Link href="/layout-editor2">Layout Editor 2</Link>
         </nav>
         <div className="content">{children}</div>
       </body>
