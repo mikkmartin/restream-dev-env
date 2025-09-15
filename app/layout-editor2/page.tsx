@@ -9,7 +9,11 @@ import {
 } from 'framer-motion'
 import { X } from 'lucide-react'
 import React, { useRef, useState, useCallback } from 'react'
-import { useOnClickOutside } from 'usehooks-ts'
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from '@/components/ui/hover-card'
 
 export default function LayoutEditor2() {
   const [editMode, setEditMode] = useState(false)
@@ -352,6 +356,7 @@ export default function LayoutEditor2() {
           editMode && 'outline-blue-500 outline-4',
         ])}
       >
+        {/* Panel */}
         <motion.div
           ref={elRef}
           className={cn([
@@ -368,33 +373,35 @@ export default function LayoutEditor2() {
           }}
           onMouseDown={(e) => handleMouseDown(e)}
         >
-          <img
-            src="/bar.png"
-            onClick={() => setEditMode(true)}
-            className="w-full backdrop-blur-3xl rounded-xl object-cover absolute -top-9 left-0 opacity-0 group-hover:opacity-100"
-          />
           <Timer />
-          <motion.div
-            initial="initial"
-            whileHover="hover"
-            animate={containerHovered ? 'containerHovered' : undefined}
-            transition={smooth}
-            variants={{
-              initial: { opacity: 1 },
-              hover: { opacity: 1 },
-              selected: { opacity: 1 },
-            }}
-            className={cn(
-              'absolute inset-0 rounded-2xl transition-all outline-2 outline-transparent',
-              containerHovered &&
-                !editMode &&
-                'bg-red-500/10 hover:outline-2 hover:outline-red-500/80',
-              editMode && 'bg-red-500/10 outline-red-500/40',
-              editMode &&
-                !siblingHovered &&
-                'bg-red-500/20 outline-red-500 outline-2',
-            )}
-          />
+          <HoverCard openDelay={0} closeDelay={0}>
+            <HoverCardTrigger asChild>
+              <motion.div
+                initial="initial"
+                whileHover="hover"
+                animate={containerHovered ? 'containerHovered' : undefined}
+                transition={smooth}
+                variants={{
+                  initial: { opacity: 1 },
+                  hover: { opacity: 1 },
+                  selected: { opacity: 1 },
+                }}
+                className={cn(
+                  'absolute inset-0 rounded-2xl transition-all outline-2 outline-transparent',
+                  containerHovered &&
+                    !editMode &&
+                    'bg-red-500/10 hover:outline-2 hover:outline-red-500/80',
+                  editMode && 'bg-red-500/10 outline-red-500/40',
+                  editMode &&
+                    !siblingHovered &&
+                    'bg-red-500/20 outline-red-500 outline-2',
+                )}
+              />
+            </HoverCardTrigger>
+            <HoverCardContent side="top" onClick={() => setEditMode(true)}>
+              <img src="/bar.png" className="w-full rounded-xl" />
+            </HoverCardContent>
+          </HoverCard>
           {Array.from({ length: 4 }).map((_, i) => {
             const handleMap = ['nw', 'ne', 'sw', 'se']
             const handle = handleMap[i]
@@ -498,6 +505,7 @@ export default function LayoutEditor2() {
           })}
         </motion.div>
       </motion.div>
+
       <AnimatePresence mode="popLayout">
         {editMode && (
           <motion.div
